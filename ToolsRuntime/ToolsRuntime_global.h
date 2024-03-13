@@ -1,0 +1,12 @@
+#ifndef TOOLSRUNTIME_GLOBAL_H
+#define TOOLSRUNTIME_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(TOOLSRUNTIME_LIBRARY)
+#define TOOLSRUNTIME_EXPORT Q_DECL_EXPORT
+#else
+#define TOOLSRUNTIME_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // TOOLSRUNTIME_GLOBAL_H
