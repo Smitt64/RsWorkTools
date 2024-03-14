@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>О программе...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -26,9 +26,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../../WorkFMT/FmtLib/res/fmt.qrc">:/img/icon128.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>false</bool>
@@ -74,7 +71,23 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>5</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="description">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;WorkFMT – утилита, предоставляющая интерфейсный режим работы с FMT словарем непосредственно в схеме в БД.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Программное обеспечение позволяет управлять уже существующими данными в словаре, а так же создавать новые записи.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
@@ -137,8 +150,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../WorkFMT/FmtLib/res/fmt.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

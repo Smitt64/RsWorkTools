@@ -6,6 +6,9 @@
 #include <QWebEngineView>
 #include <QDomDocument>
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonValue>
+#include <QJsonObject>
 
 class AboutDlgPrivate
 {
@@ -162,7 +165,7 @@ public:
     QLocale currentLocale;
 };
 
-AboutDlg::AboutDlg(QWidget *parent) :
+AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AboutDlg),
     d_ptr(new AboutDlgPrivate(this))
@@ -195,6 +198,21 @@ AboutDlg::AboutDlg(QWidget *parent) :
     ui->labelVersion->setText(tr("<b>Версия: </b>%1").arg(d->GetVersionNumberString()));
 
     d->ReadComponents();
+
+    QFile file(config);
+
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        QJsonObject obj = doc.object();
+
+        QString tmpl = "<html><head/><body><p><span style=\"font-size:14pt; font-weight:600;\">%1 %2</span></p></body></html>";
+        ui->applicationTitle->setText(tmpl.arg(obj["application"].toString(), QString(" %1")));
+        ui->label->setPixmap(QPixmap(obj["logo"].toString()));
+        ui->description->setText(obj["description"].toString());
+
+        file.close();
+    }
 }
 
 AboutDlg::~AboutDlg()

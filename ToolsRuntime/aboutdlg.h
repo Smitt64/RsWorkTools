@@ -14,7 +14,7 @@ class TOOLSRUNTIME_EXPORT AboutDlg : public QDialog
     Q_OBJECT
 
 public:
-    explicit AboutDlg(QWidget *parent = nullptr);
+    explicit AboutDlg(const QString &config, QWidget *parent = nullptr);
     ~AboutDlg();
 
 private:

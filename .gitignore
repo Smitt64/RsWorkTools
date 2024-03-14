@@ -57,3 +57,5 @@ compile_commands.json
 /InstallerScripts/testInstaller
 /InstallerScripts/repository
 *.pyc
+
+ToolsRuntime/release/
