@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>about/add_template.html</file>
+        <file>about/fixed_template.html</file>
+        <file>about/index_example.html</file>
+        <file>about/index_template.html</file>
+    </qresource>
+</RCC>

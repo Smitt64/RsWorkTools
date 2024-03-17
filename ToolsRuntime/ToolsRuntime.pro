@@ -4,6 +4,7 @@ TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY
 
 CONFIG += c++17
+RC_FILE = res/winfmt.rc
 
 include(../../configtools.pri)
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -29,3 +30,6 @@ FORMS += \
     aboutdlg.ui
 
 LIBS += -lVersion
+
+RESOURCES += \
+    res/res.qrc

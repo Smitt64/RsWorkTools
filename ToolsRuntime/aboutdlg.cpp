@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QDir>
 
 class AboutDlgPrivate
 {
@@ -158,11 +159,99 @@ public:
                                     << DatesItem);
     }
 
+    void ReadVersionsTitles()
+    {
+        QDir current = QDir::current();
+        current.cd("changelog");
+
+        for (auto fi : current.entryInfoList(QStringList() << "com.rs.fmt*.xml"))
+        {
+            QDomDocument doc(fi.absoluteFilePath());
+            QString body = toolReadTextFileContent(fi.absoluteFilePath());
+            doc.setContent(body);
+
+            QDomElement docElem = doc.documentElement();
+            m_Projects.insert(docElem.attribute("project"), fi);
+        }
+    }
+
+    void RenderHtmlForProject(const QString &project)
+    {
+        if (project.isEmpty() || !m_Projects.contains(project))
+            return;
+
+        QString projects;
+        QString body_template = toolReadTextFileContent(":/about/index_template.html");
+        QString version_template = toolReadTextFileContent(":/about/index_template.html");
+
+        QString add_template = toolReadTextFileContent(":/about/add_template.html");
+        QString fix_template = toolReadTextFileContent(":/about/fixed_template.html");
+
+        QMapIterator<QString,QFileInfo> iter(m_Projects);
+        while(iter.hasNext())
+        {
+            iter.next();
+
+            if (project == iter.key())
+                projects += QString("<li><a class=\"active\" href=\"#%1\">%1</a></li>").arg(iter.key());
+            else
+                projects += QString("<li><a href=\"#%1\">%1</a></li>").arg(iter.key());
+        }
+
+        body_template = body_template.replace("{%projects%}", projects);
+        body_template = body_template.replace("{%Project%}", project);
+
+        QDomDocument doc;
+        QString body = toolReadTextFileContent(m_Projects[project].absoluteFilePath());
+        doc.setContent(body);
+
+        QString version;
+        QDomElement docElem = doc.documentElement();
+        QDomNode n = docElem.firstChild();
+        while(!n.isNull())
+        {
+            QDomElement e = n.toElement();
+            version += QString("<h2 class=\"hs-docs-heading\"><code>v%1</code></h2>").arg(e.attribute("ver"));
+
+            QDomNode fix = e.firstChild();
+            while(!fix.isNull())
+            {
+                QDomElement efix = fix.toElement();
+
+                if (efix.tagName() == "fix")
+                    version += fix_template.arg(efix.text());
+                else if (efix.tagName() == "add")
+                    version += add_template.arg(efix.text());
+
+                fix = fix.nextSibling();
+            }
+
+            n = n.nextSibling();
+        }
+
+        QString content_divider = QString("<div class=\"content-divider\">%1</div>").arg(version);
+        body_template = body_template.replace("{%content_divider%}", content_divider);
+
+        QDir tmp = QDir::temp();
+        QFile tempfile(tmp.absoluteFilePath(QString("%1.html").arg(project)));
+        if (tempfile.open(QIODevice::WriteOnly))
+        {
+            QTextStream stream(&tempfile);
+            stream.setCodec("Utf-8");
+            stream << body_template.toUtf8();
+            tempfile.close();
+
+            m_WebView->load(tempfile.fileName());
+        }
+    }
+
     AboutDlg *q_ptr;
 
     QStandardItemModel *pComponentsModel;
     QWebEngineView *m_WebView;
     QLocale currentLocale;
+    QMap<QString,QFileInfo> m_Projects;
+
 };
 
 AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
@@ -198,6 +287,8 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
     ui->labelVersion->setText(tr("<b>Версия: </b>%1").arg(d->GetVersionNumberString()));
 
     d->ReadComponents();
+    d->ReadVersionsTitles();
+    d->RenderHtmlForProject("Work Lbr");
 
     QFile file(config);
 
@@ -207,15 +298,38 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
         QJsonObject obj = doc.object();
 
         QString tmpl = "<html><head/><body><p><span style=\"font-size:14pt; font-weight:600;\">%1 %2</span></p></body></html>";
-        ui->applicationTitle->setText(tmpl.arg(obj["application"].toString(), QString(" %1")));
+        QString title = tmpl.arg(obj["application"].toString(), QString(" %1"));
+
+#ifdef _DEBUG
+        title = title.arg("(DEBUG)");
+#else
+        title = title.arg("");
+#endif
+
+        ui->applicationTitle->setText(title);
         ui->label->setPixmap(QPixmap(obj["logo"].toString()));
         ui->description->setText(obj["description"].toString());
 
         file.close();
     }
+
+    connect(d->m_WebView, SIGNAL(urlChanged(QUrl)), this, SLOT(urlChanged(QUrl)));
 }
 
 AboutDlg::~AboutDlg()
 {
     delete ui;
+}
+
+void AboutDlg::urlChanged(const QUrl &url)
+{
+    Q_D(AboutDlg);
+    QString fragment = url.fragment();
+
+    if (fragment.isEmpty())
+        return;
+
+    d->m_WebView->blockSignals(true);
+    d->RenderHtmlForProject(fragment);
+    d->m_WebView->blockSignals(false);
 }

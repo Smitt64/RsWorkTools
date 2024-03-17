@@ -23,3 +23,15 @@ QString toolFullFileNameFromDir(const QString &file)
 
     return QString();
 }
+
+QString toolReadTextFileContent(const QString &filename)
+{
+    QString content;
+    QFile f(filename);
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        content = f.readAll();
+        f.close();
+    }
+    return content;
+}

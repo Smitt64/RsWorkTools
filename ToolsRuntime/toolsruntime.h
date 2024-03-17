@@ -10,5 +10,6 @@ public:
 };
 
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);
+TOOLSRUNTIME_EXPORT QString toolReadTextFileContent(const QString &filename);
 
 #endif // TOOLSRUNTIME_H

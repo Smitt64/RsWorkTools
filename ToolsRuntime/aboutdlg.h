@@ -17,6 +17,9 @@ public:
     explicit AboutDlg(const QString &config, QWidget *parent = nullptr);
     ~AboutDlg();
 
+private slots:
+    void urlChanged(const QUrl &url);
+
 private:
     Ui::AboutDlg *ui;
     AboutDlgPrivate * const d_ptr;
