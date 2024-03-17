@@ -4,25 +4,20 @@ from datetime import date
 from config.configobj import ConfigObj
 from installer.installer import InstallerPackageInfoBase
 
-class WorkLbrMainPackage(InstallerPackageInfoBase):
+class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
-        self.__filesToCopy = [
-            'RsResEditor/{}/WorkRes.exe',
-            'rsrescore/{}/rsrescore.dll',
-            'rsreslbrfn/{}/rsreslbrfn.dll'
-            ]
+        self.__filesToCopy = ['RsWorkTools/ToolsRuntime/{}/ToolsRuntime.dll']
 
-        super(WorkLbrMainPackage, self).__init__()
+        super(RsToolsRuntimePackage, self).__init__()
         
         today = date.today()
-        self.DisplayName = 'Work Lbr'
-        self.Description = 'WorkLbR – утилита, предоставляющая интерфейсный создания ресурсов программы'
-        self.Name = 'com.rs.lbr.worklbr'
+        self.DisplayName = 'Work Tools Runtime'
+        self.Description = 'Библиотеки, содержащие необходимый общий функционал'
+        self.Name = 'com.rs.worktools.runtime'
         self.ReleaseDate = today.strftime("%Y-%m-%d")
+        self.ForcedInstallation = True
 
-        self.Dependencies.append('com.rs.tools.runtime')
         self.Dependencies.append('com.rs.qt.runtime')
-        self.Dependencies.append('com.rs.worktools.runtime')
 
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkLbrSourceDir()
@@ -35,7 +30,7 @@ class WorkLbrMainPackage(InstallerPackageInfoBase):
     def getVersion(self):
         try:
             releasedir = os.path.join(ConfigObj.inst().getWorkLbrSourceDir(), self.__filesToCopy[0].format(ConfigObj.inst().getBinaryType()))
-            ver = super(WorkLbrMainPackage, self).getExeVersion(releasedir)
+            ver = super(RsToolsRuntimePackage, self).getExeVersion(releasedir)
             print(ver)
             return ver
         except:

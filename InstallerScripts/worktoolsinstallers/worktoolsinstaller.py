@@ -7,6 +7,7 @@ from worktoolsinstallers import rsddriverpackage
 from worktoolsinstallers import dumptoolpackage
 from worktoolsinstallers import worklbrmainpackage
 from worktoolsinstallers import changelogpackage
+from worktoolsinstallers import rstoolsruntime
 
 class WorkToolsInstaller(InstallCreator):
     def __init__(self):
@@ -28,6 +29,7 @@ class WorkToolsInstaller(InstallCreator):
         self.__DumpToolPackage = dumptoolpackage.DumpToolComponent()
         self.__WorkLbrPackage = worklbrmainpackage.WorkLbrMainPackage()
         self.__ChangeLogPackage = changelogpackage.ChangeLogPackage()
+        self.__ToolsRuntimePackage = rstoolsruntime.RsToolsRuntimePackage()
 
         self.addPackage(self.__WorkFmtPackage)
         self.addPackage(self.__RsToolsBinPackage)
@@ -37,4 +39,5 @@ class WorkToolsInstaller(InstallCreator):
         self.addPackage(self.__DumpToolPackage)
         self.addPackage(self.__WorkLbrPackage)
         self.addPackage(self.__ChangeLogPackage)
+        self.addPackage(self.__ToolsRuntimePackage)
 
