@@ -164,7 +164,7 @@ public:
         QDir current = QDir::current();
         current.cd("changelog");
 
-        for (auto fi : current.entryInfoList(QStringList() << "com.rs.fmt*.xml"))
+        for (auto fi : current.entryInfoList(QStringList() << "com.rs.*.xml"))
         {
             QDomDocument doc(fi.absoluteFilePath());
             QString body = toolReadTextFileContent(fi.absoluteFilePath());
@@ -288,8 +288,6 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
 
     d->ReadComponents();
     d->ReadVersionsTitles();
-    d->RenderHtmlForProject("Work Lbr");
-
     QFile file(config);
 
     if (file.open(QIODevice::ReadOnly))
@@ -309,9 +307,11 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
         ui->applicationTitle->setText(title);
         ui->label->setPixmap(QPixmap(obj["logo"].toString()));
         ui->description->setText(obj["description"].toString());
+        d->RenderHtmlForProject(obj["initalproject"].toString());
 
         file.close();
     }
+
 
     connect(d->m_WebView, SIGNAL(urlChanged(QUrl)), this, SLOT(urlChanged(QUrl)));
 }
