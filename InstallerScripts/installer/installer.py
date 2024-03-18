@@ -4,6 +4,7 @@ from installer.instpackageinfo import InstallerPackageInfoBase
 from config.configobj import ConfigObj
 from typing import List
 from enum import Enum
+import urllib.parse
 
 def addTextElement(doc, parent, tag, value):
     if value != None:
@@ -173,6 +174,10 @@ class InstallCreator:
             elif os.path.isdir(elementpath):
                 shutil.rmtree(elementpath)
 
+    def __is_network_path(self, path):
+        parsed_path = urllib.parse.urlparse(path.Url)
+        return len((parsed_path.scheme in ['http', 'https', 'ftp', 'file'] and parsed_path.netloc)) != 0
+
     def make(self, path : str):
         os.makedirs(path, exist_ok=True)
 
@@ -185,11 +190,12 @@ class InstallCreator:
 
         #clear old repositoryes
         for repo in self.RemoteRepositories:
-            url = repo.Url.replace('file:///', '')
+            if not self.__is_network_path(repo):
+                url = repo.Url.replace('file:///', '')
 
-            os.makedirs(url, exist_ok=True)
-            subdirs = os.listdir(url)
-            self.__removeSubdirs(url, subdirs)
+                os.makedirs(url, exist_ok=True)
+                subdirs = os.listdir(url)
+                self.__removeSubdirs(url, subdirs)
 
         try:
             os.mkdir(confifdir)

@@ -1,14 +1,24 @@
 import os
 from config.configobj import ConfigObj
 from worktoolsinstallers import worktoolsinstaller
+import socket
 
+fqdn = socket.getfqdn()
 OutputPath = os.path.dirname(os.path.realpath(__file__))
 RepoPath = os.path.join(OutputPath, 'repository')
 OutputPath = os.path.join(OutputPath, 'bin')
 
+print(fqdn)
+
 ConfigObj.inst().setInstallerPath(OutputPath)
-ConfigObj.inst().setQtComplect('d:\\Qt\\5.15.2\msvc2019\\')
-ConfigObj.inst().setQtInstallerFramework('d:\\Qt\\Tools\\QtInstallerFramework\\4.1')
+
+if (fqdn == 'SerpkovN.bryansk.softlab.ru'):
+      ConfigObj.inst().setQtComplect('d:\\Qt5\\5.15.2\msvc2019\\')
+      ConfigObj.inst().setQtInstallerFramework('d:\\Qt5\\Tools\\QtInstallerFramework\\4.6\\')
+else:
+      ConfigObj.inst().setQtComplect('d:\\Qt\\5.15.2\msvc2019\\')
+      ConfigObj.inst().setQtInstallerFramework('d:\\Qt\\Tools\\QtInstallerFramework\\4.1')
+      
 ConfigObj.inst().setWorkFmtSourceDir('D:\\Work\\WorkFMT')
 ConfigObj.inst().setWorkLbrSourceDir('D:\\Work\\ResEditor')
 
@@ -26,5 +36,6 @@ print(ConfigObj.inst().getQtComplect().getVersion() +
 print(ConfigObj.inst().getQtComplect().getReleaseDate())
 
 InstallerObj = worktoolsinstaller.WorkToolsInstaller()
-InstallerObj.addRepository('file:///{}'.format(RepoPath), 'Test Repo')
+InstallerObj.addRepository('file:///{}'.format(RepoPath), 'Local')
+InstallerObj.addRepository('file://SERPKOVN/WorkToolsRepo', 'Remote')
 InstallerObj.make(ConfigObj.inst().getInstallerPath())

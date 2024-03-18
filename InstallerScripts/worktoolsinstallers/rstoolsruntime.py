@@ -7,7 +7,10 @@ from installer.installer import InstallerPackageInfoBase
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
         self.__filesToCopy = ['RsWorkTools/ToolsRuntime/{}/ToolsRuntime.dll']
-
+        self.__syntaxhighlighter = ['FmtLib/syntaxhighlighter/Default.json',
+            'FmtLib/syntaxhighlighter/Visual Studio (Dark).json',
+            'FmtLib/syntaxhighlighter/Visual Studio (Light).json']
+        
         super(RsToolsRuntimePackage, self).__init__()
         
         today = date.today()
@@ -21,11 +24,23 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
 
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkLbrSourceDir()
+        syntaxhighlighterdir = os.path.join(self.DataPath, 'RsWorkTools/ToolsRuntime/syntaxhighlighter')
+
         for cpfiletemplate in self.__filesToCopy:
             filetocopy = cpfiletemplate.format(ConfigObj.inst().getBinaryType())
             srcexefile = os.path.join(fmtdir, filetocopy)
             dstexefile = os.path.join(self.DataPath, os.path.basename(filetocopy))
             copyfile(srcexefile, dstexefile)
+
+        try:
+            os.mkdir(syntaxhighlighterdir)
+        except OSError as exc:
+            pass
+
+        for syntaxhighlighter in self.__syntaxhighlighter:
+            srcfile = os.path.join(fmtdir, syntaxhighlighter)
+            dstfile = os.path.join(syntaxhighlighterdir, os.path.basename(syntaxhighlighter))
+            copyfile(srcfile, dstfile)
 
     def getVersion(self):
         try:
