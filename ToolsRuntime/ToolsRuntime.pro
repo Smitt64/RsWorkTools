@@ -14,13 +14,15 @@ include(../../configtools.pri)
 SOURCES += \
     aboutdlg.cpp \
     toolsruntime.cpp \
-    updatechecker.cpp
+    updatechecker.cpp \
+    updatecheckermessagebox.cpp
 
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
     toolsruntime.h \
-    updatechecker.h
+    updatechecker.h \
+    updatecheckermessagebox.h
 
 # Default rules for deployment.
 unix {

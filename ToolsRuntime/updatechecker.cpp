@@ -25,8 +25,8 @@ public:
     UpdateChecker *q_ptr;
 
     int m_Interval;
+    QString m_Program;
     QAtomicInt m_Interrupt, m_CheckUpdate;
-    QScopedPointer<QProcess> process;
 };
 
 UpdateChecker::UpdateChecker(QObject *parent)
@@ -34,7 +34,6 @@ UpdateChecker::UpdateChecker(QObject *parent)
     d_ptr(new UpdateCheckerPrivate(this))
 {
     Q_D(UpdateChecker);
-    d->process.reset(new QProcess());
 
     qRegisterMetaType<CheckUpdateData>();
     qRegisterMetaType<CheckDataList>();
@@ -52,7 +51,7 @@ void UpdateChecker::setProgramName(const QString &name)
     QString path = toolFullFileNameFromDir(name);
 
     if (!path.isEmpty() && QFile::exists(path))
-        d->process->setProgram(path);
+        d->m_Program = path;
 }
 
 void UpdateChecker::setInterval(int msec)
@@ -80,12 +79,16 @@ void UpdateChecker::setCheckUpdateFlag(bool value)
 void UpdateChecker::run()
 {
     Q_D(UpdateChecker);
-    if (d->process->program().isEmpty())
+    if (d->m_Program.isEmpty())
         return;
+
+    QScopedPointer<QProcess> process;
+    process.reset(new QProcess());
 
     QLocale currentLocale = QLocale::system();
 
-    d->process->setArguments(QStringList() << "check-updates");
+    process->setProgram(d->m_Program);
+    process->setArguments(QStringList() << "check-updates");
 
     QTime lastStartTime = QTime::currentTime();
     forever
@@ -98,9 +101,9 @@ void UpdateChecker::run()
             lastStartTime = QTime::currentTime();
             emit checkStarted();
 
-            d->process->start();
-            d->process->waitForFinished();
-            QString output = QString::fromLocal8Bit(d->process->readAllStandardOutput());
+            process->start();
+            process->waitForFinished();
+            QString output = QString::fromLocal8Bit(process->readAllStandardOutput());
 
             if (output.contains("Critical"))
             {
