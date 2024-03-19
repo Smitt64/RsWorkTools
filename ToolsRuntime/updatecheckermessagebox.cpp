@@ -2,6 +2,7 @@
 #include <QStandardItemModel>
 #include <QListView>
 #include <QLayout>
+#include <QVBoxLayout>
 
 UpdateCheckerMessageBox::UpdateCheckerMessageBox(QWidget *parent) :
     QMessageBox(parent)
@@ -20,7 +21,6 @@ UpdateCheckerMessageBox::~UpdateCheckerMessageBox()
 void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
 {
     QListView *view = new QListView(this);
-    layout()->addWidget(view);
 
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({tr("Наименование"),
@@ -40,4 +40,13 @@ void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
 
         model->appendRow({name, version, size});
     }
+
+    view->setModel(model);
+
+    QVBoxLayout *vbox = new QVBoxLayout();
+    QLayout *main = layout();
+
+    setLayout(vbox);
+    vbox->addLayout(main);
+    vbox->addWidget(view);
 }
