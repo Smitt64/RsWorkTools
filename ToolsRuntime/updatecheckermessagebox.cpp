@@ -23,6 +23,7 @@ void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
     QTreeView *view = new QTreeView(this);
     view->setRootIsDecorated(false);
     view->setMinimumWidth(320);
+    view->setMinimumHeight(240);
 
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({tr("Наименование"),
@@ -35,10 +36,10 @@ void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
         name->setText(item.name);
 
         QStandardItem *version = new QStandardItem();
-        version->setText(item.name);
+        version->setText(item.version);
 
         QStandardItem *size = new QStandardItem();
-        size->setText(item.name);
+        size->setText(item.sizeString);
 
         model->appendRow({name, version, size});
     }
