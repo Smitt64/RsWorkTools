@@ -88,7 +88,7 @@ void UpdateChecker::run()
     {
         QThread::sleep(5);
         QTime curTime = QTime::currentTime();
-        int secsTo = lastStartTime.secsTo(curTime);
+        int secsTo = lastStartTime.msecsTo(curTime);
         if (secsTo >= d->m_Interval && d->m_CheckUpdate == 1)
         {
             lastStartTime = QTime::currentTime();
