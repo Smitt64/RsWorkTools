@@ -1,6 +1,6 @@
 #include "updatecheckermessagebox.h"
 #include <QStandardItemModel>
-#include <QListView>
+#include <QTreeView>
 #include <QLayout>
 #include <QGridLayout>
 
@@ -9,7 +9,7 @@ UpdateCheckerMessageBox::UpdateCheckerMessageBox(QWidget *parent) :
 {
     setIcon(QMessageBox::Information);
     setWindowTitle(tr("Проверка обновлений"));
-    setInformativeText(tr("Найдена новая версия"));
+    setText(tr("Найдена новая версия"));
     setStandardButtons(QMessageBox::Ok);
 }
 
@@ -20,7 +20,9 @@ UpdateCheckerMessageBox::~UpdateCheckerMessageBox()
 
 void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
 {
-    QListView *view = new QListView(this);
+    QTreeView *view = new QTreeView(this);
+    view->setRootIsDecorated(false);
+    view->setMinimumWidth(320);
 
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({tr("Наименование"),
