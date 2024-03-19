@@ -19,6 +19,7 @@ public:
     {
         q_ptr = obj;
         m_Interval = UpdateChecker15Min;
+        m_CheckUpdate = 1;
     }
 
     UpdateChecker *q_ptr;
