@@ -35,6 +35,9 @@ UpdateChecker::UpdateChecker(QObject *parent)
 {
     Q_D(UpdateChecker);
     d->process.reset(new QProcess());
+
+    qRegisterMetaType<CheckUpdateData>();
+    qRegisterMetaType<CheckDataList>();
 }
 
 UpdateChecker::~UpdateChecker()
