@@ -2,7 +2,7 @@
 #include <QStandardItemModel>
 #include <QListView>
 #include <QLayout>
-#include <QVBoxLayout>
+#include <QGridLayout>
 
 UpdateCheckerMessageBox::UpdateCheckerMessageBox(QWidget *parent) :
     QMessageBox(parent)
@@ -43,10 +43,6 @@ void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
 
     view->setModel(model);
 
-    QVBoxLayout *vbox = new QVBoxLayout();
-    QLayout *main = layout();
-
-    setLayout(vbox);
-    vbox->addLayout(main);
-    vbox->addWidget(view);
+    QGridLayout *main = (QGridLayout*)layout();
+    main->addWidget(view, main->rowCount(), 0, 1, main->columnCount());
 }
