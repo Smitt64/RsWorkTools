@@ -60,3 +60,6 @@ compile_commands.json
 
 ToolsRuntime/release/
 ToolsRuntime/debug/
+ToolsRuntime/.qtc_clangd/.cache/clangd/index/
+
+*.stash

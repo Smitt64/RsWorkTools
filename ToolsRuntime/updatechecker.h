@@ -26,6 +26,7 @@ public:
     void setProgramName(const QString &name);
     void requestInterruption();
     void setCheckUpdateFlag(bool value);
+    void setInterval(int msec);
 
     void run() Q_DECL_OVERRIDE;
 

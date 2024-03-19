@@ -8,7 +8,8 @@
 #include <QThread>
 #include <QDomDocument>
 
-#define UpdateChecker15Min 900000
+#define UpdateChecker15Min 120000
+//900000
 
 class UpdateCheckerPrivate
 {
@@ -17,10 +18,12 @@ public:
     UpdateCheckerPrivate(UpdateChecker *obj)
     {
         q_ptr = obj;
+        m_Interval = UpdateChecker15Min;
     }
 
     UpdateChecker *q_ptr;
 
+    int m_Interval;
     QAtomicInt m_Interrupt, m_CheckUpdate;
     QScopedPointer<QProcess> process;
 };
@@ -48,6 +51,12 @@ void UpdateChecker::setProgramName(const QString &name)
         d->process->setProgram(path);
 }
 
+void UpdateChecker::setInterval(int msec)
+{
+    Q_D(UpdateChecker);
+    d->m_Interval = msec;
+}
+
 void UpdateChecker::requestInterruption()
 {
     Q_D(UpdateChecker);
@@ -70,7 +79,6 @@ void UpdateChecker::run()
     if (d->process->program().isEmpty())
         return;
 
-    const int check_interval = UpdateChecker15Min;
     QLocale currentLocale = QLocale::system();
 
     d->process->setArguments(QStringList() << "check-updates");
@@ -81,7 +89,7 @@ void UpdateChecker::run()
         QThread::sleep(5);
         QTime curTime = QTime::currentTime();
         int secsTo = lastStartTime.secsTo(curTime);
-        if (secsTo >= check_interval && d->m_CheckUpdate == 1)
+        if (secsTo >= d->m_Interval && d->m_CheckUpdate == 1)
         {
             lastStartTime = QTime::currentTime();
             emit checkStarted();
