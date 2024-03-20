@@ -1,5 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+    <version ver="0.0.0.2">
+        <add>Поддержка проверки наличия обновлений;</add>
+    </version>
     <version ver="0.0.0.1">
         <add>Добавлен общий механизм окна "О программе";</add>
     </version>

@@ -168,6 +168,8 @@ void UpdateChecker::run()
                 emit checkFinished(true, updatedata);
             }
         }
+        else
+            lastStartTime = QTime::currentTime();
 
         if (d->m_Interrupt.fetchAndAddAcquire(0) == 1)
             break;
