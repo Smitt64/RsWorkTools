@@ -7,9 +7,9 @@ from installer.installer import InstallerPackageInfoBase
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
         self.__filesToCopy = ['RsWorkTools/ToolsRuntime/{}/ToolsRuntime.dll']
-        self.__syntaxhighlighter = ['FmtLib/syntaxhighlighter/Default.json',
-            'FmtLib/syntaxhighlighter/Visual Studio (Dark).json',
-            'FmtLib/syntaxhighlighter/Visual Studio (Light).json']
+        self.__syntaxhighlighter = ['RsWorkTools/ToolsRuntime/syntaxhighlighter/Default.json',
+            'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Dark).json',
+            'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Light).json']
         
         super(RsToolsRuntimePackage, self).__init__()
         
@@ -24,7 +24,7 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
 
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkLbrSourceDir()
-        syntaxhighlighterdir = os.path.join(self.DataPath, 'RsWorkTools/ToolsRuntime/syntaxhighlighter')
+        syntaxhighlighterdir = os.path.join(self.DataPath, 'syntaxhighlighter')
 
         for cpfiletemplate in self.__filesToCopy:
             filetocopy = cpfiletemplate.format(ConfigObj.inst().getBinaryType())

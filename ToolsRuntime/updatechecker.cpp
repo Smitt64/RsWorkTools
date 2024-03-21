@@ -7,9 +7,9 @@
 #include <QTime>
 #include <QThread>
 #include <QDomDocument>
+#include <QDebug>
 
-#define UpdateChecker15Min 120000
-//900000
+#define UpdateChecker15Min 900000
 
 class UpdateCheckerPrivate
 {
@@ -86,14 +86,13 @@ void UpdateChecker::run()
     process.reset(new QProcess());
 
     QLocale currentLocale = QLocale::system();
-
     process->setProgram(d->m_Program);
     process->setArguments(QStringList() << "check-updates");
 
     QTime lastStartTime = QTime::currentTime();
     forever
     {
-        QThread::sleep(5);
+        QThread::sleep(10);
         QTime curTime = QTime::currentTime();
         int secsTo = lastStartTime.msecsTo(curTime);
         if (secsTo >= d->m_Interval && d->m_CheckUpdate == 1)
@@ -169,7 +168,10 @@ void UpdateChecker::run()
             }
         }
         else
-            lastStartTime = QTime::currentTime();
+        {
+            if (d->m_CheckUpdate == 0)
+                lastStartTime = QTime::currentTime();
+        }
 
         if (d->m_Interrupt.fetchAndAddAcquire(0) == 1)
             break;
