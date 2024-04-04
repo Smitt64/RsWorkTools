@@ -37,6 +37,28 @@ QString toolReadTextFileContent(const QString &filename)
     return content;
 }
 
+bool toolSaveResourceToFile(const QString &resname, const QString &filename) 
+{ 
+    QFile res(resname), out(filename); 
+    if (res.open(QIODevice::ReadOnly)) 
+    { 
+        if (out.open(QIODevice::WriteOnly)) 
+        { 
+            out.write(res.readAll()); 
+            out.close(); 
+        } 
+        else 
+        { 
+            res.close(); 
+            return false; 
+        } 
+        res.close(); 
+ 
+        return true; 
+    } 
+    return false; 
+} 
+
 bool toolGetPostgreSQLInstallLocation(QDir &dir)
 {
     QSettings settings64("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", QSettings::NativeFormat);
