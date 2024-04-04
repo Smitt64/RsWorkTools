@@ -1,5 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+    <version ver="0.0.0.3">
+        <add>Доработки, необходимые для выгрузки дампов из PostgresSql;</add>
+    </version>
     <version ver="0.0.0.2">
         <add>Поддержка проверки наличия обновлений;</add>
     </version>
