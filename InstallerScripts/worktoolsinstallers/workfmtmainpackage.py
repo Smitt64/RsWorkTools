@@ -8,7 +8,8 @@ class WorkFmtMainPackage(InstallerPackageInfoBase):
     def __init__(self):
         self.__filesToCopy = ['WorkFMT/{}/WorkFMT.exe',
             'FmtLib/{}/FmtLib.dll',
-            'FmtDbgHelp/{}/FmtDbgHelp.dll']
+            'FmtDbgHelp/{}/FmtDbgHelp.dll',
+            'FmtLib/res/CapitalizeField.exe']
 
         super(WorkFmtMainPackage, self).__init__()
         
