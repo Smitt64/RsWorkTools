@@ -21,6 +21,7 @@ else:
       
 ConfigObj.inst().setWorkFmtSourceDir('D:\\Work\\WorkFMT')
 ConfigObj.inst().setWorkLbrSourceDir('D:\\Work\\ResEditor')
+ConfigObj.inst().setDatFilesPath('D:\\svn\\UranRSBankV6\\Main\\Distrib\\DBFile\\Data')
 
 print('Installer output path:')
 print(ConfigObj.inst().getInstallerPath())

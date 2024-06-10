@@ -48,6 +48,7 @@ class ConfigObj:
     def __init__(self):
         self.__qtComplect = None
         self.__qtInstallerFramework = None
+        self.__datFilesDir = None
 
         self.__installerPath = os.path.dirname(os.path.realpath(__file__))
         os.path.join(self.__installerPath, 'bin')
@@ -81,6 +82,12 @@ class ConfigObj:
     
     def setInstallerPath(self, value : str) -> None:
         self.__installerPath = value
+
+    def setDatFilesPath(self, value : str) -> None:
+        self.__datFilesDir = value
+
+    def getDatFilesPath(self) -> str:
+        return self.__datFilesDir
 
     def getQtInstallerFramework(self) -> str:
         return self.__qtInstallerFramework
