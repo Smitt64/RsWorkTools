@@ -13,6 +13,11 @@ include(../../configtools.pri)
 
 SOURCES += \
     aboutdlg.cpp \
+    rslexecutor.cpp \
+    rsscript/Properties.cpp \
+    rsscript/registerinfobase.cpp \
+    rsscript/registerobjlist.cpp \
+    rsscript/typeinfofunc.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp
@@ -20,6 +25,11 @@ SOURCES += \
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
+    rslexecutor.h \
+    rsscript/TRsbRSLInstTmpl.hpp \
+    rsscript/registerinfobase.h \
+    rsscript/registerobjlist.hpp \
+    rsscript/typeinfo_p.h \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h
@@ -37,3 +47,11 @@ LIBS += -lVersion
 
 RESOURCES += \
     res/res.qrc
+
+release: LIBS += -L./rstools/lib/release
+debug: LIBS += -L./rstools/lib/debug
+
+LIBS += -lRSScript -lrsrtlwm -lrsldlmms
+INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit
+
+#INCLUDEPATH += D:/Build/Complect.19/Build/rstools/tools/h d:/Build/PgSQL_Main/tools/Build/panel/h d:/Build/PgSQL_Main/tools/Build/bedit/h
