@@ -13,6 +13,10 @@ class TOOLSRUNTIME_EXPORT ErrorsModel : public QAbstractItemModel
     Q_PROPERTY(bool hasErrors READ hasErrors)
     Q_PROPERTY(bool hasWarnings READ hasWarnings)
     Q_PROPERTY(bool isEmpty READ isEmpty)
+
+    Q_PROPERTY(int errorsCount READ errorsCount)
+    Q_PROPERTY(int warningsCount READ warningsCount)
+    Q_PROPERTY(int infoCount READ infoCount)
 public:
     enum ErrorType
     {
@@ -49,7 +53,7 @@ public:
 
     Q_INVOKABLE qint16 type(const qint32 &row = -1) const;
     Q_INVOKABLE QString text() const;
-    Q_INVOKABLE QString textAt(const int &i) const;\
+    Q_INVOKABLE QString textAt(const int &i) const;
     Q_INVOKABLE void clear();
 
     Q_INVOKABLE bool next();

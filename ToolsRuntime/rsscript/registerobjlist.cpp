@@ -1,8 +1,11 @@
 #include "registerobjlist.hpp"
 #include "registerinfobase.h"
 #include "rsldirs.h"
+#include "rsscript/RslModulePluginInterface.h"
 #include <QMap>
+#include <QPluginLoader>
 
+Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 RegisterObjList *RegisterObjList::m_inst = nullptr;
 
 class RegisterObjListPrivate
@@ -17,6 +20,8 @@ public:
     QMap<QString, RegisterInfoBase*> m_Info;
     QMap<QString, RslStaticModule*> m_StaticModules;
     RegisterObjList *q_ptr;
+
+    QPluginLoader m_Loader;
 };
 
 // -------------------------------------------------------
@@ -27,10 +32,30 @@ RegisterObjList::RegisterObjList():
 
 }
 
+void RegisterObjList::loadPlugins()
+{
+    Q_D(RegisterObjList);
+    QObjectList lst = QPluginLoader::staticInstances();
+
+    for (auto obj : lst)
+    {
+        RslStaticModuleInterface *plugin = dynamic_cast<RslStaticModuleInterface*>(obj);
+
+        if (plugin)
+        {
+            qDebug() << plugin->staticModules();
+            plugin->registerStaticModules();
+        }
+    }
+}
+
 RegisterObjList *RegisterObjList::inst()
 {
     if (!RegisterObjList::m_inst)
+    {
         RegisterObjList::m_inst = new RegisterObjList();
+        RegisterObjList::m_inst->loadPlugins();
+    }
 
     return RegisterObjList::m_inst;
 }

@@ -1,9 +1,9 @@
-#define BUILD_DLM
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
+#include "rslexecutor.h"
 #include <cstring>
 #include <QDebug>
 #include <QTextCodec>
@@ -39,7 +39,7 @@ void LoadArrayFunctions()
     _LibRslTArrayGet = (LibRslTArrayGet)RSScriptLib->resolve("RslTArrayGet");
 }
 
-QVariant SetFromRslValue(void *value, bool isStringListProp = false)
+QVariant SetFromRslValue(void *value, bool isStringListProp)
 {
     QVariant result;
     VALUE *val = (VALUE*)value;
@@ -151,6 +151,44 @@ int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id)
     return -1;
 }
 
+#define CHECK_TYPE(NeedType) ((VALUE*)val)->v_type == NeedType
+bool CompareTypes(const int &MetaType, void *val)
+{
+    bool result = false;
+
+    switch(MetaType)
+    {
+    case QVariant::String:
+        result = CHECK_TYPE(V_STRING);
+        break;
+    case QVariant::Int:
+    case QVariant::UInt:
+        result = CHECK_TYPE(V_INTEGER);
+        break;
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+        result = CHECK_TYPE(V_BIGINT);
+        break;
+    case QVariant::Double:
+        result = CHECK_TYPE(V_DOUBLE);
+        break;
+    case QVariant::Date:
+        result = CHECK_TYPE(V_DATE);
+        break;
+    case QVariant::Time:
+        result = CHECK_TYPE(V_TIME);
+        break;
+
+    case QVariant::Bool:
+        result = CHECK_TYPE(V_BOOL);
+        break;
+
+    default:
+        result = false;
+    }
+    return result;
+}
+
 int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value)
 {
     int result = 0;
@@ -249,7 +287,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
             RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
             QObject *obj = value.value<QObject*>();
 
-            qDebug() << info << obj << meta->className();
+            //qDebug() << info << obj << meta->className();
 
             TGenObject *Child = nullptr;
             info->Create((void**)&Child, obj, RegisterInfoBase::CppOwner);
@@ -304,239 +342,6 @@ int GenObjGet(TGenObject *obj, const char *parm, VALUE *val, long *id)
 
     if(tp == 0)
         return 1;
-
-    return -1;
-}
-
-int GenObjRunId(TGenObject *obj, long id)
-{
-    QObjectRsl *rsl = (QObjectRsl*)obj;
-    const QMetaObject *meta = rsl->object->metaObject();
-    QMetaMethod method = meta->method(id - OBJ_RSL_METHOD_OFFSET);
-    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-
-    int parmaOffset = 0;
-    if (method.returnType() != QMetaType::Void)
-        parmaOffset = 1;
-
-    int NumParam = GetNumParm();
-    int MethodParams = method.parameterCount();
-
-    if (NumParam - 1 != MethodParams)
-    {
-        iError(IER_RUNMETHOD, "Param count missmatch");
-        return -1;
-    }
-
-    auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val) -> void
-    {
-        switch(Type)
-        {
-        case QMetaType::Bool:
-            *param = new bool();
-            break;
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        case QMetaType::Void:
-        case QMetaType::Long:
-        case QMetaType::Short:
-        case QMetaType::ULong:
-        case QMetaType::UShort:
-            *param = new int();
-            break;
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-            *param = new qint64();
-            break;
-        case QMetaType::Double:
-            *param = new qreal();
-            break;
-        case QMetaType::QString:
-            *param = new QString();
-            break;
-        case QMetaType::QDate:
-            *param = new QDate();
-            break;
-        case QMetaType::QTime:
-            *param = new QTime();
-            break;
-        }
-
-        if (!val)
-            return;
-
-        VALUE NewVal;
-        ValueMake(&NewVal);
-        ValueCopy(val, &NewVal);
-        if (Type == QMetaType::QString)
-        {
-            if (!CnvType(&NewVal, V_STRING))
-                iError(IER_RUNTIME, "Param type missmatch, required string");
-
-            (*reinterpret_cast<QString*>(*param)) = codec->toUnicode(NewVal.value.string);
-        }
-        else if (Type == QMetaType::Bool)
-        {
-            if (!CnvType(&NewVal, V_BOOL))
-                iError(IER_RUNTIME, "Param type missmatch, required boolean");
-
-            (*reinterpret_cast<bool*>(*param)) = NewVal.value.boolval;
-        }
-        else if (Type == QMetaType::Int || Type == QMetaType::UInt ||
-                 Type == QMetaType::Long ||
-                 Type == QMetaType::Short ||
-                 Type == QMetaType::ULong ||
-                 Type == QMetaType::UShort
-        )
-        {
-            if (!CnvType(&NewVal, V_INTEGER))
-                iError(IER_RUNTIME, "Param type missmatch, required integer");
-
-            (*reinterpret_cast<int*>(*param)) = NewVal.value.intval;
-        }
-        else if (Type == QMetaType::LongLong || Type == QMetaType::ULongLong
-        )
-        {
-            if (!CnvType(&NewVal, V_BIGINT) && !CnvType(&NewVal, V_INTEGER))
-                iError(IER_RUNTIME, "Param type missmatch, required integer");
-
-            (*reinterpret_cast<int*>(*param)) = NewVal.value.intval;
-        }
-        else if (Type == QMetaType::Double)
-        {
-            if (!CnvType(&NewVal, V_DOUBLE))
-                iError(IER_RUNTIME, "Param type missmatch, required double");
-
-            (*reinterpret_cast<qreal*>(*param)) = NewVal.value.doubval;
-        }
-        else if (Type == QMetaType::QDate)
-        {
-            if (!CnvType(&NewVal, V_DATE))
-                iError(IER_RUNTIME, "Param type missmatch, required date");
-
-            (*reinterpret_cast<QDate*>(*param)) = QDate(NewVal.value.date.year,
-                                                        NewVal.value.date.mon,
-                                                        NewVal.value.date.day);
-        }
-        else if (Type == QMetaType::QTime)
-        {
-            if (!CnvType(&NewVal, V_TIME))
-                iError(IER_RUNTIME, "Param type missmatch, required time");
-
-            (*reinterpret_cast<QTime*>(*param)) = QTime(NewVal.value.time.hour,
-                                                        NewVal.value.time.min,
-                                                        NewVal.value.time.sec);
-        }
-    };
-
-    void **params = new void*[MethodParams + 1];
-    AllocaTeParam(method.returnType(), &params[0], nullptr);
-
-    for (int i = 0; i < MethodParams; i++)
-    {
-        VALUE *val = nullptr;
-        GetParm(i + 1, &val);
-
-        AllocaTeParam(method.parameterType(i), &params[i + 1], val);
-    }
-
-    rsl->object->qt_metacall(QMetaObject::InvokeMetaMethod, id - OBJ_RSL_METHOD_OFFSET, params);
-
-    if (method.returnType() != QMetaType::Void)
-    {
-        VALUE ret;
-        ValueMake(&ret);
-        switch(method.returnType())
-        {
-        case QMetaType::Bool:
-            ValueSet(&ret, V_BOOL, reinterpret_cast<bool*>(params[0]));
-            break;
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        case QMetaType::Void:
-        case QMetaType::Long:
-        case QMetaType::Short:
-        case QMetaType::ULong:
-        case QMetaType::UShort:
-            ValueSet(&ret, V_INTEGER, reinterpret_cast<int*>(params[0]));
-            break;
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-            ValueSet(&ret, V_BIGINT, reinterpret_cast<int*>(params[0]));
-            break;
-        case QMetaType::Double:
-            ValueSet(&ret, V_DOUBLE, reinterpret_cast<int*>(params[0]));
-            break;
-        case QMetaType::QString:
-            ValueSet(&ret, V_STRING, codec->fromUnicode(*reinterpret_cast<QString*>(params[0])));
-            break;
-        case QMetaType::QDate:
-        {
-            QDate qdate = *reinterpret_cast<QDate*>(params[0]);
-            bdate rsldate;
-            rsldate.day = qdate.day();
-            rsldate.mon = qdate.month();
-            rsldate.year = qdate.year();
-            ValueSet(&ret, V_DATE, &rsldate);
-        }
-            break;
-        case QMetaType::QTime:
-        {
-            QTime qdate = *reinterpret_cast<QTime*>(params[0]);
-            btime rsldate;
-            rsldate.hour = qdate.hour();
-            rsldate.min = qdate.minute();
-            rsldate.sec = qdate.second();
-            ValueSet(&ret, V_TIME, &rsldate);
-        }
-            break;
-        }
-
-        ReturnVal2(&ret);
-        ValueClear(&ret);
-    }
-
-    for (int i = 0; i < MethodParams; i++)
-    {
-        switch(method.parameterType(i))
-        {
-        case QMetaType::Bool:
-            delete reinterpret_cast<bool*>(params[i]);
-            break;
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        case QMetaType::Void:
-            delete reinterpret_cast<int*>(params[i]);
-            break;
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-            delete reinterpret_cast<qint64*>(params[i]);
-            break;
-        case QMetaType::QString:
-            delete reinterpret_cast<QString*>(params[i]);
-            break;
-        case QMetaType::QDate:
-            delete reinterpret_cast<QDate*>(params[i]);
-            break;
-        case QMetaType::QTime:
-            delete reinterpret_cast<QTime*>(params[i]);
-            break;
-        }
-    }
-
-    delete[] params;
-
-    return 0;
-}
-
-int GenObjRun(TGenObject *obj, const char *methodname, long *id)
-{
-    QObjectRsl *rsl = (QObjectRsl*)obj;
-    const QMetaObject *meta = rsl->object->metaObject();
-    RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
-
-    if (info->findMember(methodname, id) == 0)
-        return GenObjRunId(obj, *id);
 
     return -1;
 }

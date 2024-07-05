@@ -24,6 +24,8 @@ extern int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id);
 extern int GenObjGetId(TGenObject *obj, long id, VALUE *val);
 extern int GenObjGet(TGenObject *obj, const char *parm, VALUE *val, long *id);
 extern int SetObjectGeneration(QObjectRsl *obj, unsigned short gen);
+extern int GenObjRunId(TGenObject *obj, long id);
+extern int GenObjRun(TGenObject *obj, const char *methodname, long *id);
 
 class RegisterInfoBasePrivate
 {
@@ -89,8 +91,8 @@ public:
         Table.setId = GenObjGetId;
         Table.get = GenObjGet;
         Table.getId = GenObjGetId;
-        /*Table.run = GenObjRun;
-        Table.runId = GenObjRunId;*/
+        Table.run = GenObjRun;
+        Table.runId = GenObjRunId;
         Table.typeID = GenObjTypeId;
         Table.attach = GenObjAttach;
         Table.typeName = (const char*(*)(TGenObject *))ObjTypeNameFunc;

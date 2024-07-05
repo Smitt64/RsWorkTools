@@ -15,6 +15,7 @@ SOURCES += \
     aboutdlg.cpp \
     errorsmodel.cpp \
     rslexecutor.cpp \
+    rsscript/Methods.cpp \
     rsscript/Properties.cpp \
     rsscript/registerinfobase.cpp \
     rsscript/registerobjlist.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     aboutdlg.h \
     errorsmodel.h \
     rslexecutor.h \
+    rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
     rsscript/registerobjlist.hpp \
@@ -58,6 +60,9 @@ RESOURCES += \
 release: LIBS += -L./rstools/lib/release
 debug: LIBS += -L./rstools/lib/debug
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/release/ -lRslToolRuntimeStatic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lRslToolRuntimeStatic
+else:unix: LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/ -lRslToolRuntimeStatic
 LIBS += -lRSScript -lrsrtlwm -lrsldlmms
 #LIBS += -lrsldlmms
 INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit

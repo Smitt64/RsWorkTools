@@ -67,3 +67,7 @@ ToolsRuntime/.qtc_clangd/.cache/clangd/index/
 RslTest/!.txt
 
 RslTest/debug/
+
+RslTest/1.txt
+
+RslToolRuntimeStatic/debug/

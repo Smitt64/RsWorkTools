@@ -48,6 +48,7 @@ private:
     Q_DECLARE_PRIVATE(RslExecutor);
 };
 
+bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val);
 void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
 QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp = false);
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);

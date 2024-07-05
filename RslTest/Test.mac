@@ -1,7 +1,7 @@
-import TestModule;
+import /*TestModule, */ToolsRuntime;
 
 macro TestFunc(v)
-    println("call TestFunc");
+    /*println("call TestFunc");
 
     var strlist = StringList();
     var arr = TArray();
@@ -13,5 +13,9 @@ debugbreak;
     var obj = TestObject();
     var t = obj.stringlist;
     //obj.stringlist[obj.stringlist.size] = "новый элемент";
-    return "Macro:" + v + ": Constant -> " + TEST_Constant;
+    return "Macro:" + v + ": Constant -> " + TEST_Constant;*/
+
+    debugbreak;
+    var err = ErrorsModel();
+    err.appendError("Test message");
 end;

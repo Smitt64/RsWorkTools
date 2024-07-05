@@ -188,6 +188,7 @@ public:
 
 private:
     RegisterObjList();
+    void loadPlugins();
     void InsertInfo(const QString &name, RegisterInfoBase *info);
     bool addStaticModulePrivate(const QString &name, RslStaticModule *module, RslStaticModuleCallerBase *caller);
     static RegisterObjList *m_inst;
@@ -195,6 +196,18 @@ private:
     RegisterObjListPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(RegisterObjList);
 };
+
+template<class Module, const char *name>
+void addStaticModule(RslStaticModule *module)
+{
+    RegisterObjList::inst()->addStaticModule<Module, name>(module);
+}
+
+template<class Module>
+void addStaticModule(RslStaticModule *module)
+{
+    RegisterObjList::inst()->addStaticModule<Module, Module::name>(module);
+}
 
 TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
 
