@@ -3,13 +3,16 @@
 
 #include <QObject>
 #include "registerinfobase.h"
+#include "rslstaticmodule.h"
 #include "ToolsRuntime_global.h"
 
-RegisterInfoBase *findInfo(const QString &name);
+class RslStaticModule;
+TOOLSRUNTIME_EXPORT RegisterInfoBase *findInfo(const QString &name);
 
 template<class Obj>
 class RegisterObjInfo : public RegisterInfoBase
 {
+public:
     RegisterObjInfo() :
         RegisterInfoBase()
     {
@@ -22,9 +25,10 @@ class RegisterObjInfo : public RegisterInfoBase
                      RegisterObjInfo<Obj>::GenObjEnumProps);
 
         AddObjectFuncs(RegisterObjInfo<Obj>::InitProvider,
-                  RegisterObjInfo<Obj>::DoneProvider,
-                  RegisterObjInfo<Obj>::CreateObject,
-                  RegisterObjInfo<Obj>::GetTypeInfo);
+                       RegisterObjInfo<Obj>::DoneProvider,
+                       RegisterObjInfo<Obj>::CreateObject,
+                       RegisterObjInfo<Obj>::GetTypeInfo,
+                       RslConstructorFunc);
     }
 
     static const char *GenObjTypeName(void *o)
@@ -49,7 +53,7 @@ class RegisterObjInfo : public RegisterInfoBase
         return EnumPropsCaller(info, obj, cmd, data);
     }
 
-    static long GenObjGetUniqID(void *pObj, const char *name)
+    static int GenObjGetUniqID(void *pObj, const char *name)
     {
         const QMetaObject meta = Obj::staticMetaObject;
         RegisterInfoBase *info = findInfo(meta.className());
@@ -91,7 +95,7 @@ class RegisterObjInfo : public RegisterInfoBase
         const QMetaObject meta = Obj::staticMetaObject;
         RegisterInfoBase *info = findInfo(meta.className());
 
-        CansrtuctorCaller(info);
+        ConsrtuctorCaller(info);
     }
 
     static void *GetTypeInfo(void *clntId, const char *typeName)
@@ -111,7 +115,38 @@ public:
     static RegisterObjList *inst();
 
     RegisterInfoBase *info(const QString &name);
+    RegisterInfoBase *info(const Qt::HANDLE &rslID);
     bool isExists(const QString &name) const;
+
+    template<class Module, const char *name>
+    void addStaticModule(RslStaticModule *module)
+    {
+        struct tagRslStaticModuleCaller : public RslStaticModuleCallerBase
+        {
+        }RslStaticModuleCaller;
+
+        tagRslStaticModuleCaller *caller = new tagRslStaticModuleCaller();
+        if (addStaticModulePrivate(name, module, caller))
+        {
+            caller->Init = [](void)
+            {
+                RslStaticModule *mod = RegisterObjList::inst()->staticModule(name);
+                mod->Init();
+            };
+
+            caller->Proc = [](void)
+            {
+                RslStaticModule *mod = RegisterObjList::inst()->staticModule(name);
+                mod->Proc();
+            };
+
+            caller->Close = [](void)
+            {
+                RslStaticModule *mod = RegisterObjList::inst()->staticModule(name);
+                mod->Close();
+            };
+        }
+    }
 
     template<class Obj>
     void RegisterRslObject()
@@ -121,26 +156,49 @@ public:
 
         if (!isExists(meta.className()))
         {
-            RegisterObjInfo<Obj> *info = new RegisterObjInfo<Obj>();
-            InsertInfo(info->TypeName, info);
+            RegisterInfoBase *_info = new RegisterObjInfo<Obj>();
+            InsertInfo(meta.className(), _info);
         }
-
-        /*AddObjectProviderModEx(
-                    RegisterObjInfo<Obj>::InitProvider,
-                    RegisterObjInfo<Obj>::DoneProvider,
-                    RegisterObjInfo<Obj>::CreateObject,
-                    RegisterObjInfo<Obj>::GetTypeInfo);
-
-        AddStdProc(V_GENOBJ, meta.className(), RegisterObjInfo<Obj>::RslCreate, 0);*/
     }
+
+    template<class Obj>
+    bool AddObject()
+    {
+        static_assert(std::is_base_of_v<QObject, Obj>, "QObject is not base of class");
+        const QMetaObject meta = Obj::staticMetaObject;
+
+        RegisterInfoBase *_info = info(meta.className());
+
+        if (!_info)
+            return false;
+
+        _info->importObject();
+
+        return true;
+    }
+
+    bool AddObject(const QString &name);
+
+    RslStaticModule *staticModule(const QString &name);
+
+    static void setIncDir(const QString &path);
+    static void setIncDir(const QStringList &path);
+
+    static void setTextDir(const QString &path);
 
 private:
     RegisterObjList();
     void InsertInfo(const QString &name, RegisterInfoBase *info);
+    bool addStaticModulePrivate(const QString &name, RslStaticModule *module, RslStaticModuleCallerBase *caller);
     static RegisterObjList *m_inst;
 
     RegisterObjListPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(RegisterObjList);
 };
+
+TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
+
+void RegisterStringList(void);
+void RslStringList();
 
 #endif // REGISTEROBJLIST_HPP

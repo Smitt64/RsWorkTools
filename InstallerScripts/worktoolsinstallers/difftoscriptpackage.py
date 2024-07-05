@@ -70,9 +70,6 @@ class DiffToScriptComponent(InstallerPackageInfoBase):
         dat_path = ConfigObj.inst().getDatFilesPath()
         for name in glob.glob(dat_path + '//*.dat'): 
             with codecs.open(name, "r", "866") as f:
-                if 'DTESTNEW_DBT' in name:
-                    df = 1
-
                 lines = f.read().splitlines()
                 cols = self.readLines(lines)
 

@@ -1,0 +1,17 @@
+import TestModule;
+
+macro TestFunc(v)
+    println("call TestFunc");
+
+    var strlist = StringList();
+    var arr = TArray();
+    strlist[strlist.size] = 11;
+    strlist[strlist.size] = "sdfvsdf";
+    arr[arr.size] = 1;
+    strlist.size = 0;
+debugbreak;
+    var obj = TestObject();
+    var t = obj.stringlist;
+    //obj.stringlist[obj.stringlist.size] = "новый элемент";
+    return "Macro:" + v + ": Constant -> " + TEST_Constant;
+end;

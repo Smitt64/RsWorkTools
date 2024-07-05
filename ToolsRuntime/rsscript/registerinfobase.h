@@ -21,11 +21,11 @@ typedef void(*ObjConstructorProc)(void);
 class RegisterInfoBasePrivate;
 class TOOLSRUNTIME_EXPORT RegisterInfoBase
 {
-    friend void CansrtuctorCaller(RegisterInfoBase *info);
-    friend int EnumPropsCaller(RegisterInfoBase *info, void *obj, int cmd, void *data);
-    friend int InitProviderCaller(RegisterInfoBase *info, void *clntId);
-    friend void DoneProviderCaller(RegisterInfoBase *info, void *clntId);
-    friend void *GetTypeInfoCaller(RegisterInfoBase *info, void *clntId, const char *typeName);
+    friend TOOLSRUNTIME_EXPORT void ConsrtuctorCaller(RegisterInfoBase *info);
+    friend TOOLSRUNTIME_EXPORT int EnumPropsCaller(RegisterInfoBase *info, void *obj, int cmd, void *data);
+    friend TOOLSRUNTIME_EXPORT int InitProviderCaller(RegisterInfoBase *info, void *clntId);
+    friend TOOLSRUNTIME_EXPORT void DoneProviderCaller(RegisterInfoBase *info, void *clntId);
+    friend TOOLSRUNTIME_EXPORT void *GetTypeInfoCaller(RegisterInfoBase *info, void *clntId, const char *typeName);
 public:
     enum QObjectRslOwner
     {
@@ -38,6 +38,8 @@ public:
 
     int findMember(const char *name, long *id);
     void importObject();
+
+    Qt::HANDLE rslID() const;
 
     virtual void Create(void **GenObject, QObject *cls, const QObjectRslOwner &owner = CppOwner);
 
@@ -65,11 +67,11 @@ private:
     Q_DECLARE_PRIVATE(RegisterInfoBase);
 };
 
-void CansrtuctorCaller(RegisterInfoBase *info);
-int EnumPropsCaller(RegisterInfoBase *info, void *obj, int cmd, void *data);
+TOOLSRUNTIME_EXPORT void ConsrtuctorCaller(RegisterInfoBase *info);
+TOOLSRUNTIME_EXPORT int EnumPropsCaller(RegisterInfoBase *info, void *obj, int cmd, void *data);
 
-int InitProviderCaller(RegisterInfoBase *info, void *clntId);
-void DoneProviderCaller(RegisterInfoBase *info, void *clntId);
-void *GetTypeInfoCaller(RegisterInfoBase *info, void *clntId, const char *typeName);
+TOOLSRUNTIME_EXPORT int InitProviderCaller(RegisterInfoBase *info, void *clntId);
+TOOLSRUNTIME_EXPORT void DoneProviderCaller(RegisterInfoBase *info, void *clntId);
+TOOLSRUNTIME_EXPORT void *GetTypeInfoCaller(RegisterInfoBase *info, void *clntId, const char *typeName);
 
 #endif // REGISTERINFOBASE_H

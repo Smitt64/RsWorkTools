@@ -8,21 +8,21 @@
 #include <QMetaProperty>
 #include <QMetaMethod>
 
-unsigned short GenObjRelease(TGenObject *o);
-unsigned short GenObjAddRef(TGenObject *o);
+extern unsigned short GenObjRelease(TGenObject *o);
+extern unsigned short GenObjAddRef(TGenObject *o);
 
-uintptr_t GenObjTypeId(TGenObject *obj);
-int GenObjAttach(TGenObject *o, const char *method, SYMPROC *aProc);
-int GenObjNprops(void);
-int GenObjNMethods(void);
-int GenObjCanInherit(void);
-int GenObjCvtToIDisp(TGenObject *pObj);
-int GenObjMemberFromID(TGenObject *pObj, long uniqID, long *id);
-int GenObjSetId(TGenObject *obj, long id, VALUE *val);
-int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id);
-int GenObjGetId(TGenObject *obj, long id, VALUE *val);
-int GenObjGet(TGenObject *obj, const char *parm, VALUE *val, long *id);
-int SetObjectGeneration(QObjectRsl *obj, unsigned short gen);
+extern uintptr_t GenObjTypeId(TGenObject *obj);
+extern int GenObjAttach(TGenObject *o, const char *method, SYMPROC *aProc);
+extern int GenObjNprops(void);
+extern int GenObjNMethods(void);
+extern int GenObjCanInherit(void);
+extern int GenObjCvtToIDisp(TGenObject *pObj);
+extern int GenObjMemberFromID(TGenObject *pObj, long uniqID, long *id);
+extern int GenObjSetId(TGenObject *obj, long id, VALUE *val);
+extern int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id);
+extern int GenObjGetId(TGenObject *obj, long id, VALUE *val);
+extern int GenObjGet(TGenObject *obj, const char *parm, VALUE *val, long *id);
+extern int SetObjectGeneration(QObjectRsl *obj, unsigned short gen);
 
 class RegisterInfoBasePrivate
 {
@@ -67,7 +67,8 @@ public:
     {
         const QMetaObject &meta = MetaObject;
 
-        QObjectRsl *obj = (QObjectRsl *)_alloca(sizeof(QObjectRsl));
+        QObjectRsl *obj = new QObjectRsl();
+                //(QObjectRsl *)_alloca(sizeof(QObjectRsl));
         qstrcpy(obj->className, meta.className());
         P_GOBJ(obj)->vtbl = &Table;
 
@@ -326,7 +327,18 @@ int RegisterInfoBase::InitProvider(void *clntId)
 
 void RegisterInfoBase::CallCansrtuctor()
 {
+    TGenObject *obj = 0;
+    Create((void**)&obj, nullptr);
 
+    //InitObj(obj, 0);
+
+    ReturnVal(V_GENOBJ, P_GOBJ(obj));
+}
+
+Qt::HANDLE RegisterInfoBase::rslID() const
+{
+    Q_D(const RegisterInfoBase);
+    return (Qt::HANDLE)&d->Table;
 }
 
 void RegisterInfoBase::importObject()
@@ -342,7 +354,7 @@ void RegisterInfoBase::importObject()
     AddStdProc(V_GENOBJ, d->MetaObject.className(), d->_ObjConstructorProc, 0);
 }
 
-void CansrtuctorCaller(RegisterInfoBase *info)
+void ConsrtuctorCaller(RegisterInfoBase *info)
 {
     info->CallCansrtuctor();
 }

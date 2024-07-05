@@ -17,6 +17,9 @@ SOURCES += \
     rsscript/Properties.cpp \
     rsscript/registerinfobase.cpp \
     rsscript/registerobjlist.cpp \
+    rsscript/rsllistitemcontainer.cpp \
+    rsscript/rsllistwrapper.cpp \
+    rsscript/rslstaticmodule.cpp \
     rsscript/typeinfofunc.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
@@ -29,6 +32,8 @@ HEADERS += \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
     rsscript/registerobjlist.hpp \
+    rsscript/rsllistwrapper.h \
+    rsscript/rslstaticmodule.h \
     rsscript/typeinfo_p.h \
     toolsruntime.h \
     updatechecker.h \
@@ -52,6 +57,8 @@ release: LIBS += -L./rstools/lib/release
 debug: LIBS += -L./rstools/lib/debug
 
 LIBS += -lRSScript -lrsrtlwm -lrsldlmms
+#LIBS += -lrsldlmms
 INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit
 
+#DEFINES += BUILD_DLM
 #INCLUDEPATH += D:/Build/Complect.19/Build/rstools/tools/h d:/Build/PgSQL_Main/tools/Build/panel/h d:/Build/PgSQL_Main/tools/Build/bedit/h

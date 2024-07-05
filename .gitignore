@@ -63,3 +63,7 @@ ToolsRuntime/debug/
 ToolsRuntime/.qtc_clangd/.cache/clangd/index/
 
 *.stash
+
+RslTest/!.txt
+
+RslTest/debug/

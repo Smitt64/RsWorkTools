@@ -11,7 +11,19 @@ typedef struct tagQObjectRsl
 {
     tagQObjectRsl()
     {
+        init();
+    }
+
+    void init()
+    {
         object = nullptr;
+        refCount = 0;
+        className[0] = 0;
+        generation = 0;
+        marknumber = 0;
+        owner = RegisterInfoBase::RslOwner;
+
+        memset(&derived, 0, sizeof (TGenObject));
     }
 
     TGenObject derived;
@@ -20,8 +32,8 @@ typedef struct tagQObjectRsl
     char className[256];
 
 #ifndef NO_GC
-    unsigned short    generation;  // Used to collect cyclic objects
-    unsigned short    marknumber;  // Used to report references
+    unsigned short generation;  // Used to collect cyclic objects
+    unsigned short marknumber;  // Used to report references
 #endif
 
     QObject *object;

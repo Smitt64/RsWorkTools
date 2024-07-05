@@ -1,3 +1,4 @@
+#define BUILD_DLM
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
@@ -9,6 +10,101 @@
 #include <QDate>
 #include <QTime>
 #include <QMetaProperty>
+#include <QLibrary>
+#include <QMetaType>
+
+typedef TGenObject *(*LibRslTArrayCreate)(int,int);
+typedef TGenObject *(*LibRslTArrayPut)(TGenObject*,long, VALUE*);
+typedef TGenObject *(*LibRslIsTArray)(TGenObject *obj);
+typedef long (*LibRslTArraySize)(TGenObject *obj);
+typedef VALUE *(*LibRslTArrayGet)(TGenObject *obj, long id);
+
+Q_GLOBAL_STATIC_WITH_ARGS(QLibrary, RSScriptLib, ("RSScript"))
+
+LibRslTArrayCreate _LibRslTArrayCreate = nullptr;
+LibRslTArrayPut _LibRslTArrayPut = nullptr;
+LibRslIsTArray _LibRslIsTArray = nullptr;
+LibRslTArraySize _LibRslTArraySize = nullptr;
+LibRslTArrayGet _LibRslTArrayGet = nullptr;
+
+void LoadArrayFunctions()
+{
+    if (_LibRslTArrayCreate)
+        return;
+
+    _LibRslTArrayCreate = (LibRslTArrayCreate)RSScriptLib->resolve("RslTArrayCreate");
+    _LibRslTArrayPut = (LibRslTArrayPut)RSScriptLib->resolve("RslTArrayPut");
+    _LibRslIsTArray = (LibRslIsTArray)RSScriptLib->resolve("RslIsTArray");
+    _LibRslTArraySize = (LibRslTArraySize)RSScriptLib->resolve("RslTArraySize");
+    _LibRslTArrayGet = (LibRslTArrayGet)RSScriptLib->resolve("RslTArrayGet");
+}
+
+QVariant SetFromRslValue(void *value, bool isStringListProp = false)
+{
+    QVariant result;
+    VALUE *val = (VALUE*)value;
+    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+    LoadArrayFunctions();
+
+    switch(val->v_type)
+    {
+    case V_STRING:
+        result = QVariant::fromValue(codec->toUnicode(val->value.string));
+        break;
+
+    case V_INTEGER:
+        result = QVariant::fromValue(val->value.intval);
+        break;
+
+    case V_BIGINT:
+        result = QVariant::fromValue(val->value.bigint);
+        break;
+
+    case V_BOOL:
+        result = QVariant::fromValue(val->value.boolval);
+        break;
+
+    case V_DATE:
+    {
+        bdate dt = val->value.date;
+        result = QVariant::fromValue(QDate(dt.year, dt.mon, dt.day));
+    }
+        break;
+
+    case V_TIME:
+    {
+        btime dt = val->value.time;
+        result = QVariant::fromValue(QTime(dt.hour, dt.min, dt.sec));
+    }
+        break;
+
+    case V_GENOBJ:
+    {
+        TGenObject *TArrayText = _LibRslIsTArray(P_GOBJ(val->value.obj));
+
+        if (TArrayText)
+        {
+            if (isStringListProp)
+            {
+                QStringList lst;
+
+                int size = _LibRslTArraySize(TArrayText);
+                for (int i = 0; i < size; i++)
+                {
+                    VALUE *v = _LibRslTArrayGet(TArrayText,i);
+                    QVariant vl = SetFromRslValue(v);
+                    lst.append(vl.toString());
+                }
+
+                result = QVariant::fromValue(lst);
+            }
+        }
+    }
+        break;
+    }
+
+    return result;
+}
 
 int GenObjSetId(TGenObject *obj, long id, VALUE *val)
 {
@@ -21,46 +117,13 @@ int GenObjSetId(TGenObject *obj, long id, VALUE *val)
     if (!property.isWritable())
         return 1;
 
-    switch(val->v_type)
-    {
-    case V_STRING:
-        rsl->object->setProperty(prop, codec->toUnicode(val->value.string));
-        return 0;
-        break;
+    QVariant var = SetFromRslValue(val);
+    if (!var.isValid())
+        return -1;
 
-    case V_INTEGER:
-        rsl->object->setProperty(prop, val->value.intval);
-        return 0;
-        break;
+    rsl->object->setProperty(prop, var);
 
-    case V_BIGINT:
-        rsl->object->setProperty(prop, val->value.bigint);
-        return 0;
-        break;
-
-    case V_BOOL:
-        rsl->object->setProperty(prop, val->value.boolval);
-        return 0;
-        break;
-
-    case V_DATE:
-    {
-        bdate dt = val->value.date;
-        rsl->object->setProperty(prop, QDate(dt.year, dt.mon, dt.day));
-        return 0;
-    }
-        break;
-
-    case V_TIME:
-    {
-        btime dt = val->value.time;
-        rsl->object->setProperty(prop, QTime(dt.hour, dt.min, dt.sec));
-        return 0;
-    }
-        break;
-    }
-
-    return -1;
+    return 0;
 }
 
 int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id)
@@ -92,6 +155,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
 {
     int result = 0;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+    LoadArrayFunctions();
 
     switch(value.type())
     {
@@ -159,11 +223,51 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     }
         break;
 
+    case QVariant::StringList:
+    {
+        QStringList lst = value.toStringList();
+        TGenObject *ValueArray = _LibRslTArrayCreate(lst.size(), lst.size());
+
+        int i = 0;
+        for (const QString &item : lst)
+        {
+            VALUE val;
+            ValueSet(&val, V_STRING, codec->fromUnicode(item).data());
+            _LibRslTArrayPut(ValueArray, i++, &val);
+            ValueClear(&val);
+        }
+        Setter(V_GENOBJ, ValueArray);
+    }
+        break;
+
+    case QVariant::UserType:
+    {
+        const QMetaObject *meta = QMetaType::metaObjectForType(value.userType());
+
+        if (meta)
+        {
+            RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
+            QObject *obj = value.value<QObject*>();
+
+            qDebug() << info << obj << meta->className();
+
+            TGenObject *Child = nullptr;
+            info->Create((void**)&Child, obj, RegisterInfoBase::CppOwner);
+            Setter(V_GENOBJ, P_GOBJ(Child));
+        }
+    }
+        break;
+
     default:
         result =  -1;
     }
 
     return result;
+}
+
+void StdValueSetFunc(void *val, int type, void *ptr)
+{
+    ValueSet((VALUE*)val, type, ptr);
 }
 
 #define ValueVariantSet(type, ptr) SetValueFromVariant(SetterFunc, type, ptr)

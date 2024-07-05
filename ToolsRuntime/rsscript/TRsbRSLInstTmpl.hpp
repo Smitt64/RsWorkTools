@@ -27,6 +27,22 @@ public:
 
 };
 
+TRsbParmForRsl::TRsbParmForRsl(size_t Size, HRSLINST hInst)
+    : TRSLValArray(hInst, Size),
+    TRSLValRef(this, m_ptrArray, getCvtBuff(0), -1)
+{
+}
+
+TRsbParmForRsl::operator VALUE * ()
+{
+  return TRSLValRef::operator VALUE*();
+}
+
+VALUE* TRsbParmForRsl::getParmArray()
+{
+  return getCount() ? m_ptrArray + 1:NULL;
+}
+
 // Ўаблон дл¤ пополнени¤ оберток дл¤ работы с интерфейсом экземпл¤ра RSL
 template<class RSLInstWrpType>
 class TRsbRSLInstTmpl: public RSLInstWrpType
@@ -91,5 +107,12 @@ public:
       return bRet;
    }
 };
+
+#define RslGetDataPassedToPlayRep( data )       \
+(                                               \
+   ((STD_USERDATA*)(data))->addExecData ?       \
+         ((STD_USERDATA*)(data))->addExecData : \
+         (data)                                 \
+)
 
 #endif // TRSBRSLINSTTMPL_HPP
