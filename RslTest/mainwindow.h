@@ -43,6 +43,11 @@ public:
         _StringList = QStringList{ "один", "два", "три" };
     }
 
+    Q_INVOKABLE int testMethod(int k = 0)
+    {
+        return k;
+    }
+
     ChildObject *child()
     {
         return _child;

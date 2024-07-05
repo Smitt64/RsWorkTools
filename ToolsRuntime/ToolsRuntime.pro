@@ -13,6 +13,7 @@ include(../../configtools.pri)
 
 SOURCES += \
     aboutdlg.cpp \
+    errorsmodel.cpp \
     rslexecutor.cpp \
     rsscript/Properties.cpp \
     rsscript/registerinfobase.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
+    errorsmodel.h \
     rslexecutor.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \

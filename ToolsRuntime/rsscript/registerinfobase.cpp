@@ -5,6 +5,7 @@
 #include "typeinfo_p.h"
 #include "registerinfobase.h"
 #include <memory.h>
+#include <QDebug>
 #include <QMetaProperty>
 #include <QMetaMethod>
 
@@ -114,6 +115,8 @@ public:
 
             if (method.methodType() == QMetaMethod::Method || method.methodType() == QMetaMethod::Slot)
             {
+                qDebug() << TypeName << method.methodSignature() << method.parameterCount();
+
                 TPropMethTable prop = {method.name(), OBJ_RSL_METHOD_OFFSET + i};
                 prop.flags = RSL_KIND_RUN;
                 ArrMethod.append(prop);

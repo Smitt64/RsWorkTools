@@ -41,7 +41,7 @@ UpdateChecker::UpdateChecker(QObject *parent)
 
 UpdateChecker::~UpdateChecker()
 {
-
+    delete d_ptr;
 }
 
 void UpdateChecker::setProgramName(const QString &name)
