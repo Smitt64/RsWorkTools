@@ -21,6 +21,6 @@ debugbreak;
 
     /*var dir;
     var resukt = ToolsRuntime.GetPostgreSQLInstallLocation(@dir);*/
-    var filename = ToolsRuntime.FullFileNameFromDir("Test.mac");sdfsdf
+    var filename = ToolsRuntime.FullFileNameFromDir("Test.mac");
     var content = ToolsRuntime.ReadTextFileContent(filename);
 end;

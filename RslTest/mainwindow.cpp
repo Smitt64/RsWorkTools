@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->listView->setModel(&m_Errors);
+
     RegisterObjList::inst()->RegisterRslObject<TestObject>();
     RegisterObjList::inst()->RegisterRslObject<ChildObject>();
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
@@ -59,6 +61,8 @@ void MainWindow::on_pushButton_clicked()
     exec.setDebugMacroFlag(true);
     exec.playRep("Test.mac", "1.txt", Proc);
 
-    qDebug() << exec.errors();
+    m_Errors.setStringList(exec.errors());
+    //ui->l
+    //qDebug() << exec.errors();
 }
 

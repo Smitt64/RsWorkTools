@@ -17,6 +17,19 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
+static QString FormatErrorMsg(ERRINFO *error)
+{
+    //Ошибка party.mac строка 20[1]: неопределенный идентификатор dfg
+    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+
+    return QString("Ошибка %5 строка %1[%2]: %3 %4")
+            .arg(error->line)
+            .arg(error->pos)
+            .arg(codec->toUnicode(GetErrMesEx(error->code, 0)))
+            .arg(error->mes)
+            .arg(error->file);
+}
+
 int Executor_MsgProc (IMESSAGE mes, void *ptr,void *UserData);
 
 typedef TRsbRSLInstTmpl<TRSLConObjInstIntf> TRsbRSLConInstIntf;
@@ -46,16 +59,6 @@ public:
         qstrcpy(UserData.nameSpace, QUuid::createUuid().toString(QUuid::WithoutBraces).toLocal8Bit().data());
         UserData.m_pExecutor = obj;
         UserData.m_pEcecPrivate = this;
-
-        /*hCurrInst = RslGetCurrentInstEx(UserData.nameSpace);
-        objInst.reset(new TRSLConObjInstIntf(hCurrInst));\
-
-        statErr.newErrList = &m_ErrList;
-        statErr.oldErrList = NULL;*/
-
-        //objInst->RslSendMes(IM_CHANGE_ERRORS, &statErr);
-        //oldInst = RslSetCurrentInst(hCurrInst);
-        //m_MacroExecutor = new TRsbRSLConInst();
     }
 
     ~RslExecutorPrivate()
@@ -78,18 +81,11 @@ public:
         return NULL;
     }
 
-    //HRSLINST hCurrInst;
-    //HRSLINST oldInst;
-
     char *Output;
 
     TMacroUserData UserData;
     TRSLErrorsList m_ErrList;
     RslExecutor *q_ptr;
-    //TRSLMsgHandler *pHandler;
-    //QScopedPointer<TInstSwitch> m_pCurrentInst;
-    //QScopedPointer<TRSLConObjInstIntf> objInst;
-    //TRsbRSLConInst *m_MacroExecutor;
     RslExecutorProc PlayRepProc;
 };
 
@@ -105,26 +101,6 @@ RslExecutor::~RslExecutor()
     delete d_ptr;
 }
 
-/*bool RslExecutor::init(const QString &output)
-{
-    Q_D(RslExecutor);
-
-    if (!output.isEmpty())
-    {
-        d->Output = new char[256 * 4];
-        qstrcpy(d->Output, output.toLocal8Bit().data());
-
-        d->UserData.output = d->UserData.originalOutput = d->Output;
-    }
-
-    d->m_ErrList.ClearErrors();
-
-    return d->m_MacroExecutor->Init(NULL, d->Output, d->UserData.nameSpace, NULL,
-                                    Executor_MsgProc, &d->UserData,
-                                    NULL, &d->m_ErrList);
-    return true;
-}*/
-
 QStringList RslExecutor::errors()
 {
     Q_D(RslExecutor);
@@ -132,37 +108,11 @@ QStringList RslExecutor::errors()
     while (d->m_ErrList.ErrorNext())
     {
         ERRLISTELEM *elem = d->m_ErrList.GetCurrentErr();
-        list.append(QString("Error at line %1 (pos %2, %3): %4")
-                    .arg(elem->info.line)
-                    .arg(elem->info.pos)
-                    .arg(elem->info.file)
-                    .arg(elem->info.mes));
+        list.append(FormatErrorMsg(&elem->info));
     }
 
     return list;
 }
-
-/*bool RslExecutor::push(const QString &filename)
-{
-    Q_D(RslExecutor);
-
-    if(!d->objInst->RslSendMes(IM_INIT_INSTANCE_REC, NULL))
-    {
-        int k = 0;
-        k = 1;
-    }
-    //d->m_pCurrentInst.reset(new TInstSwitch(d->m_MacroExecutor->GetHRD()));
-    //return d->m_MacroExecutor->PushModule(filename.toLocal8Bit().data());
-    return false;
-            //d->m_MacroExecutor->PushModule(filename.toLocal8Bit().data(), false, false);
-}*/
-
-/*bool RslExecutor::pop()
-{
-    Q_D(RslExecutor);
-    //return d->m_MacroExecutor->PopModule();
-    return false;
-}*/
 
 QString RslExecutor::getSymbolName(Qt::HANDLE sym)
 {
@@ -257,13 +207,7 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
     case IM_ERROR:
     {
         ERRINFO *error = (ERRINFO*)ptr;
-        QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-        QString mes = QString("Файл %5. Строка %1 [%2]: %3 %4")
-                .arg(error->line)
-                .arg(error->pos)
-                .arg(codec->toUnicode(GetErrMesEx(error->code, 0)))
-                .arg(error->mes)
-                .arg(error->file);
+        QString mes = FormatErrorMsg(error);
         UserData->m_pExecutor->onError(error->code, {mes});
     }
         break;
@@ -325,11 +269,6 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
              &isErrors,
              &d->m_ErrList,
              output.toLocal8Bit().data());
-    /*PlayRep(filename.toLocal8Bit().data(),
-            output.toLocal8Bit().data(),
-            Executor_MsgProc,
-            RslPlayRepActionProc,
-            0, &prm);*/
 
     d->PlayRepProc = RslExecutorProc();
 }
