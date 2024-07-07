@@ -29,6 +29,7 @@ public:
     virtual void Proc() = 0;
     virtual void Close();
 
+
 private:
     RslStaticModulePrivate * const d_ptr;
     Q_DECLARE_PRIVATE(RslStaticModule);

@@ -1,8 +1,8 @@
 QT += widgets
 
 TEMPLATE = lib
-CONFIG += plugin staticlib
-
+CONFIG += plugin static
+TARGET = $$qtLibraryTarget(rsl_toolsruntime)
 CONFIG += c++11
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -10,12 +10,10 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    rsltoolsruntimemodule.cpp \
-    toolsruntimemodule.cpp
+    rsltoolsruntimemodule.cpp
 
 HEADERS += \
-    rsltoolsruntimemodule.h \
-    toolsruntimemodule.h
+    rsltoolsruntimemodule.h
 
 # Default rules for deployment.
 unix {

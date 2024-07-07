@@ -5,7 +5,6 @@
 #include <QMap>
 #include <QPluginLoader>
 
-Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 RegisterObjList *RegisterObjList::m_inst = nullptr;
 
 class RegisterObjListPrivate
@@ -144,7 +143,7 @@ void RegisterObjList::setTextDir(const QString &path)
     ToolsSetTextDir(path.toLocal8Bit().data());
 }
 
-bool RegisterObjList::AddObject(const QString &name)
+bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
 {
     Q_D(RegisterObjList);
     RegisterInfoBase *_info = info(name);
@@ -152,7 +151,7 @@ bool RegisterObjList::AddObject(const QString &name)
     if (!_info)
         return false;
 
-    _info->importObject();
+    _info->importObject(canCreate);
 
     return true;
 }

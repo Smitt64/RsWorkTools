@@ -16,6 +16,11 @@ debugbreak;
     return "Macro:" + v + ": Constant -> " + TEST_Constant;*/
 
     debugbreak;
-    var err = ErrorsModel();
-    err.appendError("Test message");
+    //var err = ErrorsModel();
+    //err.appendError("Test message", err.TypeWarning);
+
+    /*var dir;
+    var resukt = ToolsRuntime.GetPostgreSQLInstallLocation(@dir);*/
+    var filename = ToolsRuntime.FullFileNameFromDir("Test.mac");sdfsdf
+    var content = ToolsRuntime.ReadTextFileContent(filename);
 end;

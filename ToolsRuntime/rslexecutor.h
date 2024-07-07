@@ -6,6 +6,7 @@
 #include "rsscript/registerinfobase.h"
 #include "ToolsRuntime_global.h"
 
+typedef void (*ToolRslStdProc)(void);
 typedef std::function<void(void)> RslExecutorProc;
 
 class RslExecutorPrivate;
@@ -31,14 +32,17 @@ public:
 
     static QString getSymbolName(Qt::HANDLE sym);
     static void globalSet(Qt::HANDLE sym, const QVariant &value);
+    //static void globalSet(const QString &name, const QVariant &value);
     //SetDebugMacroFlag
     void setDebugMacroFlag(const bool &Eanble);
 
 signals:
     void WriteOut(QString);
+    void ErrorMessage(int, QString);
 
 protected:
     virtual void PlayRepProc();
+    virtual void onError(const int &code, const QString &mes);
     virtual void onBeginExec(const QString &modname);
     virtual void onInspectModuleSymbol(Qt::HANDLE sym);
     virtual void onWriteOut(const QString &msg);
@@ -48,10 +52,13 @@ private:
     Q_DECLARE_PRIVATE(RslExecutor);
 };
 
-bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val);
+bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val, bool isOutParam = false);
 void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
 QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp = false);
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);
+
+QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id);
+void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 
 TOOLSRUNTIME_EXPORT void* MakeStringList(QStringList *lst, RegisterInfoBase::QObjectRslOwner owner);
 

@@ -5,6 +5,7 @@
 #include "ToolsRuntime_global.h"
 
 #define OBJ_RSL_METHOD_OFFSET 1001
+#define OBJ_RSL_ENUM_OFFSET 2001
 
 typedef const char* (*ObjTypeName)(void*);
 typedef int (*ObjFindMember)(const char*,long *);
@@ -37,7 +38,9 @@ public:
     virtual ~RegisterInfoBase();
 
     int findMember(const char *name, long *id);
-    void importObject();
+    void importObject(const bool &canCreate = true);
+
+    const int &enumValue(int id) const;
 
     Qt::HANDLE rslID() const;
 

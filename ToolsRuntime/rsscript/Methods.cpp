@@ -1,10 +1,10 @@
-#define BUILD_DLM
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
 #include "rslexecutor.h"
+#include "rslibdynamicfuncs.h"
 #include <cstring>
 #include <QDebug>
 #include <QTextCodec>
@@ -18,12 +18,24 @@ static bool CompareParamTypes(const QMetaMethod &method)
 {
     bool result = true;
 
+    QList<QByteArray> paramsTypes = method.parameterTypes();
     for (int i = 0; i < method.parameterCount(); i++)
     {
+        int type = method.parameterType(i);
         VALUE *val = nullptr;
         GetParm(i + 1, &val);
 
-        if (!CompareTypes(method.parameterType(i), (void*)val))
+        bool isOutParam = false;
+        if (paramsTypes[i].contains("&"))
+           isOutParam = true;
+
+        if (!type)
+        {
+            QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
+            type = QMetaType::type(normalized.toLocal8Bit().data());
+        }
+
+        if (!CompareTypes(type, (void*)val, isOutParam))
             result = false;
     }
 
@@ -40,6 +52,7 @@ static int FindMethod(const QMetaObject *meta, const QString &name, int NumParam
 
         if (!name.compare(tmpmethod.name()))
         {
+            //qDebug() << tmpmethod.parameterTypes();
             if (tmpmethod.parameterCount() == NumParams)
             {
                 if (NumParams == 0)
@@ -86,6 +99,13 @@ int GenObjRunId(TGenObject *obj, long id)
         parmaOffset = 1;
 
     int MethodParams = method.parameterCount();
+    QList<QByteArray> paramsTypes = method.parameterTypes();
+
+    auto SetterFunc = [=](int id, int type, void *ptr) -> void
+    {
+        _LibSetParm(id, type, ptr);
+    };
+
     auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val) -> void
     {
         *param = QMetaType::create(Type);
@@ -96,6 +116,8 @@ int GenObjRunId(TGenObject *obj, long id)
         VALUE NewVal;
         ValueMake(&NewVal);
         ValueCopy(val, &NewVal);
+
+        //qDebug() << "AllocaTeParam" << Type;
         if (Type == QMetaType::QString)
         {
             if (!CnvType(&NewVal, V_STRING))
@@ -159,16 +181,45 @@ int GenObjRunId(TGenObject *obj, long id)
     void **params = new void*[MethodParams + 1];
     AllocaTeParam(method.returnType(), &params[0], nullptr);
 
+
     for (int i = 0; i < MethodParams; i++)
     {
         VALUE *val = nullptr;
         GetParm(i + 1, &val);
 
-        AllocaTeParam(method.parameterType(i), &params[i + 1], val);
+        int RealType = method.parameterType(i);
+
+        if (!RealType)
+        {
+            QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
+            RealType = QMetaType::type(normalized.toLocal8Bit().data());
+        }
+
+        AllocaTeParam(RealType, &params[i + 1], val);
     }
 
-    qDebug() << id << method.name() << method.methodIndex();
+    //qDebug() << id << method.name() << method.methodIndex();
     rsl->object->qt_metacall(QMetaObject::InvokeMetaMethod, id, params);
+
+    for (int i = 0; i < MethodParams; i++)
+    {
+        int RealType = method.parameterType(i);
+
+        if (!RealType)
+        {
+            QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
+            RealType = QMetaType::type(normalized.toLocal8Bit().data());
+
+            if (QString(paramsTypes[i]).contains("&"))
+            {
+                QVariant var = QVariant(RealType, params[i + 1]);
+                SetValueFromVariant(std::bind(SetterFunc, i + 1,
+                                              std::placeholders::_1,
+                                              std::placeholders::_2),
+                                    var);
+            }
+        }
+    }
 
     if (method.returnType() != QMetaType::Void)
     {

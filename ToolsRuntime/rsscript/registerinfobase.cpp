@@ -55,6 +55,7 @@ public:
         {
             if(qstricmp (name, ArrProp[i].name) == 0)
             {
+                qDebug() << "findMember" << ArrProp[i].name;
                 *id = ArrProp[i].id;
 
                 return 1;
@@ -98,7 +99,7 @@ public:
         Table.typeName = (const char*(*)(TGenObject *))ObjTypeNameFunc;
         Table.typeNameCS = (const char*(*)(TGenObject *))ObjTypeNameFunc;
 
-        for (int i = 0; i < meta.propertyCount(); i++)
+        for (int i = meta.propertyOffset(); i < meta.propertyCount(); i++)
         {
             QMetaProperty property = meta.property(i);
 
@@ -111,17 +112,33 @@ public:
             ArrProp.append(prop);
         }
 
-        for (int i = 0; i < meta.methodCount(); i++)
+        for (int i = meta.enumeratorOffset(); i < meta.enumeratorCount(); i++)
+        {
+            QMetaEnum property = meta.enumerator(i);
+
+            for (int j = 0; j < property.keyCount(); j++)
+            {
+                TPropMethTable prop = {property.key(j), OBJ_RSL_ENUM_OFFSET + j};
+                prop.flags = RSL_KIND_RUN;
+                EnumValue.insert(OBJ_RSL_ENUM_OFFSET + j, property.value(j));
+                ArrProp.append(prop);
+            }
+        }
+
+        QStringList AddedMethods;
+        for (int i = meta.methodOffset(); i < meta.methodCount(); i++)
         {
             QMetaMethod method = meta.method(i);
 
             if (method.methodType() == QMetaMethod::Method || method.methodType() == QMetaMethod::Slot)
             {
-                qDebug() << TypeName << method.methodSignature() << method.parameterCount();
-
-                TPropMethTable prop = {method.name(), OBJ_RSL_METHOD_OFFSET + i};
-                prop.flags = RSL_KIND_RUN;
-                ArrMethod.append(prop);
+                if (!AddedMethods.contains(method.name(), Qt::CaseInsensitive))
+                {
+                    TPropMethTable prop = { method.name(), OBJ_RSL_METHOD_OFFSET + i };
+                    prop.flags = RSL_KIND_RUN;
+                    ArrMethod.append(prop);
+                    AddedMethods.append(method.name());
+                }
             }
         }
 
@@ -209,6 +226,7 @@ public:
     TGenInfo GenInfo;
     QVector<TPropMethTable> ArrProp;
     QVector<TPropMethTable> ArrMethod;
+    QMap<int, int> EnumValue;
 
     TDescPropMeth Props;
     TDescPropMeth Methods;
@@ -346,7 +364,13 @@ Qt::HANDLE RegisterInfoBase::rslID() const
     return (Qt::HANDLE)&d->Table;
 }
 
-void RegisterInfoBase::importObject()
+const int &RegisterInfoBase::enumValue(int id) const
+{
+    Q_D(const RegisterInfoBase);
+    return d->EnumValue[id];
+}
+
+void RegisterInfoBase::importObject(const bool &canCreate)
 {
     Q_D(RegisterInfoBase);
 
@@ -356,7 +380,8 @@ void RegisterInfoBase::importObject()
                 (TCreateRslObject)d->_ObjCreateObject,
                 (TRslTypeProc)d->_ObjClassProc);
 
-    AddStdProc(V_GENOBJ, d->MetaObject.className(), d->_ObjConstructorProc, 0);
+    if (canCreate)
+        AddStdProc(V_GENOBJ, d->MetaObject.className(), d->_ObjConstructorProc, 0);
 }
 
 void ConsrtuctorCaller(RegisterInfoBase *info)

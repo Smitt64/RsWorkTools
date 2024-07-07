@@ -1,5 +1,5 @@
 #include "rsltoolsruntimemodule.h"
-#include "toolsruntimemodule.h"
+#include "rslmodule/toolsruntimemodule.h"
 #include "rsscript/registerobjlist.hpp"
 
 QStringList RslToolsRuntimeModule::staticModules() const

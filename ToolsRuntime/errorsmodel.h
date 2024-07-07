@@ -24,7 +24,7 @@ public:
         TypeWarning,
         TypeInfo
     };
-    Q_ENUM(ErrorType)
+    Q_ENUMS(ErrorType)
 
     Q_INVOKABLE ErrorsModel(QObject *parent = nullptr);
     virtual ~ErrorsModel();

@@ -4,6 +4,7 @@
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
 #include "rslexecutor.h"
+#include "rslibdynamicfuncs.h"
 #include <cstring>
 #include <QDebug>
 #include <QTextCodec>
@@ -13,12 +14,6 @@
 #include <QLibrary>
 #include <QMetaType>
 
-typedef TGenObject *(*LibRslTArrayCreate)(int,int);
-typedef TGenObject *(*LibRslTArrayPut)(TGenObject*,long, VALUE*);
-typedef TGenObject *(*LibRslIsTArray)(TGenObject *obj);
-typedef long (*LibRslTArraySize)(TGenObject *obj);
-typedef VALUE *(*LibRslTArrayGet)(TGenObject *obj, long id);
-
 Q_GLOBAL_STATIC_WITH_ARGS(QLibrary, RSScriptLib, ("RSScript"))
 
 LibRslTArrayCreate _LibRslTArrayCreate = nullptr;
@@ -26,8 +21,9 @@ LibRslTArrayPut _LibRslTArrayPut = nullptr;
 LibRslIsTArray _LibRslIsTArray = nullptr;
 LibRslTArraySize _LibRslTArraySize = nullptr;
 LibRslTArrayGet _LibRslTArrayGet = nullptr;
+LibSetParm _LibSetParm = nullptr;
 
-void LoadArrayFunctions()
+void LoadFunctions()
 {
     if (_LibRslTArrayCreate)
         return;
@@ -37,6 +33,7 @@ void LoadArrayFunctions()
     _LibRslIsTArray = (LibRslIsTArray)RSScriptLib->resolve("RslIsTArray");
     _LibRslTArraySize = (LibRslTArraySize)RSScriptLib->resolve("RslTArraySize");
     _LibRslTArrayGet = (LibRslTArrayGet)RSScriptLib->resolve("RslTArrayGet");
+    _LibSetParm = (LibSetParm)RSScriptLib->resolve("SetParm");
 }
 
 QVariant SetFromRslValue(void *value, bool isStringListProp)
@@ -44,7 +41,7 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
     QVariant result;
     VALUE *val = (VALUE*)value;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-    LoadArrayFunctions();
+    LoadFunctions();
 
     switch(val->v_type)
     {
@@ -80,7 +77,7 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
 
     case V_GENOBJ:
     {
-        TGenObject *TArrayText = _LibRslIsTArray(P_GOBJ(val->value.obj));
+        TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(val->value.obj));
 
         if (TArrayText)
         {
@@ -91,7 +88,7 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
                 int size = _LibRslTArraySize(TArrayText);
                 for (int i = 0; i < size; i++)
                 {
-                    VALUE *v = _LibRslTArrayGet(TArrayText,i);
+                    VALUE *v = (VALUE*)_LibRslTArrayGet(TArrayText,i);
                     QVariant vl = SetFromRslValue(v);
                     lst.append(vl.toString());
                 }
@@ -151,8 +148,8 @@ int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id)
     return -1;
 }
 
-#define CHECK_TYPE(NeedType) ((VALUE*)val)->v_type == NeedType
-bool CompareTypes(const int &MetaType, void *val)
+#define CHECK_TYPE(NeedType) ((((VALUE*)val)->v_type == NeedType) || (((VALUE*)val)->v_type == V_UNDEF && isOutParam))
+bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
 {
     bool result = false;
 
@@ -163,6 +160,7 @@ bool CompareTypes(const int &MetaType, void *val)
         break;
     case QVariant::Int:
     case QVariant::UInt:
+    case QMetaType::Short:
         result = CHECK_TYPE(V_INTEGER);
         break;
     case QVariant::LongLong:
@@ -193,9 +191,10 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
 {
     int result = 0;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-    LoadArrayFunctions();
+    LoadFunctions();
 
-    switch(value.type())
+    int type = value.type();
+    switch(type)
     {
     case QVariant::String:
         Setter(V_STRING, codec->fromUnicode(value.toString()).data());
@@ -264,7 +263,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QVariant::StringList:
     {
         QStringList lst = value.toStringList();
-        TGenObject *ValueArray = _LibRslTArrayCreate(lst.size(), lst.size());
+        TGenObject *ValueArray = (TGenObject*)_LibRslTArrayCreate(lst.size(), lst.size());
 
         int i = 0;
         for (const QString &item : lst)
@@ -278,14 +277,14 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     }
         break;
 
-    case QVariant::UserType:
+    case QMetaType::QObjectStar:
     {
-        const QMetaObject *meta = QMetaType::metaObjectForType(value.userType());
+        QObject *obj = value.value<QObject*>();
+        const QMetaObject *meta = obj->metaObject();
 
         if (meta)
         {
             RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
-            QObject *obj = value.value<QObject*>();
 
             //qDebug() << info << obj << meta->className();
 
@@ -297,6 +296,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         break;
 
     default:
+        //qDebug() << value.type() << (int)value.type() << value.userType();
         result =  -1;
     }
 
@@ -313,20 +313,35 @@ void StdValueSetFunc(void *val, int type, void *ptr)
 int GenObjGetId(TGenObject *obj, long id, VALUE *val)
 {
     QObjectRsl *rsl = (QObjectRsl*)obj;
+
     const QMetaObject *meta = rsl->object->metaObject();
-    QMetaProperty property = meta->property(id - 1);
+    RegisterInfoBase *info = findInfo(meta->className());
 
-    if (!property.isReadable())
-        return 1;
-
-    QVariant value = rsl->object->property(property.name());
-    //qDebug() << "GenObjGetId" << value;
-    auto SetterFunc = [=](int type, void *ptr) -> void
+    if (id < OBJ_RSL_ENUM_OFFSET)
     {
-        ValueSet(val, type, ptr);
-    };
+        QMetaProperty property = meta->property(id - 1);
 
-    return SetValueFromVariant(SetterFunc, value);
+        if (!property.isReadable())
+            return 1;
+
+        QVariant value = rsl->object->property(property.name());
+        //qDebug() << "GenObjGetId" << value;
+        auto SetterFunc = [=](int type, void *ptr) -> void
+        {
+            ValueSet(val, type, ptr);
+        };
+
+        return SetValueFromVariant(SetterFunc, value);
+    }
+    else
+    {
+        int enumval = info->enumValue(id);
+        ValueSet(val, V_INTEGER, &enumval);
+
+        return 0;
+    }
+
+    return -1;
 }
 
 int GenObjGet(TGenObject *obj, const char *parm, VALUE *val, long *id)

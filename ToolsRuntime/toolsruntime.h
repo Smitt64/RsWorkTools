@@ -4,12 +4,7 @@
 #include <QDir>
 #include "ToolsRuntime_global.h"
 
-class TOOLSRUNTIME_EXPORT ToolsRuntime
-{
-public:
-    ToolsRuntime();
-};
-
+TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);
 TOOLSRUNTIME_EXPORT QString toolReadTextFileContent(const QString &filename);
 TOOLSRUNTIME_EXPORT bool toolSaveResourceToFile(const QString &resname, const QString &filename); 

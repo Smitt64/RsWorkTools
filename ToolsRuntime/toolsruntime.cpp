@@ -1,12 +1,11 @@
 #include "toolsruntime.h"
+#include <Windows.h>
 #include <QDir>
 #include <QApplication>
 #include <QSettings>
+#include <QPluginLoader>
 
-ToolsRuntime::ToolsRuntime()
-{
-
-}
+Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
 QString toolFullFileNameFromDir(const QString &file)
 {
@@ -90,5 +89,48 @@ bool toolGetPostgreSQLInstallLocation(QDir &dir)
         }
     }
     return false;
+}
+
+QString toolGetRuntimeVersion()
+{
+    QString versionNumberString;
+    char moduleName[MAX_PATH + 1];
+
+    HMODULE hm = NULL;
+    GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                       GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                       (LPWSTR) &toolGetRuntimeVersion, &hm);
+
+    GetModuleFileNameA(hm, moduleName, MAX_PATH);
+
+    DWORD dummyZero;
+    DWORD versionSize = GetFileVersionInfoSizeA(moduleName, &dummyZero);
+
+    if(!versionSize)
+        return QString();
+
+    void* pVersion = malloc(versionSize);
+    if(!pVersion)
+        return QString();
+
+    if(!GetFileVersionInfoA(moduleName, NULL, versionSize, pVersion))
+    {
+        free(pVersion);
+        return QString();
+    }
+
+    UINT length;
+    VS_FIXEDFILEINFO* pFixInfo;
+    if (VerQueryValueA(pVersion, "\\", (LPVOID*)&pFixInfo, &length))
+    {
+        versionNumberString = QString("%1.%2.%3.%4")
+                .arg((pFixInfo->dwFileVersionMS >> 16) & 0xffff)
+                .arg((pFixInfo->dwFileVersionMS >>  0) & 0xffff)
+                .arg((pFixInfo->dwFileVersionLS >> 16) & 0xffff)
+                .arg((pFixInfo->dwFileVersionLS >>  0) & 0xffff);
+    }
+    free(pVersion);
+
+    return versionNumberString;
 }
 

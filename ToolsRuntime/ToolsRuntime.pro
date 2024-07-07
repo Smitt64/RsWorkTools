@@ -15,6 +15,8 @@ SOURCES += \
     aboutdlg.cpp \
     errorsmodel.cpp \
     rslexecutor.cpp \
+    rslmodule/toolsruntimemodule.cpp \
+    rslmodule/toolsruntinersl.cpp \
     rsscript/Methods.cpp \
     rsscript/Properties.cpp \
     rsscript/registerinfobase.cpp \
@@ -32,10 +34,13 @@ HEADERS += \
     aboutdlg.h \
     errorsmodel.h \
     rslexecutor.h \
+    rslmodule/toolsruntimemodule.h \
+    rslmodule/toolsruntinersl.h \
     rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
     rsscript/registerobjlist.hpp \
+    rsscript/rslibdynamicfuncs.h \
     rsscript/rsllistwrapper.h \
     rsscript/rslstaticmodule.h \
     rsscript/typeinfo_p.h \
@@ -60,9 +65,9 @@ RESOURCES += \
 release: LIBS += -L./rstools/lib/release
 debug: LIBS += -L./rstools/lib/debug
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/release/ -lRslToolRuntimeStatic
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lRslToolRuntimeStatic
-else:unix: LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/ -lRslToolRuntimeStatic
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/release/ -lrsl_toolsruntime
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lrsl_toolsruntimed
+else:unix: LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/ -lrsl_toolsruntime
 LIBS += -lRSScript -lrsrtlwm -lrsldlmms
 #LIBS += -lrsldlmms
 INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit

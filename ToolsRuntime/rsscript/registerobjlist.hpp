@@ -162,7 +162,7 @@ public:
     }
 
     template<class Obj>
-    bool AddObject()
+    bool AddObject(const bool &canCreate = true)
     {
         static_assert(std::is_base_of_v<QObject, Obj>, "QObject is not base of class");
         const QMetaObject meta = Obj::staticMetaObject;
@@ -172,12 +172,12 @@ public:
         if (!_info)
             return false;
 
-        _info->importObject();
+        _info->importObject(canCreate);
 
         return true;
     }
 
-    bool AddObject(const QString &name);
+    bool AddObject(const QString &name, const bool &canCreate = true);
 
     RslStaticModule *staticModule(const QString &name);
 

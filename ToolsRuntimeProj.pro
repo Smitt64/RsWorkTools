@@ -2,7 +2,9 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
 	RslTest \
-	RslToolRuntimeStatic \
-	ToolsRuntime
+        RslToolRuntimeStatic \
+        ToolsRuntime
+
 
 RslTest.depends = ToolsRuntime
+ToolsRuntime.depends = RslToolRuntimeStatic

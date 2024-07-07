@@ -58,5 +58,7 @@ void MainWindow::on_pushButton_clicked()
 
     exec.setDebugMacroFlag(true);
     exec.playRep("Test.mac", "1.txt", Proc);
+
+    qDebug() << exec.errors();
 }
 

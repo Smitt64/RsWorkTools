@@ -14,6 +14,8 @@
 #include "rsscript/rslstaticmodule.h"
 #include <QUuid>
 #include <QDebug>
+#include <QTextCodec>
+#include <QMessageBox>
 
 int Executor_MsgProc (IMESSAGE mes, void *ptr,void *UserData);
 
@@ -87,7 +89,6 @@ public:
     //TRSLMsgHandler *pHandler;
     //QScopedPointer<TInstSwitch> m_pCurrentInst;
     //QScopedPointer<TRSLConObjInstIntf> objInst;
-    TStatErrorsList statErr;
     //TRsbRSLConInst *m_MacroExecutor;
     RslExecutorProc PlayRepProc;
 };
@@ -137,6 +138,7 @@ QStringList RslExecutor::errors()
                     .arg(elem->info.file)
                     .arg(elem->info.mes));
     }
+
     return list;
 }
 
@@ -179,7 +181,6 @@ void RslExecutor::globalSet(Qt::HANDLE sym, const QVariant &value)
 
     SetValueFromVariant(SetterFunc, value);
 }
-
 void RslExecutor::setDebugMacroFlag(const bool &Eanble)
 {
     if (Eanble)
@@ -254,7 +255,17 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         AddStdProc(V_GENOBJ, "StringList", RslStringList, 0);
         break;
     case IM_ERROR:
-        qDebug() << "Err: " << (char*)ptr;
+    {
+        ERRINFO *error = (ERRINFO*)ptr;
+        QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+        QString mes = QString("Файл %5. Строка %1 [%2]: %3 %4")
+                .arg(error->line)
+                .arg(error->pos)
+                .arg(codec->toUnicode(GetErrMesEx(error->code, 0)))
+                .arg(error->mes)
+                .arg(error->file);
+        UserData->m_pExecutor->onError(error->code, {mes});
+    }
         break;
     case IM_MSGBOX:
         break;
@@ -302,11 +313,23 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     d->PlayRepProc = proc;
 
-    PlayRep(filename.toLocal8Bit().data(),
+    bool isErrors = true;
+    RunRSLEx(filename.toLocal8Bit().data(),
+             output.toLocal8Bit().data(),
+             d->UserData.nameSpace,
+             Executor_MsgProc,
+             RslPlayRepActionProc,
+             &prm,
+             false,
+             0,
+             &isErrors,
+             &d->m_ErrList,
+             output.toLocal8Bit().data());
+    /*PlayRep(filename.toLocal8Bit().data(),
             output.toLocal8Bit().data(),
             Executor_MsgProc,
             RslPlayRepActionProc,
-            0, &prm);
+            0, &prm);*/
 
     d->PlayRepProc = RslExecutorProc();
 }
@@ -340,31 +363,22 @@ QVariant RslExecutor::call(const QString &name, const QVariantList &params)
 
     VALUE *retval = RslParm.retVal().getValue();
     return SetFromRslValue(retval);
-    //TRsbParmForRsl RslParm(params.size(), d->m_MacroExecutor->GetInst());
+}
 
-    /*auto SetterFunc = [&RslParm](int id, int type, void *ptr) -> void
-    {
-        ValueSet(RslParm[id].getValue(), type, ptr);
-    };
+void RslExecutor::onError(const int &code, const QString &mes)
+{
+    emit ErrorMessage(code, mes);
+}
 
-    for (int i = 0; i < params.size(); i++)
-    {
-        SetValueFromVariant(std::bind(SetterFunc, i,
-                                      std::placeholders::_1,
-                                      std::placeholders::_2),
-                            params[i]);
-    }
+void AddFunctionToRsl(const QString &name, ToolRslStdProc proc)
+{
+    AddStdProc(V_UNDEF, name.toLocal8Bit().data(), proc, 0);
+}
 
-    d->m_ErrList.ClearErrors();
-    HRSLSYM sym = d->m_MacroExecutor->RslGetInstSymbol(name.toLocal8Bit().data());
+QVariant GetFuncParam(const int &id)
+{
+    VALUE *val;
+    GetParm(id, &val);
 
-    if (!sym)
-        qDebug() << "!sym" << getSymbolName(sym);
-
-    if (!d->m_MacroExecutor->RslCallInstSymbol(sym, RSL_DISP_RUN, RslParm))
-            qDebug() << "!" << name;
-
-    VALUE *retval = RslParm.retVal().getValue();*/
-    //return SetFromRslValue(retval);
-    return false;
+    return SetFromRslValue(val);
 }
