@@ -19,6 +19,12 @@ typedef void*(*ObjCreateObject)(void*, const char*);
 typedef void*(*ObjClassProc)(void*, const char*);
 typedef void(*ObjConstructorProc)(void);
 
+enum GenInfoFlags
+{
+    GenInfoUseParentProps = 1 << 1,
+    GenInfoUseParentMeths = 1 << 2,
+};
+
 class RegisterInfoBasePrivate;
 class TOOLSRUNTIME_EXPORT RegisterInfoBase
 {
@@ -47,7 +53,8 @@ public:
     virtual void Create(void **GenObject, QObject *cls, const QObjectRslOwner &owner = CppOwner);
 
 protected:
-    void FillFromMetaObject(const QMetaObject &meta,
+    void FillFromMetaObject(const qint32 &flags,
+                            const QMetaObject &meta,
                             ObjTypeName ObjTypeNameFunc,
                             ObjFindMember ObjFindMemberFunc);
 
@@ -69,6 +76,12 @@ private:
     RegisterInfoBasePrivate * const d_ptr;
     Q_DECLARE_PRIVATE(RegisterInfoBase);
 };
+
+extern int FindMethod(const QMetaObject *meta, const QString &name, int NumParams, bool NeedConstructor = false);
+extern void *CallMethod(const QMetaObject *meta,
+                const QMetaMethod &method,
+                const QMetaObject::Call &type,
+                const long &id, QObject *Instance);
 
 TOOLSRUNTIME_EXPORT void ConsrtuctorCaller(RegisterInfoBase *info);
 TOOLSRUNTIME_EXPORT int EnumPropsCaller(RegisterInfoBase *info, void *obj, int cmd, void *data);

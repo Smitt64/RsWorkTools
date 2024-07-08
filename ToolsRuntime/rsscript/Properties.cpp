@@ -148,11 +148,12 @@ int GenObjSet(TGenObject *obj, const char *parm, VALUE *val, long *id)
     return -1;
 }
 
-#define CHECK_TYPE(NeedType) ((((VALUE*)val)->v_type == NeedType) || (((VALUE*)val)->v_type == V_UNDEF && isOutParam))
+#define CHECK_TYPE(NeedType) ((value->v_type == NeedType) || (value->v_type == V_UNDEF && isOutParam))
 bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
 {
     bool result = false;
 
+    VALUE *value = (VALUE*)val;
     switch(MetaType)
     {
     case QVariant::String:
@@ -179,6 +180,15 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
 
     case QVariant::Bool:
         result = CHECK_TYPE(V_BOOL);
+        break;
+
+    case QMetaType::QStringList:
+    case QMetaType::QVariantList:
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            if (_LibRslIsTArray(P_GOBJ(((VALUE*)val)->value.obj)) != 0)
+                result = true;
+        }
         break;
 
     default:

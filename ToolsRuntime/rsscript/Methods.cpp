@@ -14,16 +14,17 @@
 #include <QLibrary>
 #include <QMetaType>
 
-static bool CompareParamTypes(const QMetaMethod &method)
+static bool CompareParamTypes(const QMetaMethod &method, int offset)
 {
     bool result = true;
 
+    LoadFunctions();
     QList<QByteArray> paramsTypes = method.parameterTypes();
     for (int i = 0; i < method.parameterCount(); i++)
     {
         int type = method.parameterType(i);
         VALUE *val = nullptr;
-        GetParm(i + 1, &val);
+        GetParm(i + offset, &val);
 
         bool isOutParam = false;
         if (paramsTypes[i].contains("&"))
@@ -42,17 +43,23 @@ static bool CompareParamTypes(const QMetaMethod &method)
     return result;
 }
 
-static int FindMethod(const QMetaObject *meta, const QString &name, int NumParams)
+int FindMethod(const QMetaObject *meta, const QString &name, int NumParams, bool NeedConstructor)
 {
     int id = -1;
 
-    for (int i = 0; i < meta->methodCount(); i++)
+    int size = NeedConstructor ? meta->constructorCount() : meta->methodCount();
+    for (int i = 0; i < size; i++)
     {
-        QMetaMethod tmpmethod = meta->method(i);
+        QMetaMethod tmpmethod;
+
+        if (!NeedConstructor)
+            tmpmethod = meta->method(i);
+        else
+            tmpmethod = meta->constructor(i);
 
         if (!name.compare(tmpmethod.name()))
         {
-            //qDebug() << tmpmethod.parameterTypes();
+
             if (tmpmethod.parameterCount() == NumParams)
             {
                 if (NumParams == 0)
@@ -63,7 +70,7 @@ static int FindMethod(const QMetaObject *meta, const QString &name, int NumParam
                 else
                 {
                     // compare params types
-                    if (CompareParamTypes(tmpmethod))
+                    if (CompareParamTypes(tmpmethod, NeedConstructor ? 0 : 1))
                     {
                         id = i;
                         break;
@@ -76,23 +83,14 @@ static int FindMethod(const QMetaObject *meta, const QString &name, int NumParam
     return id;
 }
 
-int GenObjRunId(TGenObject *obj, long id)
+void *CallMethod(const QMetaObject *meta,
+                 const QMetaMethod &method,
+                 const QMetaObject::Call &type,
+                 const long &id,
+                 QObject *Instance)
 {
-    QObjectRsl *rsl = (QObjectRsl*)obj;
-    const QMetaObject *meta = rsl->object->metaObject();
-    QMetaMethod method = meta->method(id - OBJ_RSL_METHOD_OFFSET);
+    void *result = nullptr;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-
-    int NumParam = GetNumParm() - 1;
-    id = FindMethod(meta, method.name(), NumParam);
-
-    if (id < 0)
-    {
-        iError(IER_RUNMETHOD, "Param count missmatch");
-        return -1;
-    }
-
-    method = meta->method(id);
 
     int parmaOffset = 0;
     if (method.returnType() != QMetaType::Void)
@@ -179,13 +177,17 @@ int GenObjRunId(TGenObject *obj, long id)
     };
 
     void **params = new void*[MethodParams + 1];
-    AllocaTeParam(method.returnType(), &params[0], nullptr);
 
+    if (type != QMetaObject::CreateInstance)
+        AllocaTeParam(method.returnType(), &params[0], nullptr);
+    else
+        params[0] = new void*[1];
 
+    int offset = type == QMetaObject::CreateInstance ? 0 : 1;
     for (int i = 0; i < MethodParams; i++)
     {
         VALUE *val = nullptr;
-        GetParm(i + 1, &val);
+        GetParm(i + offset, &val);
 
         int RealType = method.parameterType(i);
 
@@ -198,8 +200,13 @@ int GenObjRunId(TGenObject *obj, long id)
         AllocaTeParam(RealType, &params[i + 1], val);
     }
 
-    //qDebug() << id << method.name() << method.methodIndex();
-    rsl->object->qt_metacall(QMetaObject::InvokeMetaMethod, id, params);
+    if (type == QMetaObject::CreateInstance)
+        meta->static_metacall(type, id, params);
+    else
+        meta->metacall(Instance, type, id, params);
+
+    if (type == QMetaObject::CreateInstance)
+        result = *((void**)params[0]);
 
     for (int i = 0; i < MethodParams; i++)
     {
@@ -221,7 +228,7 @@ int GenObjRunId(TGenObject *obj, long id)
         }
     }
 
-    if (method.returnType() != QMetaType::Void)
+    if (method.returnType() != QMetaType::Void && type != QMetaObject::CreateInstance)
     {
         VALUE ret;
         ValueMake(&ret);
@@ -276,9 +283,49 @@ int GenObjRunId(TGenObject *obj, long id)
     }
 
     for (int i = 0; i < MethodParams; i++)
-        QMetaType::destroy(method.parameterType(i), params[i]);
+    {
+        if (i != 0)
+            QMetaType::destroy(method.parameterType(i), params[i]);
+        else
+        {
+            if (type != QMetaObject::CreateInstance)
+                QMetaType::destroy(method.parameterType(i), params[i]);
+        }
+    }
+
+    if (type == QMetaObject::CreateInstance)
+        delete[] params[0];
 
     delete[] params;
+
+    return result;
+}
+
+int GenObjRunId(TGenObject *obj, long id)
+{
+    LoadFunctions();
+
+    QObjectRsl *rsl = (QObjectRsl*)obj;
+    const QMetaObject *meta = rsl->object->metaObject();
+    QMetaMethod method = meta->method(id - OBJ_RSL_METHOD_OFFSET);
+    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+
+    int NumParam = GetNumParm() - 1;
+    id = FindMethod(meta, method.name(), NumParam);
+
+    if (id < 0)
+    {
+        iError(IER_RUNMETHOD, "Param count missmatch");
+        return -1;
+    }
+
+    method = meta->method(id);
+
+    int parmaOffset = 0;
+    if (method.returnType() != QMetaType::Void)
+        parmaOffset = 1;
+
+    CallMethod(meta, method, QMetaObject::InvokeMetaMethod, id, rsl->object);
 
     return 0;
 }

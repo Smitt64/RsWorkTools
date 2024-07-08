@@ -13,11 +13,11 @@ template<class Obj>
 class RegisterObjInfo : public RegisterInfoBase
 {
 public:
-    RegisterObjInfo() :
+    RegisterObjInfo(const qint32 &flags = 0) :
         RegisterInfoBase()
     {
         const QMetaObject meta = Obj::staticMetaObject;
-        FillFromMetaObject(meta,
+        FillFromMetaObject(flags, meta,
                            RegisterObjInfo<Obj>::GenObjTypeName,
                            RegisterObjInfo<Obj>::GenObjFindMember);
 
@@ -149,14 +149,14 @@ public:
     }
 
     template<class Obj>
-    void RegisterRslObject()
+    void RegisterRslObject(const qint32 &flags = 0)
     {
         static_assert(std::is_base_of_v<QObject, Obj>, "QObject is not base of class");
         const QMetaObject meta = Obj::staticMetaObject;
 
         if (!isExists(meta.className()))
         {
-            RegisterInfoBase *_info = new RegisterObjInfo<Obj>();
+            RegisterInfoBase *_info = new RegisterObjInfo<Obj>(flags);
             InsertInfo(meta.className(), _info);
         }
     }

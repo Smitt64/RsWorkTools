@@ -13,6 +13,7 @@ include(../../configtools.pri)
 
 SOURCES += \
     aboutdlg.cpp \
+    errordlg.cpp \
     errorsmodel.cpp \
     rslexecutor.cpp \
     rslmodule/toolsruntimemodule.cpp \
@@ -32,6 +33,8 @@ SOURCES += \
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
+    errordlg.h \
+    errorfiltermodel_p.h \
     errorsmodel.h \
     rslexecutor.h \
     rslmodule/toolsruntimemodule.h \
@@ -55,7 +58,8 @@ unix {
 !isEmpty(target.path): INSTALLS += target
 
 FORMS += \
-    aboutdlg.ui
+    aboutdlg.ui \
+    errordlg.ui
 
 LIBS += -lVersion
 

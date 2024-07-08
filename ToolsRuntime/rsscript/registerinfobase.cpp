@@ -55,7 +55,6 @@ public:
         {
             if(qstricmp (name, ArrProp[i].name) == 0)
             {
-                qDebug() << "findMember" << ArrProp[i].name;
                 *id = ArrProp[i].id;
 
                 return 1;
@@ -80,7 +79,8 @@ public:
         return obj;
     }
 
-    void FillFromMetaObject(const QMetaObject &meta,
+    void FillFromMetaObject(const qint32 &flags,
+                            const QMetaObject &meta,
                             ObjTypeName ObjTypeNameFunc,
                             ObjFindMember ObjFindMemberFunc)
     {
@@ -99,7 +99,8 @@ public:
         Table.typeName = (const char*(*)(TGenObject *))ObjTypeNameFunc;
         Table.typeNameCS = (const char*(*)(TGenObject *))ObjTypeNameFunc;
 
-        for (int i = meta.propertyOffset(); i < meta.propertyCount(); i++)
+        int propertyOffset = flags & GenInfoUseParentProps ? 0 : meta.propertyOffset();
+        for (int i = propertyOffset; i < meta.propertyCount(); i++)
         {
             QMetaProperty property = meta.property(i);
 
@@ -126,12 +127,14 @@ public:
         }
 
         QStringList AddedMethods;
-        for (int i = meta.methodOffset(); i < meta.methodCount(); i++)
+        int methodOffset = flags & GenInfoUseParentProps ? 0 : meta.methodOffset();
+        for (int i = methodOffset; i < meta.methodCount(); i++)
         {
             QMetaMethod method = meta.method(i);
 
             if (method.methodType() == QMetaMethod::Method || method.methodType() == QMetaMethod::Slot)
             {
+                qDebug() << method.methodSignature();
                 if (!AddedMethods.contains(method.name(), Qt::CaseInsensitive))
                 {
                     TPropMethTable prop = { method.name(), OBJ_RSL_METHOD_OFFSET + i };
@@ -255,12 +258,13 @@ RegisterInfoBase::~RegisterInfoBase()
 
 }
 
-void RegisterInfoBase::FillFromMetaObject(const QMetaObject &meta,
+void RegisterInfoBase::FillFromMetaObject(const qint32 &flags,
+                                          const QMetaObject &meta,
                                           ObjTypeName ObjTypeNameFunc,
                                           ObjFindMember ObjFindMemberFunc)
 {
     Q_D(RegisterInfoBase);
-    d->FillFromMetaObject(meta, ObjTypeNameFunc, ObjFindMemberFunc);
+    d->FillFromMetaObject(flags, meta, ObjTypeNameFunc, ObjFindMemberFunc);
 }
 
 void RegisterInfoBase::SetFunctions(ObjGetUniqID ObjGetUniqIDFunc, ObjEnumProps ObjEnumProps)
@@ -296,8 +300,13 @@ void RegisterInfoBase::Create(void **GenObject, QObject *cls, const QObjectRslOw
     }
     else
     {
+        int NumParam = GetNumParm();
         const QMetaObject &meta = d->MetaObject;
-        obj->object = meta.newInstance();
+
+        int id = FindMethod(&meta, meta.className(), NumParam, true);
+        //obj->object = meta.newInstance();
+        QMetaMethod method = meta.constructor(id);
+        obj->object = (QObject*)CallMethod(&meta, method, QMetaObject::CreateInstance, id, nullptr);
     }
 
     *GenObject = P_GOBJ(obj);
