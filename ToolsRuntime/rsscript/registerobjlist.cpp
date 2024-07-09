@@ -4,6 +4,8 @@
 #include "rsscript/RslModulePluginInterface.h"
 #include <QMap>
 #include <QPluginLoader>
+#include <QApplication>
+#include <QDir>
 
 RegisterObjList *RegisterObjList::m_inst = nullptr;
 
@@ -20,7 +22,10 @@ public:
     QMap<QString, RslStaticModule*> m_StaticModules;
     RegisterObjList *q_ptr;
 
-    QPluginLoader m_Loader;
+    //QPluginLoader m_Loader;
+
+    QStringList m_PluginPath;
+    QList<QPluginLoader*> m_Loaders;
 };
 
 // -------------------------------------------------------
@@ -31,7 +36,7 @@ RegisterObjList::RegisterObjList():
 
 }
 
-void RegisterObjList::loadPlugins()
+void RegisterObjList::loadStaticPlugins()
 {
     Q_D(RegisterObjList);
     QObjectList lst = QPluginLoader::staticInstances();
@@ -41,11 +46,41 @@ void RegisterObjList::loadPlugins()
         RslStaticModuleInterface *plugin = dynamic_cast<RslStaticModuleInterface*>(obj);
 
         if (plugin)
-        {
-            qDebug() << plugin->staticModules();
             plugin->registerStaticModules();
-        }
     }
+
+    QDir appDir(QApplication::applicationDirPath());
+    QStringList dlls = appDir.entryList({"*.dll"}, QDir::Files);
+
+    QStringList loaded;
+    auto AddDll = [&loaded, &d](const QString &dll)
+    {
+        QPluginLoader *plugin = new QPluginLoader(dll);
+        if (!plugin->isLoaded() && !loaded.contains(QFileInfo(dll).fileName()) && plugin->load())
+        {
+            RslStaticModuleInterface *plugininterface = dynamic_cast<RslStaticModuleInterface*>(plugin->instance());
+
+            if (plugininterface)
+            {
+                plugininterface->registerStaticModules();
+                d->m_Loaders.append(plugin);
+                loaded.append(QFileInfo(dll).fileName());
+            }
+            else
+                delete plugin;
+        }
+        else
+            delete plugin;
+    };
+
+    for (const QString &dll : dlls)
+        AddDll(dll);
+
+    appDir = QDir::current();
+    dlls = appDir.entryList({"*.dll"}, QDir::Files);
+
+    for (const QString &dll : dlls)
+        AddDll(dll);
 }
 
 RegisterObjList *RegisterObjList::inst()
@@ -53,7 +88,7 @@ RegisterObjList *RegisterObjList::inst()
     if (!RegisterObjList::m_inst)
     {
         RegisterObjList::m_inst = new RegisterObjList();
-        RegisterObjList::m_inst->loadPlugins();
+        RegisterObjList::m_inst->loadStaticPlugins();
     }
 
     return RegisterObjList::m_inst;

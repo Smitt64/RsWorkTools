@@ -188,7 +188,7 @@ public:
 
 private:
     RegisterObjList();
-    void loadPlugins();
+    void loadStaticPlugins();
     void InsertInfo(const QString &name, RegisterInfoBase *info);
     bool addStaticModulePrivate(const QString &name, RslStaticModule *module, RslStaticModuleCallerBase *caller);
     static RegisterObjList *m_inst;
