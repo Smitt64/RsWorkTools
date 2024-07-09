@@ -49,6 +49,7 @@ public:
     const int &enumValue(int id) const;
 
     Qt::HANDLE rslID() const;
+    Qt::HANDLE object(Qt::HANDLE GenObject);
 
     virtual void Create(void **GenObject, QObject *cls, const QObjectRslOwner &owner = CppOwner);
 

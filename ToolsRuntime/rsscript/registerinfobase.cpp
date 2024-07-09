@@ -304,7 +304,6 @@ void RegisterInfoBase::Create(void **GenObject, QObject *cls, const QObjectRslOw
         const QMetaObject &meta = d->MetaObject;
 
         int id = FindMethod(&meta, meta.className(), NumParam, true);
-        //obj->object = meta.newInstance();
         QMetaMethod method = meta.constructor(id);
         obj->object = (QObject*)CallMethod(&meta, method, QMetaObject::CreateInstance, id, nullptr);
     }
@@ -371,6 +370,15 @@ Qt::HANDLE RegisterInfoBase::rslID() const
 {
     Q_D(const RegisterInfoBase);
     return (Qt::HANDLE)&d->Table;
+}
+
+Qt::HANDLE RegisterInfoBase::object(Qt::HANDLE GenObject)
+{
+    TGenObject *obj = (TGenObject*)GenObject;
+    if (rslID() != (Qt::HANDLE)RSCLSID(obj))
+        return nullptr;
+
+    return ((QObjectRsl*)obj)->object;
 }
 
 const int &RegisterInfoBase::enumValue(int id) const

@@ -30,14 +30,33 @@ static bool CompareParamTypes(const QMetaMethod &method, int offset)
         if (paramsTypes[i].contains("&"))
            isOutParam = true;
 
-        if (!type)
-        {
-            QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
-            type = QMetaType::type(normalized.toLocal8Bit().data());
-        }
+        QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
 
-        if (!CompareTypes(type, (void*)val, isOutParam))
-            result = false;
+        if (!type) 
+            type = QMetaType::type(normalized.toLocal8Bit().data());
+
+        if (type)
+        {
+            if (!CompareTypes(type, (void*)val, isOutParam))
+                result = false;
+        }
+        else
+        {
+            if (val->v_type != V_GENOBJ)
+                result = false;
+            else
+            {
+                RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
+
+                if (!info)
+                    result = false;
+                else
+                {
+                    if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
+                        result = false;
+                }
+            }
+        }
     }
 
     return result;
@@ -104,9 +123,22 @@ void *CallMethod(const QMetaObject *meta,
         _LibSetParm(id, type, ptr);
     };
 
-    auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val) -> void
+
+    auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val, const  QString &normalized) -> void
     {
-        *param = QMetaType::create(Type);
+        RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
+
+        if (Type)
+            *param = QMetaType::create(Type);
+        else
+        {
+            if (!info)
+                iError(IER_RUNTIME, "Unknown param type");
+            else
+            {
+                *param = new void*[1];
+            }
+        }
 
         if (!val)
             return;
@@ -174,12 +206,25 @@ void *CallMethod(const QMetaObject *meta,
                                                         NewVal.value.time.min,
                                                         NewVal.value.time.sec);
         }
+        else if (!Type)
+        {
+            if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
+                iError(IER_RUNTIME, "Unknown param type");
+            else
+            {
+                //(*reinterpret_cast<void*>(*param))
+                *((void**)param[0]) = info->object(val->value.obj);
+            }
+        }
     };
 
     void **params = new void*[MethodParams + 1];
 
     if (type != QMetaObject::CreateInstance)
-        AllocaTeParam(method.returnType(), &params[0], nullptr);
+    {
+        QString normalized = QString(method.returnType()).remove("&").remove("*");
+        AllocaTeParam(method.returnType(), &params[0], nullptr, normalized);
+    }
     else
         params[0] = new void*[1];
 
@@ -190,14 +235,12 @@ void *CallMethod(const QMetaObject *meta,
         GetParm(i + offset, &val);
 
         int RealType = method.parameterType(i);
+        QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
 
         if (!RealType)
-        {
-            QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
             RealType = QMetaType::type(normalized.toLocal8Bit().data());
-        }
 
-        AllocaTeParam(RealType, &params[i + 1], val);
+        AllocaTeParam(RealType, &params[i + 1], val, normalized);
     }
 
     if (type == QMetaObject::CreateInstance)
@@ -284,12 +327,18 @@ void *CallMethod(const QMetaObject *meta,
 
     for (int i = 0; i < MethodParams; i++)
     {
+        int Type = method.parameterType(i);
         if (i != 0)
-            QMetaType::destroy(method.parameterType(i), params[i]);
+        {
+            if (Type)
+                QMetaType::destroy(Type, params[i + parmaOffset]);
+        }
         else
         {
-            if (type != QMetaObject::CreateInstance)
-                QMetaType::destroy(method.parameterType(i), params[i]);
+            if (type != QMetaObject::CreateInstance && Type)
+                QMetaType::destroy(method.parameterType(i), params[i + parmaOffset]);
+            /*else
+                delete[] params[i + 1];*/
         }
     }
 
