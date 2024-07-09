@@ -212,6 +212,8 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         break;
     case QVariant::Int:
     case QVariant::UInt:
+    case QMetaType::Short:
+    case QMetaType::UShort:
     {
         long v = value.toInt();
         //ValueSet(val, V_INTEGER, &v);

@@ -186,7 +186,6 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         {
             RslStaticModule *mod = RegisterObjList::inst()->staticModule(DynModule->name);
 
-            qDebug() << DynModule->name;
             if (mod)
             {
                 DynModule->init = mod->caller()->Init;
@@ -220,8 +219,10 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         RslOnlyDeclMode();
         break;
     case IM_OUTPUT:
-        qDebug() << "Msg: " << (char*)ptr;
-        WriteOutCaller(QString((char*)ptr), userData);
+    {
+        QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+        WriteOutCaller(codec->toUnicode((char*)ptr), userData);
+    }
         break;
     }
     return Std_MsgProc ( mes, ptr, UserData );
