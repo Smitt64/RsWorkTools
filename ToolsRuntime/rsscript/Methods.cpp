@@ -297,10 +297,15 @@ void *CallMethod(const QMetaObject *meta,
         case QMetaType::UInt:
         case QMetaType::Void:
         case QMetaType::Long:
-        case QMetaType::Short:
         case QMetaType::ULong:
-        case QMetaType::UShort:
             ValueSet(&ret, V_INTEGER, reinterpret_cast<int*>(params[0]));
+            break;
+        case QMetaType::Short:
+        case QMetaType::UShort:
+        {
+            int v = *reinterpret_cast<short*>(params[0]);
+            ValueSet(&ret, V_INTEGER, &v);
+        }
             break;
         case QMetaType::LongLong:
         case QMetaType::ULongLong:
