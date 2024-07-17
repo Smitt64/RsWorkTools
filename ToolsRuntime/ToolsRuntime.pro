@@ -1,7 +1,7 @@
 QT += gui widgets webengine webenginewidgets xml
 
 TEMPLATE = lib
-DEFINES += TOOLSRUNTIME_LIBRARY
+DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
 
 CONFIG += c++17
 RC_FILE = res/winfmt.rc
@@ -61,7 +61,7 @@ FORMS += \
     aboutdlg.ui \
     errordlg.ui
 
-LIBS += -lVersion
+LIBS += -lVersion -lGdi32 -lUser32
 
 RESOURCES += \
     res/res.qrc

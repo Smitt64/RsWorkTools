@@ -1,19 +1,6 @@
 import /*TestModule, */ToolsRuntime;
 
 macro TestFunc(v)
-    /*println("call TestFunc");
-
-    var strlist = StringList();
-    var arr = TArray();
-    strlist[strlist.size] = 11;
-    strlist[strlist.size] = "sdfvsdf";
-    arr[arr.size] = 1;
-    strlist.size = 0;
-debugbreak;
-    var obj = TestObject();
-    var t = obj.stringlist;
-    //obj.stringlist[obj.stringlist.size] = "новый элемент";
-    return "Macro:" + v + ": Constant -> " + TEST_Constant;*/
 
     debugbreak;
     var err = ErrorsModel();
@@ -25,8 +12,4 @@ debugbreak;
     dlg.setMessage("Описание назначения окна:");
     dlg.setErrors(err);
     var result = dlg.exec();
-    /*var dir;
-    var resukt = ToolsRuntime.GetPostgreSQLInstallLocation(@dir);*/
-    //var filename = ToolsRuntime.FullFileNameFromDir("Test.mac");
-    //var content = ToolsRuntime.ReadTextFileContent(filename);
 end;

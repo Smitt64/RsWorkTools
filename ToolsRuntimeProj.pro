@@ -3,7 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
 	RslTest \
         RslToolRuntimeStatic \
-        ToolsRuntime
+        ToolsRuntime \
+    WindowsModernStyle
 
 
 RslTest.depends = ToolsRuntime

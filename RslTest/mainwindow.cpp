@@ -5,6 +5,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include <QVariant>
 #include <QDebug>
+#include <style/windowsmodernstyle.h>
 
 constexpr static const char name[] = "TestModule";
 
@@ -35,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ui->listView->setModel(&m_Errors);
+
+    ui->toolBar->addAction("action");
 
     RegisterObjList::inst()->RegisterRslObject<TestObject>();
     RegisterObjList::inst()->RegisterRslObject<ChildObject>();
