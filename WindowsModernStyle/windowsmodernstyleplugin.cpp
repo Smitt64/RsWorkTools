@@ -8,13 +8,13 @@ WindowsModernStylePlugin::WindowsModernStylePlugin(QObject *parent)
 
 QStyle *WindowsModernStylePlugin::create(const QString &key)
 {
-    if (key == "WindowsModernStyle")
+    if (!key.compare("WindowsModernStyle", Qt::CaseInsensitive))
         return new WindowsModernStyle();
-    else if (key == "WindowsModernStyleBlue")
+    else if (!key.compare("WindowsModernStyleBlue", Qt::CaseInsensitive))
         return new WindowsModernStyle(WindowsModernStyle::Blue);
-    else if (key == "WindowsModernStyleSilver")
+    else if (!key.compare("WindowsModernStyleSilver", Qt::CaseInsensitive))
         return new WindowsModernStyle(WindowsModernStyle::Silver);
-    else if (key == "WindowsModernStyleOlive")
+    else if (!key.compare("WindowsModernStyleOlive", Qt::CaseInsensitive))
         return new WindowsModernStyle(WindowsModernStyle::Olive);
 
     return nullptr;
