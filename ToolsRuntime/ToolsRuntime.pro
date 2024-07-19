@@ -13,6 +13,7 @@ include(../../configtools.pri)
 
 SOURCES += \
     aboutdlg.cpp \
+    codeeditor/codeeditor.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
     rslexecutor.cpp \
@@ -33,6 +34,7 @@ SOURCES += \
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
+    codeeditor/codeeditor.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \

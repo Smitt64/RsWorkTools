@@ -3,9 +3,14 @@
 #include "rslexecutor.h"
 #include "rsscript/rslstaticmodule.h"
 #include "rsscript/registerobjlist.hpp"
+#include "toolsruntime.h"
 #include <QVariant>
 #include <QDebug>
-#include <style/windowsmodernstyle.h>
+#include <QDockWidget>
+#include <QListView>
+#include <QAction>
+#include "codeeditor/codeeditor.h"
+#include <QStyleFactory>
 
 constexpr static const char name[] = "TestModule";
 
@@ -33,15 +38,30 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    qDebug() << QStyleFactory::keys();
     ui->setupUi(this);
 
-    ui->listView->setModel(&m_Errors);
+    //ui->listView->setModel(&m_Errors);
 
-    ui->toolBar->addAction("action");
+    QAction *exec = ui->toolBar->addAction("Выполнить");
+
+    QDockWidget *doc = new QDockWidget("Errors");
+
+    CodeEditor *pEditor = new CodeEditor();
+    pEditor->setReadOnly(true);
+    pEditor->setPlainText(toolReadTextFileContent("Test.mac"));
+    setCentralWidget(pEditor);
+
+    QListView *listView = new QListView(this);
+    listView->setModel(&m_Errors);
+    doc->setWidget(listView);
+    addDockWidget(Qt::BottomDockWidgetArea, doc, Qt::Horizontal);
 
     RegisterObjList::inst()->RegisterRslObject<TestObject>();
     RegisterObjList::inst()->RegisterRslObject<ChildObject>();
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
+
+    connect(exec, &QAction::triggered, this, &MainWindow::on_pushButton_clicked);
 }
 
 MainWindow::~MainWindow()
