@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 /****************************************************************************
 **
 ** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
@@ -682,7 +684,7 @@ static inline HRGN qt_RectToHRGN(const QRect &rc)
     return CreateRectRgn(rc.left(), rc.top(), rc.right() + 1, rc.bottom() + 1);
 }
 
-HRGN toHRGN(const QRegion &rgn)
+static HRGN toHRGN(const QRegion &rgn)
 {
     const int size = rgn.rectCount();
     if (size == 0)

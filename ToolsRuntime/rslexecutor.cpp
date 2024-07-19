@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "playrep.h"
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
@@ -236,7 +238,7 @@ void RslExecutor::PlayRepProc()
         d->PlayRepProc();
 }
 
-bool RslPlayRepActionProc(void *UserData)
+static bool RslPlayRepActionProc(void *UserData)
 {
     TMacroUserData *dt = (TMacroUserData*)RslGetDataPassedToPlayRep(UserData);
     dt->m_pExecutor->PlayRepProc();

@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #ifndef ERRORDLG_H
 #define ERRORDLG_H
 
@@ -38,7 +40,7 @@ private slots:
     void infoCountChanged(const quint32 &value);
 
 private:
-    Ui::ErrorDlg *ui;
+    Ui::ErrorDlg *ui; //-V122
 
     ErrorDlgPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(ErrorDlg);
