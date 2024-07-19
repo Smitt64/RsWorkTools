@@ -16,6 +16,7 @@ SOURCES += \
     codeeditor/codeeditor.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
+    optionsdlg/optionsdlg.cpp \
     rslexecutor.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
+    optionsdlg/optionsdlg.h \
     rslexecutor.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
@@ -61,7 +63,8 @@ unix {
 
 FORMS += \
     aboutdlg.ui \
-    errordlg.ui
+    errordlg.ui \
+    optionsdlg/optionsdlg.ui
 
 LIBS += -lVersion -lGdi32 -lUser32
 
