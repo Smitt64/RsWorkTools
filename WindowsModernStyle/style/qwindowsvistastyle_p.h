@@ -1,41 +1,37 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtGui module of the Qt Toolkit.
+** This file is part of the QtWidgets module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -48,172 +44,66 @@
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qt API.  It exists for the convenience
-// of qapplication_*.cpp, qwidget*.cpp and qfiledialog.cpp.  This header
-// file may change from version to version without notice, or even be removed.
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
 //
 // We mean it.
 //
 
-#include "style/qwindowsvistastyle.h"
+#include <QtWidgets/private/qtwidgetsglobal_p.h>
+#include "qwindowsxpstyle_p.h"
 
-#if !defined(QT_NO_STYLE_WINDOWSVISTA)
-#include <style/qwindowsxpstyle_p.h>
-#include <private/qpaintengine_raster_p.h>
-#include <qlibrary.h>
-#include <qpaintengine.h>
-#include <qwidget.h>
-#include <qapplication.h>
-#include <qpixmapcache.h>
-#include <qstyleoption.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qlineedit.h>
-#include <qgroupbox.h>
-#include <qtoolbutton.h>
-#include <qspinbox.h>
-#include <qtoolbar.h>
-#include <qcombobox.h>
-#include <qscrollbar.h>
-#include <qprogressbar.h>
-#include <qdockwidget.h>
-#include <qlistview.h>
-#include <qtreeview.h>
-#include <qtextedit.h>
-#include <qmessagebox.h>
-#include <qdialogbuttonbox.h>
-#include <qinputdialog.h>
-#include <qtreeview.h>
-#include <qlistview.h>
-#include <qtableview.h>
-#include <qbasictimer.h>
-#include <qdatetime.h>
-#include <qcommandlinkbutton.h>
+QT_BEGIN_NAMESPACE
 
-#if !defined(SCHEMA_VERIFY_VSSYM32)
-#define TMT_ANIMATIONDURATION       5006
-#define TMT_TRANSITIONDURATIONS     6000
-#define EP_EDITBORDER_NOSCROLL      6
-#define EP_EDITBORDER_HVSCROLL      9
-#define EP_BACKGROUND               3
-#define EBS_NORMAL                  1
-#define EBS_HOT                     2
-#define EBS_DISABLED                3
-#define EBS_READONLY                5
-#define PBS_DEFAULTED_ANIMATING     6
-#define MBI_NORMAL                  1
-#define MBI_HOT                     2
-#define MBI_PUSHED                  3
-#define MBI_DISABLED                4
-#define MB_ACTIVE                   1
-#define MB_INACTIVE                 2
-#define PP_FILL                     5
-#define PP_FILLVERT                 6
-#define PP_MOVEOVERLAY              8
-#define PP_MOVEOVERLAYVERT          10
-#define MENU_BARBACKGROUND          7
-#define MENU_BARITEM                8
-#define MENU_POPUPCHECK             11
-#define MENU_POPUPCHECKBACKGROUND   12
-#define MENU_POPUPGUTTER            13
-#define MENU_POPUPITEM              14
-#define MENU_POPUPBORDERS           10
-#define MENU_POPUPSEPARATOR         15
-#define MC_CHECKMARKNORMAL          1
-#define MC_CHECKMARKDISABLED        2
-#define MC_BULLETNORMAL             3
-#define MC_BULLETDISABLED           4
-#define ABS_UPHOVER                 17
-#define ABS_DOWNHOVER               18
-#define ABS_LEFTHOVER               19
-#define ABS_RIGHTHOVER              20
-#define CP_DROPDOWNBUTTONRIGHT      6
-#define CP_DROPDOWNBUTTONLEFT       7
-#define SCRBS_HOVER                 5
-#define TVP_HOTGLYPH                4
-#define SPI_GETCLIENTAREAANIMATION  0x1042
-#define TDLG_PRIMARYPANEL           1
-#define TDLG_SECONDARYPANEL         8
-#endif
-
-class QWindowsVistaAnimation
+class QWindowsVistaStylePrivate;
+class QWindowsVistaStyle : public QWindowsXPStyle
 {
-public :
-    QWindowsVistaAnimation() : _running(true) { }
-    virtual ~QWindowsVistaAnimation() { }
-    QWidget * widget() const { return _widget; }
-    bool running() const { return _running; }
-    const QTime &startTime() const { return _startTime; }
-    void setRunning(bool val) { _running = val; }
-    void setWidget(QWidget *widget) { _widget = widget; }
-    void setStartTime(const QTime &startTime) { _startTime = startTime; }
-    virtual void paint(QPainter *painter, const QStyleOption *option);
-
-protected:
-    void drawBlendedImage(QPainter *painter, QRect rect, float value);
-    QTime _startTime;
-    QPointer<QWidget> _widget;
-    QImage _primaryImage;
-    QImage _secondaryImage;
-    QImage _tempImage;
-    bool _running;
-};
-
-
-// Handles state transition animations
-class QWindowsVistaTransition : public QWindowsVistaAnimation
-{
-public :
-    QWindowsVistaTransition() : QWindowsVistaAnimation() {}
-    virtual ~QWindowsVistaTransition() { }
-    void setDuration(int duration) { _duration = duration; }
-    void setStartImage(const QImage &image) { _primaryImage = image; }
-    void setEndImage(const QImage &image) { _secondaryImage = image; }
-    virtual void paint(QPainter *painter, const QStyleOption *option);
-    int duration() const { return _duration; }
-    int _duration; //set time in ms to complete a state transition
-};
-
-
-// Handles pulse animations (default buttons)
-class QWindowsVistaPulse: public QWindowsVistaAnimation
-{
-public :
-    QWindowsVistaPulse() : QWindowsVistaAnimation() {}
-    virtual ~QWindowsVistaPulse() { }
-    void setDuration(int duration) { _duration = duration; }
-    void setPrimaryImage(const QImage &image) { _primaryImage = image; }
-    void setAlternateImage(const QImage &image) { _secondaryImage = image; }
-    virtual void paint(QPainter *painter, const QStyleOption *option);
-    int duration() const { return _duration; }
-    int _duration; //time in ms to complete a pulse cycle
-};
-
-
-class QWindowsVistaStylePrivate :  public QWindowsXPStylePrivate
-{
-    Q_DECLARE_PUBLIC(QWindowsVistaStyle)
-
+    Q_OBJECT
 public:
-    QWindowsVistaStylePrivate();
-    ~QWindowsVistaStylePrivate();
-    static bool resolveSymbols();
-    static inline bool useVista();
-    void startAnimation(QWindowsVistaAnimation *);
-    void stopAnimation(const QWidget *);
-    QWindowsVistaAnimation* widgetAnimation(const QWidget *) const;
-    void timerEvent();
-    bool transitionsEnabled() const;
-    QWidget *treeViewHelper();
+    QWindowsVistaStyle();
+    ~QWindowsVistaStyle() override;
+
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+                       QPainter *painter,
+                       const QWidget *widget = nullptr) const override;
+    void drawControl(ControlElement element, const QStyleOption *option,
+                     QPainter *painter, const QWidget *widget) const override;
+    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+                            QPainter *painter, const QWidget *widget) const override;
+    QSize sizeFromContents(ContentsType type, const QStyleOption *option,
+                           const QSize &size, const QWidget *widget) const override;
+
+    QRect subElementRect(SubElement element, const QStyleOption *option,
+                         const QWidget *widget) const override;
+    QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+                         SubControl sc, const QWidget *widget) const override;
+
+    SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+                                     const QPoint &pos, const QWidget *widget = nullptr) const override;
+
+    QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option = nullptr,
+                       const QWidget *widget = nullptr) const override;
+    QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                           const QWidget *widget = nullptr) const override;
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr,
+                    const QWidget *widget = nullptr) const override;
+    int styleHint(StyleHint hint, const QStyleOption *opt = nullptr,
+                  const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override;
+
+    void polish(QWidget *widget) override;
+    void unpolish(QWidget *widget) override;
+    void polish(QPalette &pal) override;
+    void polish(QApplication *app) override;
+    void unpolish(QApplication *app) override;
+    QPalette standardPalette() const override;
 
 private:
-    QList <QWindowsVistaAnimation*> animations;
-    QBasicTimer animationTimer;
-    QWidget *m_treeViewHelper;
+    Q_DISABLE_COPY_MOVE(QWindowsVistaStyle)
+    Q_DECLARE_PRIVATE(QWindowsVistaStyle)
+    friend class QStyleFactory;
 };
 
-
-#endif // QT_NO_STYLE_WINDOWSVISTA
+QT_END_NAMESPACE
 
 #endif // QWINDOWSVISTASTYLE_P_H
