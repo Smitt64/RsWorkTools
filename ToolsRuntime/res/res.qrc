@@ -4,5 +4,7 @@
         <file>about/fixed_template.html</file>
         <file>about/index_example.html</file>
         <file>about/index_template.html</file>
+        <file>icons/themeui.dll_14_701-0.png</file>
+        <file>ui/StyleTest.ui</file>
     </qresource>
 </RCC>

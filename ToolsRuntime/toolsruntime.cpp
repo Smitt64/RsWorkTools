@@ -1,11 +1,12 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntime.h"
 #include <Windows.h>
 #include <QDir>
 #include <QApplication>
 #include <QSettings>
 #include <QPluginLoader>
+#include <QTextStream>
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
@@ -26,13 +27,22 @@ QString toolFullFileNameFromDir(const QString &file)
     return QString();
 }
 
-QString toolReadTextFileContent(const QString &filename)
+QString toolReadTextFileContent(const QString &filename, const QString &encode)
 {
     QString content;
     QFile f(filename);
     if (f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        content = f.readAll();
+        if (encode.isEmpty())
+            content = f.readAll();
+        else
+        {
+            QTextStream stream(&f);
+            stream.setCodec(encode.toLocal8Bit().data());
+
+            content = stream.readAll();
+        }
+
         f.close();
     }
     return content;

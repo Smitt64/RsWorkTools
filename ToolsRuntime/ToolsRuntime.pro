@@ -1,4 +1,4 @@
-QT += gui widgets webengine webenginewidgets xml
+QT += gui widgets webengine webenginewidgets xml uitools
 
 TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
@@ -17,6 +17,7 @@ SOURCES += \
     errordlg.cpp \
     errorsmodel.cpp \
     optionsdlg/optionsdlg.cpp \
+    optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
@@ -39,7 +40,9 @@ HEADERS += \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
+    optionsdlg/OptionsPage.h \
     optionsdlg/optionsdlg.h \
+    optionsdlg/styleoptionspage.h \
     rslexecutor.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
@@ -64,7 +67,8 @@ unix {
 FORMS += \
     aboutdlg.ui \
     errordlg.ui \
-    optionsdlg/optionsdlg.ui
+    optionsdlg/optionsdlg.ui \
+    optionsdlg/styleoptionspage.ui
 
 LIBS += -lVersion -lGdi32 -lUser32
 

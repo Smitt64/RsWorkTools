@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -35,7 +35,7 @@
     <property name="title">
      <string>Меню</string>
     </property>
-    <addaction name="action_4"/>
+    <addaction name="actionOptions"/>
     <addaction name="action_5"/>
     <addaction name="separator"/>
     <addaction name="action_7"/>
@@ -70,9 +70,9 @@
     <string>Элемент</string>
    </property>
   </action>
-  <action name="action_4">
+  <action name="actionOptions">
    <property name="text">
-    <string>Элемент</string>
+    <string>Тест опции</string>
    </property>
   </action>
   <action name="action_5">

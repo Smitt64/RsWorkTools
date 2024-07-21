@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "errorsmodel.h"
 #include <QApplication>
 #include <QStyle>
@@ -66,7 +66,7 @@ QVariant ErrorsModel::data(const QModelIndex &index, int role) const
         else if (index.column() == 0)
             value = d->m_errors.at(index.row()).time.toString("hh:mm:ss.zzz dd.MM.yyyy");
     }
-    if (role == Qt::DecorationRole)
+    else if (role == Qt::DecorationRole)
     {
         if (index.column() == 0)
         {

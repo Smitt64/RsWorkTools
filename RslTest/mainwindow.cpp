@@ -1,11 +1,12 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "rslexecutor.h"
 #include "rsscript/rslstaticmodule.h"
 #include "rsscript/registerobjlist.hpp"
 #include "toolsruntime.h"
+#include "optionsdlg/optionsdlg.h"
 #include <QVariant>
 #include <QDebug>
 #include <QDockWidget>
@@ -51,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     CodeEditor *pEditor = new CodeEditor();
     pEditor->setReadOnly(true);
-    pEditor->setPlainText(toolReadTextFileContent("Test.mac"));
+    pEditor->setPlainText(toolReadTextFileContent("Test.mac", "IBM 866"));
     setCentralWidget(pEditor);
 
     QListView *listView = new QListView(this);
@@ -64,6 +65,13 @@ MainWindow::MainWindow(QWidget *parent)
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
 
     connect(exec, &QAction::triggered, this, &MainWindow::on_pushButton_clicked);
+
+    connect(ui->actionOptions, &QAction::triggered, [=]()
+    {
+        OptionsDlg dlg(this);
+        dlg.addStylePage();
+        dlg.exec();
+    });
 }
 
 MainWindow::~MainWindow()
