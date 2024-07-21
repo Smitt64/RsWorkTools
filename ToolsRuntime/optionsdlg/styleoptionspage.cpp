@@ -20,6 +20,8 @@ StyleOptionsPage::StyleOptionsPage(QWidget *parent)
     QWidget *widget = loader.load(&file);
     file.close();
     QMdiSubWindow *wnd = ui->mdiArea->addSubWindow(widget);
+
+    wnd->setMinimumSize(QSize(600, 500));
 }
 
 StyleOptionsPage::~StyleOptionsPage()
