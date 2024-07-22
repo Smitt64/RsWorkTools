@@ -62,7 +62,7 @@ class QWindowsVistaStyle : public QWindowsXPStyle
     Q_OBJECT
 public:
     QWindowsVistaStyle();
-    ~QWindowsVistaStyle() override;
+    virtual ~QWindowsVistaStyle() override;
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                        QPainter *painter,

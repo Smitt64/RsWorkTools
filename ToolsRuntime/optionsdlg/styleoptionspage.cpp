@@ -4,6 +4,9 @@
 #include <QMdiSubWindow>
 #include <QUiLoader>
 #include <QFile>
+#include <QDebug>
+#include <QMenuBar>
+#include <QStyle>
 
 StyleOptionsPage::StyleOptionsPage(QWidget *parent)
     : OptionsPage(parent)
@@ -13,15 +16,37 @@ StyleOptionsPage::StyleOptionsPage(QWidget *parent)
 
     ui->comboBox->addItems(QStyleFactory::keys());
 
-    QFile file(":/ui/StyleTest.ui");
-    file.open(QFile::ReadOnly);
+    auto LoadPreview = [=]() -> QWidget*
+    {
+        QFile file(":/ui/StyleTest.ui");
+        file.open(QFile::ReadOnly);
 
-    QUiLoader loader;
-    QWidget *widget = loader.load(&file);
-    file.close();
-    QMdiSubWindow *wnd = ui->mdiArea->addSubWindow(widget);
+        QUiLoader loader;
+        QWidget *widget = loader.load(&file);
+        file.close();
 
+        return widget;
+    };
+
+    QWidget *w = LoadPreview();
+    QMdiSubWindow *wnd = ui->mdiArea->addSubWindow(w);
     wnd->setMinimumSize(QSize(600, 500));
+
+    wnd->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
+    wnd->show();
+
+    auto SetStyle = [=](const QString &stylename)
+    {
+        QStyle *style = QStyleFactory::create(stylename);
+
+        style->polish(w);
+        qApp->setStyle(style);
+        w->setStyle(style);
+        ui->mdiArea->update();
+        w->update();
+    };
+
+    connect(ui->comboBox, &QComboBox::currentTextChanged, SetStyle);
 }
 
 StyleOptionsPage::~StyleOptionsPage()

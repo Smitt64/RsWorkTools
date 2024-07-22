@@ -14,8 +14,10 @@
 #include <QAction>
 #include "codeeditor/codeeditor.h"
 #include <QStyleFactory>
+#include <QDebug>
 
 constexpr static const char name[] = "TestModule";
+const char *DefaultStyleName = "WindowsModernStyleOlive";
 
 class TestModule : public RslStaticModule
 {
@@ -69,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionOptions, &QAction::triggered, [=]()
     {
         OptionsDlg dlg(this);
+        dlg.setDefaultStyle(DefaultStyleName);
         dlg.addStylePage();
         dlg.exec();
     });
@@ -95,7 +98,5 @@ void MainWindow::on_pushButton_clicked()
     exec.playRep("Test.mac", "1.txt", Proc);
 
     m_Errors.setStringList(exec.errors());
-    //ui->l
-    //qDebug() << exec.errors();
 }
 

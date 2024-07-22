@@ -3880,7 +3880,8 @@ QIcon QWindowsXPStyle::standardIcon(StandardPixmap standardIcon,
 
     Constructs a QWindowsXPStyle object.
 */
-QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd) : QWindowsStyle(dd)
+QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd) :
+    QWindowsStyle(dd)
 {
 }
 

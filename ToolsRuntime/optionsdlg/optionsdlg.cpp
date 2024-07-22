@@ -4,6 +4,8 @@
 #include "ui_optionsdlg.h"
 #include "styleoptionspage.h"
 #include <QListWidgetItem>
+#include <QDebug>
+#include <QStyleFactory>
 
 class OptionsDlgPrivate
 {
@@ -17,10 +19,19 @@ public:
     void itemClicked(QListWidgetItem *item, const int &row)
     {
         Q_Q(OptionsDlg);
-
         q->ui->scrollArea->setWidget(m_Pages[row]);
     }
 
+    void restoreAppStyle()
+    {
+        if (m_CurrentStyle.isEmpty())
+            return;
+
+        QStyle *style = QStyleFactory::create(m_CurrentStyle);
+        qApp->setStyle(style);
+    }
+
+    QString m_CurrentStyle;
     QList<OptionsPage*> m_Pages;
     OptionsDlg *q_ptr;
 };
@@ -48,6 +59,11 @@ OptionsDlg::~OptionsDlg()
 
 void OptionsDlg::addStylePage()
 {
+    Q_D(OptionsDlg);
+
+    if (d->m_CurrentStyle.isEmpty())
+        return;
+
     addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), new StyleOptionsPage());
 }
 
@@ -59,5 +75,44 @@ void OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *p
     pageitem->setIcon(icon);
     ui->listWidget->addItem(pageitem);
 
+    page->setOptionsDlg(this);
     d->m_Pages.append(page);
+}
+
+void OptionsDlg::setDefaultStyle(const QString &style)
+{
+    Q_D(OptionsDlg);
+    d->m_CurrentStyle = style;
+}
+
+void OptionsDlg::closeEvent(QCloseEvent *event)
+{
+    Q_D(OptionsDlg);
+    d->restoreAppStyle();
+    QDialog::closeEvent(event);
+}
+
+void OptionsDlg::done(int r)
+{
+    Q_D(OptionsDlg);
+    QDialog::done(r);
+    d->restoreAppStyle();
+}
+
+const QString &OptionsDlg::defaultStyle() const
+{
+    Q_D(const OptionsDlg);
+    return d->m_CurrentStyle;
+}
+
+void OptionsDlg::showEvent(QShowEvent *event)
+{
+    Q_D(OptionsDlg);
+    QDialog::showEvent(event);
+
+    if (!ui->listWidget->count())
+        return;
+
+    ui->listWidget->setCurrentItem(0);
+    d->itemClicked(ui->listWidget->item(0), 0);
 }

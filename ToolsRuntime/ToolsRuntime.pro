@@ -14,8 +14,11 @@ include(../../configtools.pri)
 SOURCES += \
     aboutdlg.cpp \
     codeeditor/codeeditor.cpp \
+    codeeditor/codehighlighter.cpp \
+    codeeditor/highlighterstyle.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
+    optionsdlg/OptionsPage.cpp \
     optionsdlg/optionsdlg.cpp \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
@@ -37,6 +40,8 @@ HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
     codeeditor/codeeditor.h \
+    codeeditor/codehighlighter.h \
+    codeeditor/highlighterstyle.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \

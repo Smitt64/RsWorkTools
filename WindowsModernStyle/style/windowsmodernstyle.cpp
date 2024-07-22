@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 /****************************************************************************
 * Modern Qt style for Windows
 * Copyright (C) 2008-2009 Michał Męciński
@@ -42,7 +42,7 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QLayout>
-
+#include <QDebug>
 
 #include <qt_windows.h>
 
@@ -64,7 +64,8 @@ static void resolveSymbols()
     }
 }
 
-WindowsModernStyle::WindowsModernStyle(const Mode &mode) : QWindowsVistaStyle(),
+WindowsModernStyle::WindowsModernStyle(const Mode &mode) :
+    QWindowsVistaStyle(),
     m_mode( mode )
 {
     resolveSymbols();
@@ -99,29 +100,8 @@ static QColor blendRoles( QPalette::ColorRole src, QPalette::ColorRole dest, dou
     return blendColors( palette.color( src ), palette.color( dest ), alpha );
 }
 
-void WindowsModernStyle::polish( QApplication* application )
+void WindowsModernStyle::SetupColors()
 {
-    if ( useVista() )
-        QWindowsVistaStyle::polish( application );
-    else
-        QWindowsXPStyle::polish( application );
-}
-
-void WindowsModernStyle::unpolish( QApplication* application )
-{
-    if ( useVista() )
-        QWindowsVistaStyle::unpolish( application );
-    else
-        QWindowsXPStyle::unpolish( application );
-}
-
-void WindowsModernStyle::polish( QPalette& palette )
-{
-    if ( useVista() )
-        QWindowsVistaStyle::polish( palette );
-    else
-        QWindowsXPStyle::polish( palette );
-
     if (m_mode == Classic)
     {
         const int maxLength = 256;
@@ -144,116 +124,145 @@ void WindowsModernStyle::polish( QPalette& palette )
         }
     }
 
-    switch ( m_mode ) {
-        case Blue:
-            m_colorBackgroundBegin = qRgb( 158, 190, 245 );
-            m_colorBackgroundEnd = qRgb( 196, 218, 250 );
-            m_colorMenuBorder = qRgb( 0, 45, 150 );
-            m_colorMenuBackground = qRgb( 246, 246, 246 );
-            m_colorMenuTitleBegin = qRgb( 227, 239, 255 );
-            m_colorMenuTitleEnd = qRgb( 123, 164, 224 );
-            m_colorBarBegin = qRgb( 227, 239, 255 );
-            m_colorBarMiddle = qRgb( 203, 225, 252 );
-            m_colorBarEnd = qRgb( 123, 164, 224 );
-            m_colorHandle = qRgb( 39, 65, 118 );
-            m_colorHandleLight = qRgb( 255, 255, 255 );
-            m_colorSeparator = qRgb( 106, 140, 203 );
-            m_colorSeparatorLight = qRgb( 241, 249, 255 );
-            m_colorItemBorder = qRgb( 0, 0, 128 );
-            m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
-            m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
-            m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
-            m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
-            m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
-            m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
-            m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
-            m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
-            m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
-            m_colorBorder = qRgb( 68, 86, 134 );
-            m_colorBorderLight = qRgb( 106, 140, 203 );
-            break;
+    switch ( m_mode )
+    {
+    case Blue:
+        m_colorBackgroundBegin = qRgb( 158, 190, 245 );
+        m_colorBackgroundEnd = qRgb( 196, 218, 250 );
+        m_colorMenuBorder = qRgb( 0, 45, 150 );
+        m_colorMenuBackground = qRgb( 246, 246, 246 );
+        m_colorMenuTitleBegin = qRgb( 227, 239, 255 );
+        m_colorMenuTitleEnd = qRgb( 123, 164, 224 );
+        m_colorBarBegin = qRgb( 227, 239, 255 );
+        m_colorBarMiddle = qRgb( 203, 225, 252 );
+        m_colorBarEnd = qRgb( 123, 164, 224 );
+        m_colorHandle = qRgb( 39, 65, 118 );
+        m_colorHandleLight = qRgb( 255, 255, 255 );
+        m_colorSeparator = qRgb( 106, 140, 203 );
+        m_colorSeparatorLight = qRgb( 241, 249, 255 );
+        m_colorItemBorder = qRgb( 0, 0, 128 );
+        m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
+        m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
+        m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
+        m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
+        m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
+        m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
+        m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
+        m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
+        m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
+        m_colorBorder = qRgb( 68, 86, 134 );
+        m_colorBorderLight = qRgb( 106, 140, 203 );
+        break;
 
-        case Silver:
-            m_colorBackgroundBegin = qRgb( 215, 215, 229 );
-            m_colorBackgroundEnd = qRgb( 243, 243, 247 );
-            m_colorMenuBorder = qRgb( 124, 124, 148 );
-            m_colorMenuBackground = qRgb( 253, 250, 255 );
-            m_colorMenuTitleBegin = qRgb( 232, 233, 242 );
-            m_colorMenuTitleEnd = qRgb( 172, 170, 194 );
-            m_colorBarBegin = qRgb( 252, 252, 252 );
-            m_colorBarMiddle = qRgb( 232, 233, 242 );
-            m_colorBarEnd = qRgb( 172, 170, 194 );
-            m_colorHandle = qRgb( 84, 84, 117 );
-            m_colorHandleLight = qRgb( 255, 255, 255 );
-            m_colorSeparator = qRgb( 110, 109, 143 );
-            m_colorSeparatorLight = qRgb( 255, 255, 255 );
-            m_colorItemBorder = qRgb( 75, 75, 111 );
-            m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
-            m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
-            m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
-            m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
-            m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
-            m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
-            m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
-            m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
-            m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
-            m_colorBorder = qRgb( 110, 109, 143 );
-            m_colorBorderLight = qRgb( 145, 144, 173 );
-            break;
+    case Silver:
+        m_colorBackgroundBegin = qRgb( 215, 215, 229 );
+        m_colorBackgroundEnd = qRgb( 243, 243, 247 );
+        m_colorMenuBorder = qRgb( 124, 124, 148 );
+        m_colorMenuBackground = qRgb( 253, 250, 255 );
+        m_colorMenuTitleBegin = qRgb( 232, 233, 242 );
+        m_colorMenuTitleEnd = qRgb( 172, 170, 194 );
+        m_colorBarBegin = qRgb( 252, 252, 252 );
+        m_colorBarMiddle = qRgb( 232, 233, 242 );
+        m_colorBarEnd = qRgb( 172, 170, 194 );
+        m_colorHandle = qRgb( 84, 84, 117 );
+        m_colorHandleLight = qRgb( 255, 255, 255 );
+        m_colorSeparator = qRgb( 110, 109, 143 );
+        m_colorSeparatorLight = qRgb( 255, 255, 255 );
+        m_colorItemBorder = qRgb( 75, 75, 111 );
+        m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
+        m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
+        m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
+        m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
+        m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
+        m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
+        m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
+        m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
+        m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
+        m_colorBorder = qRgb( 110, 109, 143 );
+        m_colorBorderLight = qRgb( 145, 144, 173 );
+        break;
 
-        case Olive:
-            m_colorBackgroundBegin = qRgb( 217, 217, 167 );
-            m_colorBackgroundEnd = qRgb( 242, 241, 228 );
-            m_colorMenuBorder = qRgb( 117, 141, 94 );
-            m_colorMenuBackground = qRgb( 244, 244, 238 );
-            m_colorMenuTitleBegin = qRgb( 237, 240, 214 );
-            m_colorMenuTitleEnd = qRgb( 181, 196, 143 );
-            m_colorBarBegin = qRgb( 255, 255, 237 );
-            m_colorBarMiddle = qRgb( 206, 220, 167 );
-            m_colorBarEnd = qRgb( 181, 196, 143 );
-            m_colorHandle = qRgb( 81, 94, 51 );
-            m_colorHandleLight = qRgb( 255, 255, 255 );
-            m_colorSeparator = qRgb( 96, 128, 88 );
-            m_colorSeparatorLight = qRgb( 244, 247, 222 );
-            m_colorItemBorder = qRgb( 63, 93, 56 );
-            m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
-            m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
-            m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
-            m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
-            m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
-            m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
-            m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
-            m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
-            m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
-            m_colorBorder = qRgb( 96, 128, 88 );
-            m_colorBorderLight = qRgb( 151, 166, 123 );
-            break;
+    case Olive:
+        m_colorBackgroundBegin = qRgb( 217, 217, 167 );
+        m_colorBackgroundEnd = qRgb( 242, 241, 228 );
+        m_colorMenuBorder = qRgb( 117, 141, 94 );
+        m_colorMenuBackground = qRgb( 244, 244, 238 );
+        m_colorMenuTitleBegin = qRgb( 237, 240, 214 );
+        m_colorMenuTitleEnd = qRgb( 181, 196, 143 );
+        m_colorBarBegin = qRgb( 255, 255, 237 );
+        m_colorBarMiddle = qRgb( 206, 220, 167 );
+        m_colorBarEnd = qRgb( 181, 196, 143 );
+        m_colorHandle = qRgb( 81, 94, 51 );
+        m_colorHandleLight = qRgb( 255, 255, 255 );
+        m_colorSeparator = qRgb( 96, 128, 88 );
+        m_colorSeparatorLight = qRgb( 244, 247, 222 );
+        m_colorItemBorder = qRgb( 63, 93, 56 );
+        m_colorItemBackgroundBegin = qRgb( 255, 238, 190 );
+        m_colorItemBackgroundMiddle = qRgb( 255, 225, 172 );
+        m_colorItemBackgroundEnd = qRgb( 255, 200, 125 );
+        m_colorItemCheckedBegin = qRgb( 255, 200, 125 );
+        m_colorItemCheckedMiddle = qRgb( 255, 180, 100 );
+        m_colorItemCheckedEnd = qRgb( 255, 150, 70 );
+        m_colorItemSunkenBegin = qRgb( 254, 128, 62 );
+        m_colorItemSunkenMiddle = qRgb( 255, 177, 109 );
+        m_colorItemSunkenEnd = qRgb( 255, 223, 154 );
+        m_colorBorder = qRgb( 96, 128, 88 );
+        m_colorBorderLight = qRgb( 151, 166, 123 );
+        break;
 
-        case Classic:
-            m_colorBackgroundBegin = colorRole( QPalette::Button );
-            m_colorBackgroundEnd = blendRoles( QPalette::Button, QPalette::Base, 0.205 );
-            m_colorMenuBorder = blendRoles( QPalette::Text, QPalette::Dark, 0.2 );
-            m_colorMenuBackground = blendRoles( QPalette::Button, QPalette::Base, 0.143 );
-            m_colorMenuTitleBegin = blendRoles( QPalette::Button, QPalette::Base, 0.2 );
-            m_colorMenuTitleEnd = blendRoles( QPalette::Button, QPalette::Base, 0.5 );
-            m_colorBarBegin = blendRoles( QPalette::Button, QPalette::Base, 0.2 );
-            m_colorBarMiddle = blendRoles( QPalette::Button, QPalette::Base, 0.5 );
-            m_colorBarEnd = colorRole( QPalette::Button );
-            m_colorHandle = blendRoles( QPalette::Dark, QPalette::Base, 0.75 );
-            m_colorHandleLight = colorRole( QPalette::Light );
-            m_colorSeparator = blendRoles( QPalette::Dark, QPalette::Base, 0.7 );
-            m_colorSeparatorLight = colorRole( QPalette::Light );
-            m_colorItemBorder = colorRole( QPalette::Highlight );
-            m_colorItemBackgroundBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.3 );
-            m_colorItemBackgroundMiddle = m_colorItemBackgroundEnd = m_colorItemBackgroundBegin;
-            m_colorItemCheckedBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.15 );
-            m_colorItemCheckedMiddle = m_colorItemCheckedEnd = m_colorItemCheckedBegin;
-            m_colorItemSunkenBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.45 );
-            m_colorItemSunkenMiddle = m_colorItemSunkenEnd = m_colorItemSunkenBegin;
-            m_colorBorder = colorRole( QPalette::Dark );
-            m_colorBorderLight = blendRoles( QPalette::Dark, QPalette::Base, 0.8 );
-            break;
+    case Classic:
+        m_colorBackgroundBegin = colorRole( QPalette::Button );
+        m_colorBackgroundEnd = blendRoles( QPalette::Button, QPalette::Base, 0.205 );
+        m_colorMenuBorder = blendRoles( QPalette::Text, QPalette::Dark, 0.2 );
+        m_colorMenuBackground = blendRoles( QPalette::Button, QPalette::Base, 0.143 );
+        m_colorMenuTitleBegin = blendRoles( QPalette::Button, QPalette::Base, 0.2 );
+        m_colorMenuTitleEnd = blendRoles( QPalette::Button, QPalette::Base, 0.5 );
+        m_colorBarBegin = blendRoles( QPalette::Button, QPalette::Base, 0.2 );
+        m_colorBarMiddle = blendRoles( QPalette::Button, QPalette::Base, 0.5 );
+        m_colorBarEnd = colorRole( QPalette::Button );
+        m_colorHandle = blendRoles( QPalette::Dark, QPalette::Base, 0.75 );
+        m_colorHandleLight = colorRole( QPalette::Light );
+        m_colorSeparator = blendRoles( QPalette::Dark, QPalette::Base, 0.7 );
+        m_colorSeparatorLight = colorRole( QPalette::Light );
+        m_colorItemBorder = colorRole( QPalette::Highlight );
+        m_colorItemBackgroundBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.3 );
+        m_colorItemBackgroundMiddle = m_colorItemBackgroundEnd = m_colorItemBackgroundBegin;
+        m_colorItemCheckedBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.15 );
+        m_colorItemCheckedMiddle = m_colorItemCheckedEnd = m_colorItemCheckedBegin;
+        m_colorItemSunkenBegin = blendRoles( QPalette::Highlight, QPalette::Base, 0.45 );
+        m_colorItemSunkenMiddle = m_colorItemSunkenEnd = m_colorItemSunkenBegin;
+        m_colorBorder = colorRole( QPalette::Dark );
+        m_colorBorderLight = blendRoles( QPalette::Dark, QPalette::Base, 0.8 );
+        break;
     }
+}
+
+void WindowsModernStyle::polish( QApplication* application )
+{
+    if ( useVista() )
+        QWindowsVistaStyle::polish( application );
+    else
+        QWindowsXPStyle::polish( application );
+
+    SetupColors();
+}
+
+void WindowsModernStyle::unpolish( QApplication* application )
+{
+    if ( useVista() )
+        QWindowsVistaStyle::unpolish( application );
+    else
+        QWindowsXPStyle::unpolish( application );
+}
+
+void WindowsModernStyle::polish( QPalette& palette )
+{
+    if ( useVista() )
+        QWindowsVistaStyle::polish( palette );
+    else
+        QWindowsXPStyle::polish( palette );
+
+    SetupColors();
 }
 
 static const QTabWidget* isStyledTabWidget( const QWidget* widget )
@@ -323,6 +332,8 @@ void WindowsModernStyle::polish( QWidget* widget )
         QWindowsVistaStyle::polish( widget );
     else
         QWindowsXPStyle::polish( widget );
+
+    SetupColors();
 }
 
 void WindowsModernStyle::unpolish( QWidget* widget )

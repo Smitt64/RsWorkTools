@@ -54,7 +54,7 @@ public:
     /**
     * Destructor.
     */
-    ~WindowsModernStyle();
+    virtual ~WindowsModernStyle();
 
 public: // overrides
     void polish( QApplication* application );
@@ -96,6 +96,7 @@ protected slots:
     int layoutSpacingImplementation( QSizePolicy::ControlType control1, QSizePolicy::ControlType control2,
         Qt::Orientation orientation, const QStyleOption* option, const QWidget* widget ) const;
 private:
+    void SetupColors();
     Mode m_mode;
 
     // main window, toolbox

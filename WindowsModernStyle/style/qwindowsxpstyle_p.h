@@ -63,7 +63,7 @@ class QWindowsXPStyle : public QWindowsStyle
 public:
     QWindowsXPStyle();
     QWindowsXPStyle(QWindowsXPStylePrivate &dd);
-    ~QWindowsXPStyle() override;
+    virtual ~QWindowsXPStyle() override;
 
     void unpolish(QApplication*) override;
     void polish(QApplication*) override;

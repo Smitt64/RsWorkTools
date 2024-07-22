@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Тест стилей</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -20,15 +20,283 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab1">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Кнопки</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Группа 1</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QRadioButton" name="radioButton">
+               <property name="text">
+                <string>Переключатель 1</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_2">
+               <property name="text">
+                <string>Переключатель 2</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_3">
+               <property name="text">
+                <string>Переключатель 3</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox">
+               <property name="text">
+                <string>Флажок с тремя состояниями</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>48</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string>Группа 2</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QPushButton" name="pushButton">
+               <property name="text">
+                <string>Стандартная кнопка</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>Кнопка переключения</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_3">
+               <property name="text">
+                <string>Плоская кнопка</string>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>53</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>87</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Таблица</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QTableWidget" name="tableWidget">
+          <row>
+           <property name="text">
+            <string>1</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>2</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>3</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>4</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>5</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>6</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>7</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>8</string>
+           </property>
+          </row>
+          <column>
+           <property name="text">
+            <string>Столбец 1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Столбец 2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Столбец 3</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Столбец 4</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Прочие элементы</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="text">
+             <string>password</string>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox"/>
+          </item>
+          <item>
+           <widget class="QDateTimeEdit" name="dateTimeEdit"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QSlider" name="horizontalSlider">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QScrollBar" name="horizontalScrollBar">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QProgressBar" name="progressBar">
+              <property name="value">
+               <number>24</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QDial" name="dial"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>135</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -64,6 +332,10 @@
     <property name="title">
      <string>Правка</string>
     </property>
+    <addaction name="action_6"/>
+    <addaction name="separator"/>
+    <addaction name="action_8"/>
+    <addaction name="action_9"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_3"/>
@@ -92,6 +364,21 @@
   <action name="action_2_txt">
    <property name="text">
     <string>Пример_2.txt</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Копировать</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
+    <string>Вырезать</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>Вставить</string>
    </property>
   </action>
  </widget>
