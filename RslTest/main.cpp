@@ -3,11 +3,14 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QStyleFactory>
+#include <QDebug>
+#include <QStyle>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    qDebug() << qApp->style();
     QStyle *style = QStyleFactory::create(DefaultStyleName);
     a.setStyle(style);
 

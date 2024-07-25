@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "playrep.h"
@@ -136,7 +136,6 @@ public:
 
             if (method.methodType() == QMetaMethod::Method || method.methodType() == QMetaMethod::Slot)
             {
-                qDebug() << method.methodSignature();
                 if (!AddedMethods.contains(method.name(), Qt::CaseInsensitive))
                 {
                     TPropMethTable prop = { method.name(), OBJ_RSL_METHOD_OFFSET + i };

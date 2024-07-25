@@ -15,10 +15,13 @@ SOURCES += \
     aboutdlg.cpp \
     codeeditor/codeeditor.cpp \
     codeeditor/codehighlighter.cpp \
+    codeeditor/cppcodehighlighter.cpp \
     codeeditor/highlighterstyle.cpp \
+    codeeditor/rslcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
     optionsdlg/OptionsPage.cpp \
+    optionsdlg/codeeditoroptionspage.cpp \
     optionsdlg/optionsdlg.cpp \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
@@ -41,11 +44,14 @@ HEADERS += \
     aboutdlg.h \
     codeeditor/codeeditor.h \
     codeeditor/codehighlighter.h \
+    codeeditor/cppcodehighlighter.h \
     codeeditor/highlighterstyle.h \
+    codeeditor/rslcodehighlighter.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
     optionsdlg/OptionsPage.h \
+    optionsdlg/codeeditoroptionspage.h \
     optionsdlg/optionsdlg.h \
     optionsdlg/styleoptionspage.h \
     rslexecutor.h \
@@ -72,6 +78,7 @@ unix {
 FORMS += \
     aboutdlg.ui \
     errordlg.ui \
+    optionsdlg/codeeditoroptionspage.ui \
     optionsdlg/optionsdlg.ui \
     optionsdlg/styleoptionspage.ui
 

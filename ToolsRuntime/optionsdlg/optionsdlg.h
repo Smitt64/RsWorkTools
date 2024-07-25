@@ -10,18 +10,25 @@ namespace Ui {
 class OptionsDlg;
 }
 
+class QSettings;
 class OptionsPage;
 class OptionsDlgPrivate;
 class TOOLSRUNTIME_EXPORT OptionsDlg : public QDialog
 {
     Q_OBJECT
 public:
-    explicit OptionsDlg(QWidget *parent = nullptr);
+    explicit OptionsDlg(QSettings *settings, QWidget *parent = nullptr);
     ~OptionsDlg();
 
-    void addStylePage();
+    void addStylePage(const QString &group, const QString &key);
+    void addCodeEditorPage();
     void setDefaultStyle(const QString &style);
     const QString &defaultStyle() const;
+
+    QSettings *settings();
+
+public slots:
+    virtual int exec() Q_DECL_OVERRIDE;
 
 protected:
     void addPage(const QString &title, const QIcon &icon, OptionsPage *page);

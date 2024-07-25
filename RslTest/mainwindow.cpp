@@ -7,6 +7,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "toolsruntime.h"
 #include "optionsdlg/optionsdlg.h"
+#include "codeeditor/codehighlighter.h"
 #include <QVariant>
 #include <QDebug>
 #include <QDockWidget>
@@ -15,6 +16,9 @@
 #include "codeeditor/codeeditor.h"
 #include <QStyleFactory>
 #include <QDebug>
+#include <QSettings>
+
+Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
 
 constexpr static const char name[] = "TestModule";
 const char *DefaultStyleName = "WindowsModernStyleOlive";
@@ -43,8 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    qDebug() << QStyleFactory::keys();
     ui->setupUi(this);
+    qApp->setStyle(pSettings->value("Style", "windowsvista").toString());
 
     //ui->listView->setModel(&m_Errors);
 
@@ -56,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     pEditor->setReadOnly(true);
     pEditor->setPlainText(toolReadTextFileContent("Test.mac", "IBM 866"));
     setCentralWidget(pEditor);
+    ToolApplyHighlighter(pEditor, HighlighterRsl);
 
     QListView *listView = new QListView(this);
     listView->setModel(&m_Errors);
@@ -70,9 +75,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionOptions, &QAction::triggered, [=]()
     {
-        OptionsDlg dlg(this);
+        OptionsDlg dlg(pSettings, this);
         dlg.setDefaultStyle(DefaultStyleName);
-        dlg.addStylePage();
+        dlg.addStylePage(QString(), "style");
+        dlg.addCodeEditorPage();
         dlg.exec();
     });
 }

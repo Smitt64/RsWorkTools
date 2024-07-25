@@ -1,6 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "OptionsPage.h"
+#include "optionsdlg.h"
 
 class OptionsPagePrivate
 {
@@ -37,4 +38,20 @@ OptionsDlg *OptionsPage::options()
 {
     Q_D(OptionsPage);
     return d->m_pDlg;
+}
+
+QSettings *OptionsPage::settings()
+{
+    Q_D(OptionsPage);
+    return d->m_pDlg->settings();
+}
+
+int OptionsPage::save()
+{
+    return true;
+}
+
+void OptionsPage::restore()
+{
+
 }

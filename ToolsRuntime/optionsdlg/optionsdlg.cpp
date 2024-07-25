@@ -3,9 +3,12 @@
 #include "optionsdlg.h"
 #include "ui_optionsdlg.h"
 #include "styleoptionspage.h"
+#include "codeeditoroptionspage.h"
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QStyleFactory>
+#include <QSettings>
+#include <QPushButton>
 
 class OptionsDlgPrivate
 {
@@ -19,6 +22,7 @@ public:
     void itemClicked(QListWidgetItem *item, const int &row)
     {
         Q_Q(OptionsDlg);
+        (void)q->ui->scrollArea->takeWidget();
         q->ui->scrollArea->setWidget(m_Pages[row]);
     }
 
@@ -31,12 +35,28 @@ public:
         qApp->setStyle(style);
     }
 
+    void applySettings()
+    {
+        for (OptionsPage *page : m_Pages)
+        {
+            (void)page->save();
+
+            StyleOptionsPage *stylepage = qobject_cast<StyleOptionsPage*>(page);
+
+            if (stylepage)
+                m_CurrentStyle = stylepage->currentStyle();
+        }
+
+        m_pSettings->sync();
+    }
+
+    QSettings *m_pSettings;
     QString m_CurrentStyle;
     QList<OptionsPage*> m_Pages;
     OptionsDlg *q_ptr;
 };
 
-OptionsDlg::OptionsDlg(QWidget *parent)
+OptionsDlg::OptionsDlg(QSettings *settings, QWidget *parent)
     : QDialog(parent),
     ui(new Ui::OptionsDlg),
     d_ptr(new OptionsDlgPrivate(this))
@@ -45,9 +65,17 @@ OptionsDlg::OptionsDlg(QWidget *parent)
     ui->setupUi(this);
     ui->listWidget->setItemAlignment(Qt::AlignCenter);
 
+    d->m_pSettings = settings;
+
     connect(ui->listWidget, &QListWidget::itemClicked, [=](QListWidgetItem *item)
     {
         d->itemClicked(item, ui->listWidget->row(item));
+    });
+
+    QAbstractButton *Apply = ui->buttonBox->button(QDialogButtonBox::Apply);
+    connect(Apply, &QAbstractButton::clicked, [=]()
+    {
+        d->applySettings();
     });
 }
 
@@ -57,14 +85,24 @@ OptionsDlg::~OptionsDlg()
     delete d_ptr;
 }
 
-void OptionsDlg::addStylePage()
+void OptionsDlg::addStylePage(const QString &group, const QString &key)
 {
     Q_D(OptionsDlg);
 
     if (d->m_CurrentStyle.isEmpty())
         return;
 
-    addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), new StyleOptionsPage());
+    StyleOptionsPage *stylepage = new StyleOptionsPage();
+    stylepage->setSettingsKey(group, key);
+    addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), stylepage);
+}
+
+void OptionsDlg::addCodeEditorPage()
+{
+    Q_D(OptionsDlg);
+
+    CodeEditorOptionsPage *page = new CodeEditorOptionsPage();
+    addPage(tr("Текстовый редактор"), QIcon(":/icons/wordpad.exe_14_128-5.png"), page);
 }
 
 void OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *page)
@@ -96,7 +134,6 @@ void OptionsDlg::done(int r)
 {
     Q_D(OptionsDlg);
     QDialog::done(r);
-    d->restoreAppStyle();
 }
 
 const QString &OptionsDlg::defaultStyle() const
@@ -115,4 +152,33 @@ void OptionsDlg::showEvent(QShowEvent *event)
 
     ui->listWidget->setCurrentItem(0);
     d->itemClicked(ui->listWidget->item(0), 0);
+}
+
+QSettings *OptionsDlg::settings()
+{
+    Q_D(OptionsDlg);
+    return d->m_pSettings;
+}
+
+int OptionsDlg::exec()
+{
+    Q_D(OptionsDlg);
+    for (OptionsPage *page : qAsConst(d->m_Pages))
+    {
+        page->restore();
+
+        StyleOptionsPage *stylepage = qobject_cast<StyleOptionsPage*>(page);
+
+        if (stylepage)
+            d->m_CurrentStyle = stylepage->currentStyle();
+    }
+
+    int result = QDialog::exec();
+
+    if (result == QDialog::Accepted)
+        d->applySettings();
+
+    d->restoreAppStyle();
+
+    return result;
 }

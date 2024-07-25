@@ -1,9 +1,15 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "codeeditor.h"
+#include "codeeditor/codehighlighter.h"
+#include "codeeditor/highlighterstyle.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QTextBlock>
+#include <QStyle>
+#include <QStyleOption>
+#include <QApplication>
+#include <QDebug>
 
 class LineNumberArea : public QWidget
 {
@@ -40,14 +46,22 @@ public:
 
         m_CurrentLineColor = QColor(Qt::yellow).lighter(160);
         lineNumberArea = new LineNumberArea(obj);
+
+        m_pCodeHighlighter = nullptr;
     }
 
     void lineNumberAreaPaintEvent(QPaintEvent *event)
     {
         Q_Q(CodeEditor);
         QPainter painter(lineNumberArea);
-        painter.fillRect(event->rect(), Qt::lightGray);
 
+        QStyleOption opt;
+        opt.init(lineNumberArea);
+        opt.rect = event->rect();
+        QStyle *s = qApp->style();
+        QPalette palette = s->standardPalette();
+        //s->drawPrimitive(QStyle::PE_Widget, &opt, &painter, lineNumberArea);Qt::lightGray
+        painter.fillRect(event->rect(), palette.color(QPalette::Normal, QPalette::Window));
 
         QTextBlock block = q->firstVisibleBlock();
         int blockNumber = block.blockNumber();
@@ -126,6 +140,19 @@ public:
         ApplyExtraSelections();
     }
 
+    void updateLineNumberArea(const QRect &rect, int dy)
+    {
+        Q_Q(CodeEditor);
+
+        if (dy)
+            lineNumberArea->scroll(0, dy);
+        else
+            lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+
+        if (rect.contains(q->viewport()->rect()))
+            q->setViewportMargins(q->lineNumberAreaWidth(), 0, 0, 0);
+    }
+
     QWidget *lineNumberArea;
     QTextEdit::ExtraSelection selectionCurrentLine;
     QList<QTextEdit::ExtraSelection> Selections, applyExtraSelections;
@@ -133,6 +160,8 @@ public:
     int tabStop, lastLine;
 
     QColor m_CurrentLineColor, m_CurrentWordColor;
+
+    CodeHighlighter *m_pCodeHighlighter;
     CodeEditor *q_ptr;
 };
 
@@ -141,6 +170,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
     d_ptr(new CodeEditorPrivate(this))
 {
     Q_D(CodeEditor);
+    QFont font("Courier New", 10);
+    document()->setDefaultFont(font);
+
     connect(this, &CodeEditor::blockCountChanged, [=]()
     {
         setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
@@ -166,12 +198,22 @@ CodeEditor::CodeEditor(QWidget *parent) :
         d->onSelectionChanged();
     });
 
+    connect(this, &CodeEditor::updateRequest, [=](const QRect &rect, int dy)
+    {
+        d->updateLineNumberArea(rect, dy);
+    });
+
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
 CodeEditor::~CodeEditor()
 {
+    Q_D(CodeEditor);
 
+    if (d->m_pCodeHighlighter)
+        delete d->m_pCodeHighlighter;
+
+    delete d_ptr;
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
@@ -199,6 +241,18 @@ void CodeEditor::setTabStop(int w)
     d->tabStop = w;
 }
 
+void CodeEditor::setCurrentLineColor(const QColor &color)
+{
+    Q_D(CodeEditor);
+    d->m_CurrentLineColor = color;
+}
+
+void CodeEditor::setCurrentWordColor(const QColor &color)
+{
+    Q_D(CodeEditor);
+    d->m_CurrentWordColor = color;
+}
+
 void CodeEditor::resizeEvent(QResizeEvent *e)
 {
     Q_D(CodeEditor);
@@ -206,4 +260,52 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
     QRect cr = contentsRect();
     d->lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void CodeEditor::setCodeHighlighter(CodeHighlighter *highlighter)
+{
+    Q_D(CodeEditor);
+    d->m_pCodeHighlighter = highlighter;
+}
+
+void CodeEditor::rehighlight()
+{
+    Q_D(CodeEditor);
+    if (!d->m_pCodeHighlighter)
+        return;
+
+    d->m_pCodeHighlighter->rehighlight();
+
+    QSharedPointer<StyleItem> sstyle = d->m_pCodeHighlighter->style();
+    QTextCharFormat def =  sstyle->format(FormatDefault);
+    QColor background = sstyle->editorBackground();
+
+    setStyleSheet(QString("QPlainTextEdit { background-color: rgb(%1, %2, %3); color: rgb(%4, %5, %6) }")
+                               .arg(background.red())
+                               .arg(background.green())
+                               .arg(background.blue())
+                               .arg(def.foreground().color().red())
+                               .arg(def.foreground().color().green())
+                               .arg(def.foreground().color().blue()));
+
+    setCurrentLineColor(sstyle->editorCurrentLine());
+    setCurrentWordColor(sstyle->editorCurrentWord());
+
+    setAutoFillBackground(true);
+
+    update();
+}
+
+CodeHighlighter *CodeEditor::highlighter()
+{
+    Q_D(CodeEditor);
+    return d->m_pCodeHighlighter;
+}
+
+void CodeEditor::setStyle(const QString &style)
+{
+    Q_D(CodeEditor);
+
+    if (d->m_pCodeHighlighter)
+        d->m_pCodeHighlighter->setStyle(style);
 }

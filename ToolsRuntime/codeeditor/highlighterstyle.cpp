@@ -1,6 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "codeeditor/highlighterstyle.h"
+#include "codeeditor/codeeditor.h"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -188,7 +189,7 @@ void StyleItem::load(const QString &filename)
                 fontWeight = QFont::Bold;
             else if (cons == "ExtraBold")
                 fontWeight = QFont::ExtraBold;
-            else if (cons == "ExtraBold")
+            else if (cons == "Black")
                 fontWeight = QFont::Black;
             else
             {
@@ -260,7 +261,7 @@ void StyleItem::load(const QString &filename)
         }
 
         textFormat.setFontStyleHint(QFont::Courier);
-        d->m_Formats.insert(Alias, textFormat);
+        (void)d->m_Formats.insert(Alias, textFormat);
     }
 
     f.close();
@@ -276,6 +277,15 @@ public:
     {
         q_ptr = parent;
         m_DefaultTheme = "Default";
+    }
+
+    void loadStaticStyle(const QString &source, const QString &alias)
+    {
+        QSharedPointer<StyleItem> item(new StyleItem());
+        item->load(source);
+        m_Styles.insert(alias, item);
+
+        m_Themes.append(alias);
     }
 
     void loadStyles()
@@ -297,7 +307,7 @@ public:
             //else
                 //qInfo(logCore()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
         }
-        else
+        //else
             //qInfo(logCore()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
 
         if (hr)
@@ -314,7 +324,7 @@ public:
 
                     QSharedPointer<StyleItem> item(new StyleItem());
                     item->load(fi.absoluteFilePath());
-                    m_Styles.insert(name, item);
+                    (void)m_Styles.insert(name, item);
 
                     m_Themes.append(name);
                     //qInfo(logCore()) << "Highlighter style successfully loaded";
@@ -329,16 +339,16 @@ public:
                 }
             }
         }
-        else
+        /*else
         {
             //qWarning(logCore()) << QString("Syntaxhighlighter folder not found... Used default scheme...");
 
             QSharedPointer<StyleItem> item(new StyleItem());
-            item->load(":/../codeeditor/Default.json");
+            item->load(":/DefaultHighlighterStyle");
             m_Styles.insert("Default", item);
 
             m_Themes.append("Default");
-        }
+        }*/
     }
 
     QMap<QString, QSharedPointer<StyleItem>> m_Styles;
@@ -351,6 +361,10 @@ HighlighterStyle::HighlighterStyle() :
     d_ptr(new HighlighterStylePrivate(this))
 {
     Q_D(HighlighterStyle);
+    d->loadStaticStyle(":/DefaultHighlighterStyle", "Default");
+    d->loadStaticStyle(":/VisualStudioLight", "Visual Studio (Light)");
+    d->loadStaticStyle(":/VisualStudioDark", "Visual Studio (Dark)");
+
     d->loadStyles();
 }
 
