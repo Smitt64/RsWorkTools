@@ -16,6 +16,7 @@ SOURCES += \
     codeeditor/codeeditor.cpp \
     codeeditor/codehighlighter.cpp \
     codeeditor/cppcodehighlighter.cpp \
+    codeeditor/highlighteditmodel.cpp \
     codeeditor/highlighterstyle.cpp \
     codeeditor/rslcodehighlighter.cpp \
     errordlg.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     codeeditor/codeeditor.h \
     codeeditor/codehighlighter.h \
     codeeditor/cppcodehighlighter.h \
+    codeeditor/highlighteditmodel.h \
     codeeditor/highlighterstyle.h \
     codeeditor/rslcodehighlighter.h \
     errordlg.h \

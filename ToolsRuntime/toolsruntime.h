@@ -4,11 +4,15 @@
 #define TOOLSRUNTIME_H
 
 #include <QDir>
+#include <QLoggingCategory>
 #include "ToolsRuntime_global.h"
+
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(highlighterLog);
 
 TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);
 TOOLSRUNTIME_EXPORT QString toolReadTextFileContent(const QString &filename, const QString &encode = QString());
+TOOLSRUNTIME_EXPORT QByteArray toolReadFileContent(const QString &filename);
 TOOLSRUNTIME_EXPORT bool toolSaveResourceToFile(const QString &resname, const QString &filename); 
 TOOLSRUNTIME_EXPORT bool toolGetPostgreSQLInstallLocation(QDir &dir);
 

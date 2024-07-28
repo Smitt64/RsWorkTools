@@ -8,6 +8,7 @@
 #include <QPluginLoader>
 #include <QTextStream>
 
+Q_LOGGING_CATEGORY(highlighterLog, "highlighter.style")
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
 QString toolFullFileNameFromDir(const QString &file)
@@ -45,6 +46,20 @@ QString toolReadTextFileContent(const QString &filename, const QString &encode)
 
         f.close();
     }
+    return content;
+}
+
+QByteArray toolReadFileContent(const QString &filename)
+{
+    QByteArray content;
+    QFile f(filename);
+
+    if (f.open(QIODevice::ReadOnly))
+    {
+        content = f.readAll();
+        f.close();
+    }
+
     return content;
 }
 

@@ -3,6 +3,9 @@
     "editor.selection.line": "#E2E6D6",
     "editor.selection.word": "#E2E6D6",
 
+    "editor.linenumbers.background": "#FFFFFF",
+    "editor.linenumbers.foreground": "#2B91AF",
+
     "formats": [
         {
             "alias": "keyword",

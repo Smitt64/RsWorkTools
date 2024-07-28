@@ -272,6 +272,9 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
 
     if (pCodeEditor)
     {
+        if (pCodeEditor->highlighter())
+            delete pCodeEditor->highlighter();
+
         pCodeEditor->setCurrentLineColor(sstyle->editorCurrentLine());
         pCodeEditor->setCurrentWordColor(sstyle->editorCurrentWord());
     }

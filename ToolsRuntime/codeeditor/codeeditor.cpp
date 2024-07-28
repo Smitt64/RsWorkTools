@@ -60,8 +60,17 @@ public:
         opt.rect = event->rect();
         QStyle *s = qApp->style();
         QPalette palette = s->standardPalette();
-        //s->drawPrimitive(QStyle::PE_Widget, &opt, &painter, lineNumberArea);Qt::lightGray
-        painter.fillRect(event->rect(), palette.color(QPalette::Normal, QPalette::Window));
+        //m_pCodeHighlighter
+        QColor linenumbersBackground = palette.color(QPalette::Normal, QPalette::Window);
+        QColor linenumbersForeground = palette.color(QPalette::Normal, QPalette::Text);
+
+        if (m_pCodeHighlighter->style()->linenumbersBackground().isValid())
+            linenumbersBackground = m_pCodeHighlighter->style()->linenumbersBackground();
+
+        if (m_pCodeHighlighter->style()->linenumbersForeground().isValid())
+            linenumbersForeground = m_pCodeHighlighter->style()->linenumbersForeground();
+
+        painter.fillRect(event->rect(), linenumbersBackground);
 
         QTextBlock block = q->firstVisibleBlock();
         int blockNumber = block.blockNumber();
@@ -75,11 +84,11 @@ public:
                 QFont f = painter.font();
                 f.setBold(false);
                 QString number = QString::number(blockNumber + 1);
-                painter.setPen(Qt::black);
+                painter.setPen(linenumbersForeground);
 
                 if (block == q->textCursor().block())
                 {
-                    painter.setPen(QColor(Qt::red).darker());
+                    painter.setPen(linenumbersForeground);
                     f.setBold(true);
                 }
 
@@ -274,11 +283,13 @@ void CodeEditor::rehighlight()
     if (!d->m_pCodeHighlighter)
         return;
 
-    d->m_pCodeHighlighter->rehighlight();
-
     QSharedPointer<StyleItem> sstyle = d->m_pCodeHighlighter->style();
     QTextCharFormat def =  sstyle->format(FormatDefault);
     QColor background = sstyle->editorBackground();
+
+    QFont defaultFont = def.font();
+    defaultFont.setStyleHint(QFont::Courier);
+    document()->setDefaultFont(defaultFont);
 
     setStyleSheet(QString("QPlainTextEdit { background-color: rgb(%1, %2, %3); color: rgb(%4, %5, %6) }")
                                .arg(background.red())
@@ -292,6 +303,9 @@ void CodeEditor::rehighlight()
     setCurrentWordColor(sstyle->editorCurrentWord());
 
     setAutoFillBackground(true);
+
+    d->m_pCodeHighlighter->rehighlight();
+    d->lineNumberArea->update();
 
     update();
 }

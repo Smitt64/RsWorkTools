@@ -1,0 +1,45 @@
+
+{
+    "aliases": [
+        {
+            "alias": "plain",
+            "listalias": "Текст"
+        },
+        {
+            "alias": "keyword",
+            "listalias": "Тип примитива"
+        },
+        {
+            "alias": "keyword2",
+            "listalias": "Тип примитива 2"
+        },
+        {
+            "alias": "comment",
+            "listalias": "Комментарий"
+        },
+        {
+            "alias": "function",
+            "listalias": "Функция"
+        },
+        {
+            "alias": "type",
+            "listalias": "Тип"
+        },
+        {
+            "alias": "number",
+            "listalias": "Число"
+        },
+        {
+            "alias": "string",
+            "listalias": "Строка"
+        },
+        {
+            "alias": "enum",
+            "listalias": "Перечисление"
+        },
+        {
+            "alias": "define",
+            "listalias": "Определение"
+        }
+    ]
+}

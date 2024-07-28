@@ -17,6 +17,8 @@
 #define FormatDefine "define"
 #define FormatElemType "type"
 
+#define SYNTAXHIGHLIGHTER_FOLDER "syntaxhighlighter"
+
 class QColor;
 class HighlighterStylePrivate;
 class StyleItemPrivate;
@@ -26,13 +28,26 @@ class TOOLSRUNTIME_EXPORT StyleItem
 public:
     StyleItem();
     void load(const QString &filename);
+    void save(const QString &filename = QString());
 
-    QTextCharFormat format(const QString &alias);
+    QTextCharFormat &format(const QString &alias);
     bool hasFormat(const QString &alias) const;
 
     const QColor &editorBackground() const;
     const QColor &editorCurrentLine() const;
     const QColor &editorCurrentWord() const;
+
+    const QColor &linenumbersBackground() const;
+    const QColor &linenumbersForeground() const;
+
+    void setEditorBackground(const QColor &color);
+    void setEditorCurrentLine(const QColor &color);
+    void setEditorCurrentWord(const QColor &color);
+
+    void setLinenumbersBackground(const QColor &color);
+    void setLinenumbersForeground(const QColor &color);
+
+    const QString &filename() const;
 
 private:
     StyleItemPrivate * const d_ptr;
@@ -50,6 +65,9 @@ public:
 
     void setDefaultTheme(const QString &theme);
     QString defaultTheme() const;
+    void loadStyle(const QString &filename);
+
+    bool isStatic(const QString &theme) const;
 
 private:
     HighlighterStyle();

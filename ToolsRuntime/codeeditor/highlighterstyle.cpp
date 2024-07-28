@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "codeeditor/highlighterstyle.h"
 #include "codeeditor/codeeditor.h"
+#include "toolsruntime.h"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -10,6 +11,7 @@
 #include <QTextCharFormat>
 #include <QDir>
 #include <QApplication>
+#include <QMapIterator>
 
 HighlighterStyle *HighlighterStyle::m_Inst = nullptr;
 
@@ -45,8 +47,10 @@ public:
 
     StyleItem *q_ptr;
 
+    QString m_FileName;
     QMap<QString, QTextCharFormat> m_Formats;
     QColor m_EditorBackground, m_EditorCurLine, m_EditorCurWord;
+    QColor m_LinenumbersBackground, m_LinenumbersForeground;
 };
 
 StyleItem::StyleItem() :
@@ -55,13 +59,19 @@ StyleItem::StyleItem() :
 
 }
 
-QTextCharFormat StyleItem::format(const QString &alias)
+const QString &StyleItem::filename() const
+{
+    Q_D(const StyleItem);
+    return d->m_FileName;
+}
+
+QTextCharFormat &StyleItem::format(const QString &alias)
 {
     Q_D(StyleItem);
-    if (d->m_Formats.contains(alias))
-        return d->m_Formats[alias];
+    if (!d->m_Formats.contains(alias))
+        throw QString("Invalid style format");
 
-    return QTextCharFormat();
+    return d->m_Formats[alias];
 }
 
 bool StyleItem::hasFormat(const QString &alias) const
@@ -86,6 +96,189 @@ const QColor &StyleItem::editorCurrentWord() const
 {
     Q_D(const StyleItem);
     return d->m_EditorCurWord;
+}
+
+void StyleItem::setEditorBackground(const QColor &color)
+{
+    Q_D(StyleItem);
+    d->m_EditorBackground = color;
+}
+
+void StyleItem::setEditorCurrentLine(const QColor &color)
+{
+    Q_D(StyleItem);
+    d->m_EditorCurLine = color;
+}
+
+void StyleItem::setEditorCurrentWord(const QColor &color)
+{
+    Q_D(StyleItem);
+    d->m_EditorCurWord = color;
+}
+
+const QColor &StyleItem::linenumbersBackground() const
+{
+    Q_D(const StyleItem);
+    return d->m_LinenumbersBackground;
+}
+
+const QColor &StyleItem::linenumbersForeground() const
+{
+    Q_D(const StyleItem);
+    return d->m_LinenumbersForeground;
+}
+
+void StyleItem::setLinenumbersBackground(const QColor &color)
+{
+    Q_D(StyleItem);
+    d->m_LinenumbersBackground = color;
+    qDebug() << color;
+}
+
+void StyleItem::setLinenumbersForeground(const QColor &color)
+{
+    Q_D(StyleItem);
+    d->m_LinenumbersForeground = color;
+}
+
+#define BOOL_TO_STR(v)(v ? "true" : "false")
+void StyleItem::save(const QString &filename)
+{
+    Q_D(StyleItem);
+
+    if (filename.isEmpty() && d->m_FileName.isEmpty())
+        return;
+
+    QJsonObject root;
+    QTextCharFormat defaultFormat = format(FormatDefault);
+
+    root.insert("editor.background", d->m_EditorBackground.name());
+    root.insert("editor.selection.word", d->m_EditorCurWord.name());
+    root.insert("editor.selection.line", d->m_EditorCurLine.name());
+
+    if (d->m_LinenumbersBackground.isValid())
+        root.insert("editor.linenumbers.background", d->m_LinenumbersBackground.name());
+
+    if (d->m_LinenumbersForeground.isValid())
+        root.insert("editor.linenumbers.foreground", d->m_LinenumbersForeground.name());
+
+    auto WriteFormat = [=](QTextCharFormat Format, const QString &alias) -> QJsonObject
+    {
+        QJsonObject obj;
+        obj.insert("alias", alias);
+
+        if (!Format.fontFamily().isEmpty())
+            obj.insert("fontFamily", Format.fontFamily());
+
+        obj.insert("fontFixedPitch", Format.fontFixedPitch());
+        obj.insert("fontItalic", BOOL_TO_STR(Format.fontItalic()));
+        obj.insert("fontKerning", BOOL_TO_STR(Format.fontKerning()));
+        obj.insert("fontLetterSpacing", Format.fontLetterSpacing());
+        obj.insert("fontOverline", BOOL_TO_STR(Format.fontOverline()));
+        obj.insert("fontPointSize", Format.fontPointSize());
+        obj.insert("fontStretch", Format.fontStretch());
+        obj.insert("fontStrikeOut", BOOL_TO_STR(Format.fontStrikeOut()));
+        obj.insert("fontUnderline", BOOL_TO_STR(Format.fontUnderline()));
+
+        switch(Format.fontWeight())
+        {
+        case QFont::Thin:
+            obj.insert("fontWeight", "Thin");
+            break;
+        case QFont::ExtraLight:
+            obj.insert("fontWeight", "ExtraLight");
+            break;
+        case QFont::Light:
+            obj.insert("fontWeight", "Light");
+            break;
+        case QFont::Normal:
+            obj.insert("fontWeight", "Normal");
+            break;
+        case QFont::Medium:
+            obj.insert("fontWeight", "Medium");
+            break;
+        case QFont::DemiBold:
+            obj.insert("fontWeight", "DemiBold");
+            break;
+        case QFont::Bold:
+            obj.insert("fontWeight", "Bold");
+            break;
+        case QFont::ExtraBold:
+            obj.insert("fontWeight", "ExtraBold");
+            break;
+        case QFont::Black:
+            obj.insert("fontWeight", "Black");
+            break;
+        default:
+            obj.insert("fontWeight", Format.fontWeight());
+        }
+
+        obj.insert("fontWordSpacing", Format.fontWordSpacing());
+
+        if (Format.property(QTextFormat::ForegroundBrush).isValid())
+            obj.insert("foreground", Format.foreground().color().name());
+
+        if (Format.property(QTextFormat::BackgroundBrush).isValid())
+            obj.insert("background", Format.background().color().name());
+
+        if (Format.underlineColor().isValid())
+            obj.insert("underlineColor", Format.underlineColor().name());
+
+        if (Format.property(QTextFormat::TextOutline).isValid())
+            obj.insert("textOutline", Format.textOutline().color().name());
+
+        switch(Format.underlineStyle())
+        {
+        case QTextCharFormat::NoUnderline:
+            obj.insert("underlineStyle", "NoUnderline");
+            break;
+        case QTextCharFormat::SingleUnderline:
+            obj.insert("underlineStyle", "SingleUnderline");
+            break;
+        case QTextCharFormat::DashUnderline:
+            obj.insert("underlineStyle", "DashUnderline");
+            break;
+        case QTextCharFormat::DotLine:
+            obj.insert("underlineStyle", "DotLine");
+            break;
+        case QTextCharFormat::DashDotLine:
+            obj.insert("underlineStyle", "DashDotLine");
+            break;
+        case QTextCharFormat::DashDotDotLine:
+            obj.insert("underlineStyle", "DashDotDotLine");
+            break;
+        case QTextCharFormat::WaveUnderline:
+            obj.insert("underlineStyle", "WaveUnderline");
+            break;
+        case QTextCharFormat::SpellCheckUnderline:
+            obj.insert("underlineStyle", "SpellCheckUnderline");
+            break;
+        }
+
+        return obj;
+    };
+
+    QJsonArray formats;
+    QMapIterator<QString, QTextCharFormat> iter(d->m_Formats);
+    while (iter.hasNext())
+    {
+        iter.next();
+        formats.append(WriteFormat(iter.value(), iter.key()));
+    }
+
+    root.insert("formats", formats);
+
+    QJsonDocument doc;
+    doc.setObject(root);
+
+    QString fname = filename.isEmpty() ? d->m_FileName : filename;
+
+    QFile f(fname);
+    if (f.open(QIODevice::WriteOnly))
+    {
+        f.write(doc.toJson(QJsonDocument::Indented));
+        f.close();
+    }
 }
 
 void StyleItem::load(const QString &filename)
@@ -126,6 +319,27 @@ void StyleItem::load(const QString &filename)
         d->m_EditorCurWord = QColor(hex);
     }
 
+    if (obj.contains("editor.linenumbers.background"))
+    {
+        QString hex = obj["editor.linenumbers.background"].toString();
+        CheckColorFormat(hex, "editor.linenumbers.background");
+        d->m_LinenumbersBackground = QColor(hex);
+    }
+
+    if (obj.contains("editor.linenumbers.foreground"))
+    {
+        QString hex = obj["editor.linenumbers.foreground"].toString();
+        CheckColorFormat(hex, "editor.linenumbers.foreground");
+        d->m_LinenumbersForeground = QColor(hex);
+    }
+
+    auto toBool = [=](const QJsonValue &obj) -> bool
+    {
+        QString value = obj.toString();
+
+        return value == "true" ? true : false;
+    };
+
     QJsonArray formats = obj["formats"].toArray();
 
     for (auto format : formats)
@@ -142,19 +356,19 @@ void StyleItem::load(const QString &filename)
             textFormat.setFontFamily(elem["fontFamily"].toString());
 
         if (elem.contains("fontFixedPitch"))
-            textFormat.setFontFixedPitch(elem["fontFixedPitch"].toBool());
+            textFormat.setFontFixedPitch(toBool(elem["fontFixedPitch"]));
 
         if (elem.contains("fontItalic"))
-            textFormat.setFontItalic(elem["fontItalic"].toBool());
+            textFormat.setFontItalic(toBool(elem["fontItalic"]));
 
         if (elem.contains("fontKerning"))
-            textFormat.setFontKerning(elem["fontKerning"].toBool());
+            textFormat.setFontKerning(toBool(elem["fontKerning"]));
 
         if (elem.contains("fontLetterSpacing"))
             textFormat.setFontLetterSpacing(elem["fontLetterSpacing"].toInt());
 
         if (elem.contains("fontOverline"))
-            textFormat.setFontOverline(elem["fontOverline"].toBool());
+            textFormat.setFontOverline(toBool(elem["fontOverline"]));
 
         if (elem.contains("fontPointSize"))
             textFormat.setFontPointSize(elem["fontPointSize"].toInt());
@@ -163,10 +377,10 @@ void StyleItem::load(const QString &filename)
             textFormat.setFontStretch(elem["fontStretch"].toInt());
 
         if (elem.contains("fontStrikeOut"))
-            textFormat.setFontStrikeOut(elem["fontStrikeOut"].toBool());
+            textFormat.setFontStrikeOut(toBool(elem["fontStrikeOut"]));
 
         if (elem.contains("fontUnderline"))
-            textFormat.setFontUnderline(elem["fontUnderline"].toBool());
+            textFormat.setFontUnderline(toBool(elem["fontUnderline"]));
 
         if (elem.contains("fontWeight"))
         {
@@ -264,6 +478,7 @@ void StyleItem::load(const QString &filename)
         (void)d->m_Formats.insert(Alias, textFormat);
     }
 
+    d->m_FileName = filename;
     f.close();
 }
 
@@ -285,7 +500,36 @@ public:
         item->load(source);
         m_Styles.insert(alias, item);
 
+        m_StaticThemes.append(alias);
         m_Themes.append(alias);
+    }
+
+    void loadStyle(const QFileInfo &fi)
+    {
+        QString name = fi.baseName();
+
+        try
+        {
+            qInfo(highlighterLog()) << "Try load highlighter style:" << name;
+            if (!m_Styles.contains(name))
+            {
+                QSharedPointer<StyleItem> item(new StyleItem());
+                item->load(fi.absoluteFilePath());
+                (void)m_Styles.insert(name, item);
+
+                m_Themes.append(name);
+            }
+            qInfo(highlighterLog()) << "Highlighter style successfully loaded";
+        }
+        catch (QJsonParseError e)
+        {
+            qWarning(highlighterLog()) << QString("Can't load highlighter style [%1]: %2")
+                                              .arg(name, e.errorString());
+        }
+        catch (QString e) {
+            qWarning(highlighterLog()) << QString("Can't load highlighter style [%1]: %2")
+                                              .arg(name, e);
+        }
     }
 
     void loadStyles()
@@ -293,66 +537,43 @@ public:
         bool hr = true;
         QDir syntaxhighlighter = QDir::currentPath();
 
-        //qInfo(logCore()) << "Try detect syntaxhighlighter folder";
+        qInfo(highlighterLog()) << "Try detect syntaxhighlighter folder";
         if (!syntaxhighlighter.cd("syntaxhighlighter"))
         {
-            //qWarning(logCore()) << QString("Working directory %1: false").arg(syntaxhighlighter.path());
+            qWarning(highlighterLog()) << QString("Working directory %1: false").arg(syntaxhighlighter.path());
             syntaxhighlighter = QDir(qApp->applicationDirPath());
 
             if (!syntaxhighlighter.cd("syntaxhighlighter"))
             {
                 hr = false;
-                //qWarning(logCore()) << QString("Application directory %1: false").arg(syntaxhighlighter.path());
+                qWarning(highlighterLog()) << QString("Application directory %1: false").arg(syntaxhighlighter.path());
             }
-            //else
-                //qInfo(logCore()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
+            else
+                qInfo(highlighterLog()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
         }
-        //else
-            //qInfo(logCore()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
+        else
+            qInfo(highlighterLog()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
+
+        if (!hr)
+        {
+            syntaxhighlighter = QDir(qApp->applicationDirPath());
+            qInfo(highlighterLog()) << "Creating syntaxhighlighter folder:"
+                                    << syntaxhighlighter.mkdir("syntaxhighlighter");
+        }
 
         if (hr)
         {
             QFileInfoList lst = syntaxhighlighter.entryInfoList(QStringList() << "*.json");
 
-            for (auto fi : lst)
+            for (const auto &fi : qAsConst(lst))
             {
-                QString name = fi.baseName();
-
-                try
-                {
-                    //qInfo(logCore()) << "Try load highlighter style:" << name;
-
-                    QSharedPointer<StyleItem> item(new StyleItem());
-                    item->load(fi.absoluteFilePath());
-                    (void)m_Styles.insert(name, item);
-
-                    m_Themes.append(name);
-                    //qInfo(logCore()) << "Highlighter style successfully loaded";
-                }  catch (QJsonParseError e)
-                {
-                    //qWarning(logCore()) << QString("Can't load highlighter style [%1]: %2")
-                                              // .arg(name, e.errorString());
-                }
-                catch (QString e) {
-                    //qWarning(logCore()) << QString("Can't load highlighter style [%1]: %2")
-                                              // .arg(name, e);
-                }
+                loadStyle(fi);
             }
         }
-        /*else
-        {
-            //qWarning(logCore()) << QString("Syntaxhighlighter folder not found... Used default scheme...");
-
-            QSharedPointer<StyleItem> item(new StyleItem());
-            item->load(":/DefaultHighlighterStyle");
-            m_Styles.insert("Default", item);
-
-            m_Themes.append("Default");
-        }*/
     }
 
     QMap<QString, QSharedPointer<StyleItem>> m_Styles;
-    QStringList m_Themes;
+    QStringList m_Themes, m_StaticThemes;
     QString m_DefaultTheme;
     HighlighterStyle *q_ptr;
 };
@@ -379,6 +600,13 @@ HighlighterStyle *HighlighterStyle::inst()
         m_Inst = new HighlighterStyle();
 
     return m_Inst;
+}
+
+void HighlighterStyle::loadStyle(const QString &filename)
+{
+    Q_D(HighlighterStyle);
+    QFileInfo fi(filename);
+    d->loadStyle(fi);
 }
 
 QSharedPointer<StyleItem> HighlighterStyle::style(const QString &name) const
@@ -409,4 +637,10 @@ QString HighlighterStyle::defaultTheme() const
 {
     Q_D(const HighlighterStyle);
     return d->m_DefaultTheme;
+}
+
+bool HighlighterStyle::isStatic(const QString &theme) const
+{
+    Q_D(const HighlighterStyle);
+    return d->m_StaticThemes.contains(theme);
 }

@@ -3,6 +3,9 @@
     "editor.selection.line": "#113D6F",
     "editor.selection.word": "#113D6F",
 
+    "editor.linenumbers.background": "#1E1E1E",
+    "editor.linenumbers.foreground": "#2B91AF",
+
     "formats": [
         {
             "alias": "Example (Default values)",
