@@ -644,3 +644,19 @@ bool HighlighterStyle::isStatic(const QString &theme) const
     Q_D(const HighlighterStyle);
     return d->m_StaticThemes.contains(theme);
 }
+
+void HighlighterStyle::deleteStyle(const QString &theme)
+{
+    Q_D(HighlighterStyle);
+
+    if (isStatic(theme))
+        return;
+
+    QSharedPointer<StyleItem> pstyle = style(theme);
+
+    if (QFile::remove(pstyle->filename()))
+    {
+        d->m_Themes.removeOne(theme);
+        d->m_Styles.remove(theme);
+    }
+}

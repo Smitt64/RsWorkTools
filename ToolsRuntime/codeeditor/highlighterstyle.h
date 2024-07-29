@@ -68,6 +68,7 @@ public:
     void loadStyle(const QString &filename);
 
     bool isStatic(const QString &theme) const;
+    void deleteStyle(const QString &theme);
 
 private:
     HighlighterStyle();

@@ -17,6 +17,11 @@ public:
     explicit CodeEditorOptionsPage(QWidget *parent = nullptr);
     ~CodeEditorOptionsPage();
 
+    void setSettingsKey(const QString &group, const QString &key);
+
+    virtual int save();
+    virtual void restore();
+
 private:
     Ui::CodeEditorOptionsPage *ui;
 

@@ -8,6 +8,8 @@
 #include <QInputDialog>
 #include <QColorDialog>
 #include <QFontDialog>
+#include <QMessageBox>
+#include <QSettings>
 
 class CodeEditorOptionsPagePrivate
 {
@@ -279,8 +281,24 @@ public:
         pEditor->rehighlight();
     }
 
+    void currentTextChanged(const QString &style)
+    {
+        Q_Q(CodeEditorOptionsPage);
+        pEditor->setStyle(style);
+        m_pModel->setStyle(style);
+        m_pModel->reset();
+        setEditorColors();
+        rehighlight();
+        q->ui->listView->update();
+
+        bool isStatic = HighlighterStyle::inst()->isStatic(style);
+        setViewOnly(isStatic);
+        q->ui->deleteButton->setEnabled(!isStatic);
+    }
+
     HighlightEditModel *m_pModel;
     CodeEditor *pEditor;
+    QString m_Group, m_Key;
     CodeEditorOptionsPage *q_ptr;
 };
 
@@ -299,6 +317,7 @@ CodeEditorOptionsPage::CodeEditorOptionsPage(QWidget *parent)
     ui->groupBox->setLayout(pLayout);
 
     pLayout->addWidget(d->pEditor);
+    ui->deleteButton->setEnabled(false);
     d->pEditor->setReadOnly(true);
     d->pEditor->setPlainText(toolReadTextFileContent(":/codeeditoroptions/example.cpp"));
 
@@ -310,14 +329,7 @@ CodeEditorOptionsPage::CodeEditorOptionsPage(QWidget *parent)
 
     connect(ui->comboBox, &QComboBox::currentTextChanged, [=](const QString &style)
     {
-        d->pEditor->setStyle(style);
-        d->m_pModel->setStyle(style);
-        d->m_pModel->reset();
-        d->setEditorColors();
-        d->rehighlight();
-        ui->listView->update();
-
-        d->setViewOnly(HighlighterStyle::inst()->isStatic(style));
+        d->currentTextChanged(style);
     });
 
     connect(ui->copyButton, &QPushButton::clicked, [=]()
@@ -460,9 +472,67 @@ CodeEditorOptionsPage::CodeEditorOptionsPage(QWidget *parent)
         d->rehighlight();
         d->pEditor->update();
     });
+
+    connect(ui->deleteButton, &QPushButton::clicked, [=]()
+    {
+        QString theme = ui->comboBox->currentText();
+
+        if (QMessageBox::question(this, tr("Удаление"),
+                                  tr("Удалить стиль <b>%1</b>?").arg(theme))
+            == QMessageBox::Yes)
+        {
+            ui->comboBox->setCurrentIndex(0);
+            d->currentTextChanged(ui->comboBox->currentText());
+
+            HighlighterStyle::inst()->deleteStyle(theme);
+            ui->comboBox->clear();
+
+            QStringList lst = HighlighterStyle::inst()->themes();
+            ui->comboBox->addItems(lst);
+        }
+    });
+}
+
+void CodeEditorOptionsPage::setSettingsKey(const QString &group, const QString &key)
+{
+    Q_D(CodeEditorOptionsPage);
+    d->m_Group = group;
+    d->m_Key = key;
 }
 
 CodeEditorOptionsPage::~CodeEditorOptionsPage()
 {
     delete ui;
+}
+
+int CodeEditorOptionsPage::save()
+{
+    Q_D(CodeEditorOptionsPage);
+    QSettings *ini = settings();
+
+    if (!d->m_Group.isEmpty())
+        ini->beginGroup(d->m_Group);
+
+    ini->setValue(d->m_Key, ui->comboBox->currentText());
+
+    if (!d->m_Group.isEmpty())
+        ini->endGroup();
+
+    return 0;
+}
+
+void CodeEditorOptionsPage::restore()
+{
+    Q_D(CodeEditorOptionsPage);
+
+    QSettings *ini = settings();
+
+    if (!d->m_Group.isEmpty())
+        ini->beginGroup(d->m_Group);
+
+    ui->comboBox->setCurrentText(ini->value(d->m_Key, "Default").toString());
+    d->currentTextChanged(ui->comboBox->currentText());
+
+    if (!d->m_Group.isEmpty())
+        ini->endGroup();
 }
