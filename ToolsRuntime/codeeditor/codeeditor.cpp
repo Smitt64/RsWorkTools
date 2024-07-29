@@ -64,7 +64,7 @@ public:
         QColor linenumbersBackground = palette.color(QPalette::Normal, QPalette::Window);
         QColor linenumbersForeground = palette.color(QPalette::Normal, QPalette::Text);
 
-        if (m_pCodeHighlighter->style())
+        if (m_pCodeHighlighter && m_pCodeHighlighter->style())
         {
             if (m_pCodeHighlighter->style()->linenumbersBackground().isValid())
                 linenumbersBackground = m_pCodeHighlighter->style()->linenumbersBackground();
