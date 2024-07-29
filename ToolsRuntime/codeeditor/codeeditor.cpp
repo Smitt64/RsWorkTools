@@ -64,11 +64,14 @@ public:
         QColor linenumbersBackground = palette.color(QPalette::Normal, QPalette::Window);
         QColor linenumbersForeground = palette.color(QPalette::Normal, QPalette::Text);
 
-        if (m_pCodeHighlighter->style()->linenumbersBackground().isValid())
-            linenumbersBackground = m_pCodeHighlighter->style()->linenumbersBackground();
+        if (m_pCodeHighlighter->style())
+        {
+            if (m_pCodeHighlighter->style()->linenumbersBackground().isValid())
+                linenumbersBackground = m_pCodeHighlighter->style()->linenumbersBackground();
 
-        if (m_pCodeHighlighter->style()->linenumbersForeground().isValid())
-            linenumbersForeground = m_pCodeHighlighter->style()->linenumbersForeground();
+            if (m_pCodeHighlighter->style()->linenumbersForeground().isValid())
+                linenumbersForeground = m_pCodeHighlighter->style()->linenumbersForeground();
+        }
 
         painter.fillRect(event->rect(), linenumbersBackground);
 
