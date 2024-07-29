@@ -4,6 +4,7 @@
 #include "highlighterstyle.h"
 #include "cppcodehighlighter.h"
 #include "rslcodehighlighter.h"
+#include "sqlcodehighlighter.h"
 #include "codeeditor.h"
 #include <QPlainTextEdit>
 #include <QDebug>
@@ -261,6 +262,8 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
         pCodeHighlighter = new CppCodeHighlighter(pEditor);
     else if (syntax == HighlighterRsl)
         pCodeHighlighter = new RslCodeHighlighter(pEditor);
+    else if (syntax == HighlighterSql)
+        pCodeHighlighter = new SqlCodeHighlighter(pEditor);
 
     pCodeHighlighter->setStyle(style);
     pCodeHighlighter->setDocument(pEditor->document());

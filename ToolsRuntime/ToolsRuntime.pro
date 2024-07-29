@@ -19,6 +19,7 @@ SOURCES += \
     codeeditor/highlighteditmodel.cpp \
     codeeditor/highlighterstyle.cpp \
     codeeditor/rslcodehighlighter.cpp \
+    codeeditor/sqlcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
     optionsdlg/OptionsPage.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     codeeditor/highlighteditmodel.h \
     codeeditor/highlighterstyle.h \
     codeeditor/rslcodehighlighter.h \
+    codeeditor/sqlcodehighlighter.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \

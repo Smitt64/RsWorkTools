@@ -21,5 +21,6 @@
         <file>icons/shell32.dll_14_22-8.png</file>
         <file>icons/shell32.dll_14_154-6.png</file>
         <file>icons/shell32.dll_14_274-0.png</file>
+        <file>highlighter/sql_keys.txt</file>
     </qresource>
 </RCC>

@@ -60,6 +60,7 @@ enum HighlighterSyntax
 {
     HighlighterCpp = 1,
     HighlighterRsl,
+    HighlighterSql,
 };
 
 TOOLSRUNTIME_EXPORT void ToolApplyHighlighter(QPlainTextEdit *pEditor,
