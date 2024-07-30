@@ -48,7 +48,7 @@
 
 typedef bool (WINAPI* PtrIsAppThemed)();
 typedef HRESULT (WINAPI* PtrGetCurrentThemeName)( OUT LPWSTR pszThemeFileName, int cchMaxNameChars, OUT OPTIONAL LPWSTR pszColorBuff,
-    int cchMaxColorChars, OUT OPTIONAL LPWSTR pszSizeBuff, int cchMaxSizeChars );
+                                                int cchMaxColorChars, OUT OPTIONAL LPWSTR pszSizeBuff, int cchMaxSizeChars );
 
 static PtrIsAppThemed pIsAppThemed = NULL;
 static PtrGetCurrentThemeName pGetCurrentThemeName = NULL;
@@ -78,7 +78,7 @@ WindowsModernStyle::~WindowsModernStyle()
 static bool useVista()
 {
     return QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
-        && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based;
+           && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based;
 }
 
 static QColor colorRole( QPalette::ColorRole role )
@@ -325,8 +325,8 @@ void WindowsModernStyle::polish( QWidget* widget )
     if ( isToolBoxPanel( widget ) )
         widget->setAttribute( Qt::WA_StyledBackground );
 
-    if ( isStyledTabBar( widget ) )
-        widget->setAttribute( Qt::WA_Hover );
+    //if ( isStyledTabBar( widget ) )
+    // widget->setAttribute( Qt::WA_Hover );
 
     if ( useVista() )
         QWindowsVistaStyle::polish( widget );
@@ -365,58 +365,58 @@ void WindowsModernStyle::unpolish( QWidget* widget )
 int WindowsModernStyle::pixelMetric( PixelMetric metric, const QStyleOption* option, const QWidget* widget ) const
 {
     switch ( metric ) {
-        case PM_MenuBarPanelWidth:
+    case PM_MenuBarPanelWidth:
+        return 0;
+    case PM_MenuBarVMargin:
+    case PM_MenuBarHMargin:
+        return 2;
+    case PM_MenuPanelWidth:
+        return 1;
+    case PM_MenuHMargin:
+        return 0;
+    case PM_MenuVMargin:
+        return 1;
+
+    case PM_ToolBarFrameWidth:
+        return 2;
+    case PM_ToolBarItemMargin:
+    case PM_ToolBarItemSpacing:
+        return 0;
+    case PM_ToolBarIconSize:
+        return 16;
+
+    case PM_MenuButtonIndicator:
+        return 12;
+
+    case PM_ButtonShiftVertical:
+    case PM_ButtonShiftHorizontal:
+        if ( widget && qobject_cast<QToolBar*>( widget->parentWidget() ) )
             return 0;
-        case PM_MenuBarVMargin:
-        case PM_MenuBarHMargin:
-            return 2;
-        case PM_MenuPanelWidth:
-            return 1;
-        case PM_MenuHMargin:
-            return 0;
-        case PM_MenuVMargin:
-            return 1;
+        break;
 
-        case PM_ToolBarFrameWidth:
-            return 2;
-        case PM_ToolBarItemMargin:
-        case PM_ToolBarItemSpacing:
-            return 0;
-        case PM_ToolBarIconSize:
-            return 16;
+    case PM_DockWidgetSeparatorExtent:
+        return 4;
+    case PM_DockWidgetTitleBarButtonMargin:
+        return 4;
+    case PM_DockWidgetTitleMargin:
+        return 3;
 
-        case PM_MenuButtonIndicator:
-            return 12;
+    case PM_LayoutVerticalSpacing:
+        if ( qobject_cast<const QToolBox*>( widget ) )
+            return -1;
+        break;
 
-        case PM_ButtonShiftVertical:
-        case PM_ButtonShiftHorizontal:
-            if ( widget && qobject_cast<QToolBar*>( widget->parentWidget() ) )
-                return 0;
-            break;
-
-        case PM_DockWidgetSeparatorExtent:
-            return 4;
-        case PM_DockWidgetTitleBarButtonMargin:
-            return 4;
-        case PM_DockWidgetTitleMargin:
-            return 3;
-
-        case PM_LayoutVerticalSpacing:
-            if ( qobject_cast<const QToolBox*>( widget ) )
-                return -1;
-            break;
-
-        case PM_TabBarBaseOverlap:
+        /*case PM_TabBarBaseOverlap:
             if ( isStyledTabWidget( widget ) || isStyledTabBar( widget ) )
                 return 0;
             break;
         case PM_TabBarTabShiftVertical:
             if ( const QTabBar* tabBar = isStyledTabBar( widget ) )
                 return ( tabBar->shape() == QTabBar::RoundedSouth ) ? -2 : 2;
-            break;
+            break;*/
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if ( useVista() )
@@ -426,7 +426,7 @@ int WindowsModernStyle::pixelMetric( PixelMetric metric, const QStyleOption* opt
 }
 
 int WindowsModernStyle::styleHint( StyleHint hint, const QStyleOption* option, const QWidget* widget,
-    QStyleHintReturn* returnData ) const
+                                  QStyleHintReturn* returnData ) const
 {
     if ( useVista() )
         return QWindowsVistaStyle::styleHint( hint, option, widget, returnData );
@@ -435,35 +435,35 @@ int WindowsModernStyle::styleHint( StyleHint hint, const QStyleOption* option, c
 }
 
 QSize WindowsModernStyle::sizeFromContents( ContentsType type, const QStyleOption* option,
-    const QSize& contentsSize, const QWidget* widget ) const
+                                           const QSize& contentsSize, const QWidget* widget ) const
 {
     switch ( type ) {
-        case CT_MenuBar:
-            return contentsSize - QSize( 0, 1 );
+    case CT_MenuBar:
+        return contentsSize - QSize( 0, 1 );
 
-        case CT_Menu:
+    case CT_Menu:
 #if ( QT_VERSION < 0x040400 )
-            return contentsSize - QSize( 0, 1 );
+        return contentsSize - QSize( 0, 1 );
 #else
-            return contentsSize;
+        return contentsSize;
 #endif
 
-        case CT_MenuBarItem:
-            return contentsSize + QSize( 16, 6 );
+    case CT_MenuBarItem:
+        return contentsSize + QSize( 16, 6 );
 
-        case CT_MenuItem:
-            if ( const QStyleOptionMenuItem* menuItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
-                if ( menuItem->menuItemType == QStyleOptionMenuItem::Separator )
-                    return QSize( 10, 3 );
-                int space = 32 + 16;
-                if ( menuItem->text.contains( '\t' ) )
-                    space += 12;
-                return QSize( contentsSize.width() + space, 22 );
-            }
-            break;
+    case CT_MenuItem:
+        if ( const QStyleOptionMenuItem* menuItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
+            if ( menuItem->menuItemType == QStyleOptionMenuItem::Separator )
+                return QSize( 10, 3 );
+            int space = 32 + 16;
+            if ( menuItem->text.contains( '\t' ) )
+                space += 12;
+            return QSize( contentsSize.width() + space, 22 );
+        }
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if ( useVista() )
@@ -481,12 +481,12 @@ QRect WindowsModernStyle::subElementRect( SubElement element, const QStyleOption
         rect = QWindowsXPStyle::subElementRect( element, option, widget );
 
     switch ( element ) {
-        case SE_DockWidgetCloseButton:
-        case SE_DockWidgetFloatButton:
-            rect.translate( -2, 0 );
-            break;
+    case SE_DockWidgetCloseButton:
+    case SE_DockWidgetFloatButton:
+        rect.translate( -2, 0 );
+        break;
 
-        case SE_TabWidgetTabContents:
+        /*case SE_TabWidgetTabContents:
             if ( isStyledTabWidget( widget ) )
                 rect = QWindowsStyle::subElementRect( SE_TabWidgetTabPane, option, widget );
             break;
@@ -494,17 +494,17 @@ QRect WindowsModernStyle::subElementRect( SubElement element, const QStyleOption
         case SE_TabWidgetTabBar:
             if ( isStyledTabWidget( widget ) )
                 rect = QWindowsStyle::subElementRect( SE_TabWidgetTabBar, option, widget );
-            break;
+            break;*/
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return rect;
 }
 
 QRect WindowsModernStyle::subControlRect( ComplexControl control, const QStyleOptionComplex* option,
-    SubControl subControl, const QWidget* widget ) const
+                                         SubControl subControl, const QWidget* widget ) const
 {
     if ( useVista() )
         return QWindowsVistaStyle::subControlRect( control, option, subControl, widget );
@@ -513,7 +513,7 @@ QRect WindowsModernStyle::subControlRect( ComplexControl control, const QStyleOp
 }
 
 int WindowsModernStyle::layoutSpacingImplementation( QSizePolicy::ControlType control1, QSizePolicy::ControlType control2,
-    Qt::Orientation /*orientation*/, const QStyleOption* /*option*/, const QWidget* widget ) const
+                                                    Qt::Orientation /*orientation*/, const QStyleOption* /*option*/, const QWidget* widget ) const
 {
     if ( qobject_cast<const QToolBox*>( widget ) ) {
         if ( control1 == QSizePolicy::PushButton && control2 == QSizePolicy::DefaultType )
@@ -528,168 +528,168 @@ int WindowsModernStyle::layoutSpacingImplementation( QSizePolicy::ControlType co
 }
 
 void WindowsModernStyle::drawPrimitive( PrimitiveElement element, const QStyleOption* option,
-    QPainter* painter, const QWidget* widget ) const
+                                       QPainter* painter, const QWidget* widget ) const
 {
     switch ( element ) {
-        case PE_Widget:
-            if ( qobject_cast<const QMainWindow*>( widget ) ) {
-                QRect rect = option->rect;
-                if ( QStatusBar* statusBar = widget->findChild<QStatusBar*>() ) {
-                    rect.adjust( 0, 0, 0, -statusBar->height() );
-                    painter->setPen( option->palette.light().color() );
-                    painter->drawLine( rect.bottomLeft() + QPoint( 0, 1 ),
-                        rect.bottomRight() + QPoint( 0, 1 ) );
-                }
-                QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
-                gradient.setColorAt( 0.0, m_colorBackgroundBegin );
-                gradient.setColorAt( 0.6, m_colorBackgroundEnd );
-                painter->fillRect( rect, gradient );
-                return;
+    case PE_Widget:
+        if ( qobject_cast<const QMainWindow*>( widget ) ) {
+            QRect rect = option->rect;
+            if ( QStatusBar* statusBar = widget->findChild<QStatusBar*>() ) {
+                rect.adjust( 0, 0, 0, -statusBar->height() );
+                painter->setPen( option->palette.light().color() );
+                painter->drawLine( rect.bottomLeft() + QPoint( 0, 1 ),
+                                  rect.bottomRight() + QPoint( 0, 1 ) );
             }
-
-            if ( qobject_cast<const QToolBox*>( widget ) ) {
-                QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
-                gradient.setColorAt( 0.4, m_colorBackgroundBegin );
-                gradient.setColorAt( 1.0, m_colorBackgroundEnd );
-                painter->fillRect( option->rect, gradient );
-                return;
-            }
-
-            if ( isToolBoxPanel( widget ) ) {
-                QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
-                gradient.setColorAt( 0.4, m_colorBarMiddle );
-                gradient.setColorAt( 1.0, m_colorBarBegin );
-                painter->fillRect( option->rect, gradient );
-                return;
-            }
-            break;
-
-        case PE_WindowGradient: {
             QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
             gradient.setColorAt( 0.0, m_colorBackgroundBegin );
             gradient.setColorAt( 0.6, m_colorBackgroundEnd );
+            painter->fillRect( rect, gradient );
+            return;
+        }
+
+        if ( qobject_cast<const QToolBox*>( widget ) ) {
+            QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
+            gradient.setColorAt( 0.4, m_colorBackgroundBegin );
+            gradient.setColorAt( 1.0, m_colorBackgroundEnd );
             painter->fillRect( option->rect, gradient );
             return;
         }
 
-        case PE_PanelMenuBar:
+        if ( isToolBoxPanel( widget ) ) {
+            QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
+            gradient.setColorAt( 0.4, m_colorBarMiddle );
+            gradient.setColorAt( 1.0, m_colorBarBegin );
+            painter->fillRect( option->rect, gradient );
             return;
+        }
+        break;
 
-        case PE_FrameMenu:
-            painter->setPen( m_colorMenuBorder );
-            painter->setBrush( Qt::NoBrush );
-            painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
+    case PE_WindowGradient: {
+        QLinearGradient gradient( option->rect.topLeft(), option->rect.topRight() );
+        gradient.setColorAt( 0.0, m_colorBackgroundBegin );
+        gradient.setColorAt( 0.6, m_colorBackgroundEnd );
+        painter->fillRect( option->rect, gradient );
+        return;
+    }
 
-            if ( const QMenu* menu = qobject_cast<const QMenu*>( widget ) ) {
-                if ( const QMenuBar* menuBar = qobject_cast<const QMenuBar*>( menu->parent() ) ) {
-                    QRect rect = menuBar->actionGeometry( menu->menuAction() );
-                    if ( !rect.isEmpty() ) {
-                        painter->setPen( m_colorMenuBackground );
-                        painter->drawLine( 1, 0, rect.width() - 2, 0 );
-                    }
+    case PE_PanelMenuBar:
+        return;
+
+    case PE_FrameMenu:
+        painter->setPen( m_colorMenuBorder );
+        painter->setBrush( Qt::NoBrush );
+        painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
+
+        if ( const QMenu* menu = qobject_cast<const QMenu*>( widget ) ) {
+            if ( const QMenuBar* menuBar = qobject_cast<const QMenuBar*>( menu->parent() ) ) {
+                QRect rect = menuBar->actionGeometry( menu->menuAction() );
+                if ( !rect.isEmpty() ) {
+                    painter->setPen( m_colorMenuBackground );
+                    painter->drawLine( 1, 0, rect.width() - 2, 0 );
                 }
-            }
-
-            if ( const QToolBar* toolBar = qobject_cast<const QToolBar*>( widget ) ) {
-                QRect rect = option->rect.adjusted( 1, 1, -1, -1 );
-                QLinearGradient gradient;
-                if ( toolBar->orientation() == Qt::Vertical )
-                    gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
-                else
-                    gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
-                gradient.setColorAt( 0.0, m_colorBarBegin );
-                gradient.setColorAt( 0.4, m_colorBarMiddle );
-                gradient.setColorAt( 0.6, m_colorBarMiddle );
-                gradient.setColorAt( 1.0, m_colorBarEnd );
-                painter->fillRect( rect, gradient );
-            }
-            return;
-
-        case PE_IndicatorToolBarHandle:
-            if ( option->state & State_Horizontal ) {
-                for ( int i = option->rect.height() / 5; i <= 4 * ( option->rect.height() / 5 ); i += 5 ) {
-                    int x = option->rect.left() + 3;
-                    int y = option->rect.top() + i + 1;
-                    painter->fillRect( x + 1, y, 2, 2, m_colorHandleLight );
-                    painter->fillRect( x, y - 1, 2, 2, m_colorHandle );
-                }
-            } else {
-                for ( int i = option->rect.width() / 5; i <= 4 * ( option->rect.width() / 5 ); i += 5 ) {
-                    int x = option->rect.left() + i + 1;
-                    int y = option->rect.top() + 3;
-                    painter->fillRect( x, y + 1, 2, 2, m_colorHandleLight );
-                    painter->fillRect( x - 1, y, 2, 2, m_colorHandle );
-                }
-            }
-            return;
-
-        case PE_IndicatorToolBarSeparator:
-            painter->setPen( m_colorSeparator );
-            if ( option->state & State_Horizontal )
-                painter->drawLine( ( option->rect.left() + option->rect.right() - 1 ) / 2, option->rect.top() + 2,
-                    ( option->rect.left() + option->rect.right() - 1 ) / 2, option->rect.bottom() - 2 );
-            else
-                painter->drawLine( option->rect.left() + 2, ( option->rect.top() + option->rect.bottom() - 1 ) / 2,
-                    option->rect.right() - 2, ( option->rect.top() + option->rect.bottom() - 1 ) / 2 );
-            painter->setPen( m_colorSeparatorLight );
-            if ( option->state & State_Horizontal )
-                painter->drawLine( ( option->rect.left() + option->rect.right() + 1 ) / 2, option->rect.top() + 2,
-                    ( option->rect.left() + option->rect.right() + 1 ) / 2, option->rect.bottom() - 2 );
-            else
-                painter->drawLine( option->rect.left() + 2, ( option->rect.top() + option->rect.bottom() + 1 ) / 2,
-                    option->rect.right() - 2, ( option->rect.top() + option->rect.bottom() + 1 ) / 2 );
-            return;
-
-        case PE_IndicatorButtonDropDown: {
-            QToolBar* toolBar;
-            if ( widget && ( toolBar = qobject_cast<QToolBar*>( widget->parentWidget() ) ) ) {
-                QRect rect = option->rect.adjusted( -1, 0, -1, -1 );
-                bool selected = option->state & State_MouseOver && option->state & State_Enabled;
-                bool sunken = option->state & State_Sunken;
-                if ( selected || sunken ) {
-                    painter->setPen( m_colorItemBorder );
-                    if ( toolBar->orientation() == Qt::Vertical ) {
-                        if ( sunken )
-                            painter->setBrush( m_colorItemSunkenEnd );
-                        else
-                            painter->setBrush( m_colorItemBackgroundEnd );
-                    } else {
-                        QLinearGradient gradient( rect.topLeft(), rect.bottomLeft() );
-                        if ( sunken ) {
-                            gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
-                            gradient.setColorAt( 0.5, m_colorItemSunkenMiddle );
-                            gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
-                        } else {
-                            gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
-                            gradient.setColorAt( 0.5, m_colorItemBackgroundMiddle );
-                            gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
-                        }
-                        painter->setBrush( gradient );
-                    }
-                    painter->drawRect( rect );
-                }
-                QStyleOption optionArrow = *option;
-                optionArrow.rect.adjust( 2, 2, -2, -2 );
-                drawPrimitive( PE_IndicatorArrowDown, &optionArrow, painter, widget );
-                return;
             }
         }
 
-        case PE_IndicatorDockWidgetResizeHandle:
-            return;
+        if ( const QToolBar* toolBar = qobject_cast<const QToolBar*>( widget ) ) {
+            QRect rect = option->rect.adjusted( 1, 1, -1, -1 );
+            QLinearGradient gradient;
+            if ( toolBar->orientation() == Qt::Vertical )
+                gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
+            else
+                gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
+            gradient.setColorAt( 0.0, m_colorBarBegin );
+            gradient.setColorAt( 0.4, m_colorBarMiddle );
+            gradient.setColorAt( 0.6, m_colorBarMiddle );
+            gradient.setColorAt( 1.0, m_colorBarEnd );
+            painter->fillRect( rect, gradient );
+        }
+        return;
 
-        case PE_PanelButtonTool:
-            if ( widget && widget->inherits( "QDockWidgetTitleButton" ) ) {
-                if ( option->state & ( QStyle::State_MouseOver | QStyle::State_Sunken ) ) {
-                    painter->setPen( m_colorItemBorder );
-                    painter->setBrush( ( option->state & QStyle::State_Sunken ) ? m_colorItemSunkenMiddle : m_colorItemBackgroundMiddle );
-                    painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
-                }
-                return;
+    case PE_IndicatorToolBarHandle:
+        if ( option->state & State_Horizontal ) {
+            for ( int i = option->rect.height() / 5; i <= 4 * ( option->rect.height() / 5 ); i += 5 ) {
+                int x = option->rect.left() + 3;
+                int y = option->rect.top() + i + 1;
+                painter->fillRect( x + 1, y, 2, 2, m_colorHandleLight );
+                painter->fillRect( x, y - 1, 2, 2, m_colorHandle );
             }
-            break;
+        } else {
+            for ( int i = option->rect.width() / 5; i <= 4 * ( option->rect.width() / 5 ); i += 5 ) {
+                int x = option->rect.left() + i + 1;
+                int y = option->rect.top() + 3;
+                painter->fillRect( x, y + 1, 2, 2, m_colorHandleLight );
+                painter->fillRect( x - 1, y, 2, 2, m_colorHandle );
+            }
+        }
+        return;
 
-        case PE_FrameTabWidget:
+    case PE_IndicatorToolBarSeparator:
+        painter->setPen( m_colorSeparator );
+        if ( option->state & State_Horizontal )
+            painter->drawLine( ( option->rect.left() + option->rect.right() - 1 ) / 2, option->rect.top() + 2,
+                              ( option->rect.left() + option->rect.right() - 1 ) / 2, option->rect.bottom() - 2 );
+        else
+            painter->drawLine( option->rect.left() + 2, ( option->rect.top() + option->rect.bottom() - 1 ) / 2,
+                              option->rect.right() - 2, ( option->rect.top() + option->rect.bottom() - 1 ) / 2 );
+        painter->setPen( m_colorSeparatorLight );
+        if ( option->state & State_Horizontal )
+            painter->drawLine( ( option->rect.left() + option->rect.right() + 1 ) / 2, option->rect.top() + 2,
+                              ( option->rect.left() + option->rect.right() + 1 ) / 2, option->rect.bottom() - 2 );
+        else
+            painter->drawLine( option->rect.left() + 2, ( option->rect.top() + option->rect.bottom() + 1 ) / 2,
+                              option->rect.right() - 2, ( option->rect.top() + option->rect.bottom() + 1 ) / 2 );
+        return;
+
+    case PE_IndicatorButtonDropDown: {
+        QToolBar* toolBar;
+        if ( widget && ( toolBar = qobject_cast<QToolBar*>( widget->parentWidget() ) ) ) {
+            QRect rect = option->rect.adjusted( -1, 0, -1, -1 );
+            bool selected = option->state & State_MouseOver && option->state & State_Enabled;
+            bool sunken = option->state & State_Sunken;
+            if ( selected || sunken ) {
+                painter->setPen( m_colorItemBorder );
+                if ( toolBar->orientation() == Qt::Vertical ) {
+                    if ( sunken )
+                        painter->setBrush( m_colorItemSunkenEnd );
+                    else
+                        painter->setBrush( m_colorItemBackgroundEnd );
+                } else {
+                    QLinearGradient gradient( rect.topLeft(), rect.bottomLeft() );
+                    if ( sunken ) {
+                        gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
+                        gradient.setColorAt( 0.5, m_colorItemSunkenMiddle );
+                        gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
+                    } else {
+                        gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
+                        gradient.setColorAt( 0.5, m_colorItemBackgroundMiddle );
+                        gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
+                    }
+                    painter->setBrush( gradient );
+                }
+                painter->drawRect( rect );
+            }
+            QStyleOption optionArrow = *option;
+            optionArrow.rect.adjust( 2, 2, -2, -2 );
+            drawPrimitive( PE_IndicatorArrowDown, &optionArrow, painter, widget );
+            return;
+        }
+    }
+
+    case PE_IndicatorDockWidgetResizeHandle:
+        return;
+
+    case PE_PanelButtonTool:
+        if ( widget && widget->inherits( "QDockWidgetTitleButton" ) ) {
+            if ( option->state & ( QStyle::State_MouseOver | QStyle::State_Sunken ) ) {
+                painter->setPen( m_colorItemBorder );
+                painter->setBrush( ( option->state & QStyle::State_Sunken ) ? m_colorItemSunkenMiddle : m_colorItemBackgroundMiddle );
+                painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
+            }
+            return;
+        }
+        break;
+
+        /*case PE_FrameTabWidget:
             if ( isStyledTabWidget( widget ) ) {
                 painter->fillRect( option->rect, option->palette.window() );
                 return;
@@ -699,10 +699,10 @@ void WindowsModernStyle::drawPrimitive( PrimitiveElement element, const QStyleOp
         case PE_FrameTabBarBase:
             if ( isStyledTabBar( widget ) )
                 return;
-            break;
+            break;*/
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if ( useVista() )
@@ -712,176 +712,176 @@ void WindowsModernStyle::drawPrimitive( PrimitiveElement element, const QStyleOp
 }
 
 void WindowsModernStyle::drawControl( ControlElement element, const QStyleOption* option,
-    QPainter* painter, const QWidget* widget ) const
+                                     QPainter* painter, const QWidget* widget ) const
 {
     switch ( element ) {
-        case CE_MenuBarEmptyArea:
-            return;
+    case CE_MenuBarEmptyArea:
+        return;
 
-        case CE_MenuBarItem:
-            if ( option->state & QStyle::State_Sunken && option->state & QStyle::State_Enabled ) {
-                painter->setPen( m_colorMenuBorder );
-                QLinearGradient gradient( option->rect.topLeft(), option->rect.bottomLeft() );
-                gradient.setColorAt( 0.0, m_colorMenuTitleBegin );
-                gradient.setColorAt( 1.0, m_colorMenuTitleEnd );
-                painter->setBrush( gradient );
-                painter->drawRect( option->rect.adjusted( 0, 0, -1, 0 ) );
-            } else if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled ) {
-                painter->setPen( m_colorItemBorder );
-                QLinearGradient gradient( option->rect.topLeft(), option->rect.bottomLeft() );
-                gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
-                gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
-                painter->setBrush( gradient );
-                painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
-            }
-            if ( const QStyleOptionMenuItem* optionItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
-                int flags = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                if ( !styleHint( SH_UnderlineShortcut, option, widget ) )
-                    flags |= Qt::TextHideMnemonic;
-                if ( !optionItem->icon.isNull() ) {
-                    QPixmap pixmap = optionItem->icon.pixmap( pixelMetric( PM_SmallIconSize, option, widget ), QIcon::Normal );
-                    drawItemPixmap( painter, option->rect, flags, pixmap );
-                } else {
-                    drawItemText( painter, option->rect, flags, option->palette, true, optionItem->text, QPalette::Text );
-                }
-            }
-            return;
-
-        case CE_MenuEmptyArea:
-            painter->fillRect( option->rect, m_colorMenuBackground );
-            return;
-
-        case CE_MenuItem: {
-            if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled ) {
-                painter->setPen( m_colorItemBorder );
-                painter->setBrush( m_colorItemBackgroundBegin );
-                painter->drawRect( option->rect.adjusted( 1, 0, -3, -1 ) );
-            } else {
-                QLinearGradient gradient( QPoint( 0, 0 ), QPoint( 25, 0 ) );
-                gradient.setColorAt( 0.0, m_colorBarBegin );
-                gradient.setColorAt( 1.0, m_colorBarEnd );
-                QRect margin = option->rect;
-                margin.setWidth( 25 );
-                painter->fillRect( margin, gradient );
-                QRect background = option->rect;
-                background.setLeft( margin.right() + 1 );
-                painter->fillRect( background, m_colorMenuBackground );
-            }
-            if ( const QStyleOptionMenuItem* optionItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
-                if ( optionItem->menuItemType == QStyleOptionMenuItem::Separator ) {
-                    painter->setPen( m_colorSeparator );
-                    painter->drawLine( option->rect.left() + 32, ( option->rect.top() + option->rect.bottom() ) / 2,
-                        option->rect.right(), ( option->rect.top() + option->rect.bottom() ) / 2 );
-                    return;
-                }
-                QRect checkRect = option->rect.adjusted( 2, 1, -2, -2 );
-                checkRect.setWidth( 20 );
-                if ( optionItem->checked && option->state & QStyle::State_Enabled ) {
-                    painter->setPen( m_colorItemBorder );
-                    if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled )
-                        painter->setBrush( m_colorItemSunkenBegin );
-                    else
-                        painter->setBrush( m_colorItemCheckedBegin );
-                    painter->drawRect( checkRect );
-                }
-                if ( !optionItem->icon.isNull() ) {
-                    QIcon::Mode mode;
-                    if ( optionItem->state & State_Enabled )
-                        mode = ( optionItem->state & State_Selected ) ? QIcon::Active : QIcon::Normal;
-                    else
-                        mode = QIcon::Disabled;
-                    QIcon::State state = optionItem->checked ? QIcon::On : QIcon::Off;
-                    QPixmap pixmap = optionItem->icon.pixmap( pixelMetric( PM_SmallIconSize, option, widget ), mode, state );
-                    QRect rect = pixmap.rect();
-                    rect.moveCenter( checkRect.center() );
-                    painter->drawPixmap( rect.topLeft(), pixmap );
-                } else if ( optionItem->checked ) {
-                    QStyleOption optionCheckMark;
-                    optionCheckMark.initFrom( widget );
-                    optionCheckMark.rect = checkRect;
-                    if ( !( option->state & State_Enabled ) )
-                        optionCheckMark.palette.setBrush( QPalette::Text, optionCheckMark.palette.brush( QPalette::Disabled, QPalette::Text ) );
-                    drawPrimitive( PE_IndicatorMenuCheckMark, &optionCheckMark, painter, widget );
-                }
-                QRect textRect = option->rect.adjusted( 32, 1, -16, -1 );
-                int flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                if ( !styleHint( SH_UnderlineShortcut, option, widget ) )
-                    flags |= Qt::TextHideMnemonic;
-                QString text = optionItem->text;
-                int pos = text.indexOf( '\t' );
-                if ( pos >= 0 ) {
-                    drawItemText( painter, textRect, flags | Qt::AlignRight, option->palette, option->state & State_Enabled,
-                        text.mid( pos + 1 ), QPalette::Text );
-                    text = text.left( pos );
-                }
-                drawItemText( painter, textRect, flags, option->palette, option->state & State_Enabled, text, QPalette::Text );
-                if ( optionItem->menuItemType == QStyleOptionMenuItem::SubMenu ) {
-                    QStyleOption optionArrow;
-                    optionArrow.initFrom( widget );
-                    optionArrow.rect = option->rect.adjusted( 0, 4, -4, -4 );
-                    optionArrow.rect.setLeft( option->rect.right() - 12 );
-                    optionArrow.state = option->state & State_Enabled;
-                    drawPrimitive( PE_IndicatorArrowRight, &optionArrow, painter, widget );
-                }
-            }
-            return;
-        }
-
-        case CE_ToolBar: {
-            QRect rect = option->rect;
-            bool vertical = false;
-            if ( const QToolBar* toolBar = qobject_cast<const QToolBar*>( widget ) ) {
-                vertical = ( toolBar->orientation() == Qt::Vertical );
-                if ( vertical )
-                    rect.setBottom( toolBar->childrenRect().bottom() + 2 );
-                else
-                    rect.setRight( toolBar->childrenRect().right() + 2 );
-            }
-            painter->save();
-            QRegion region = rect.adjusted( 2, 0, -2, 0 );
-            region += rect.adjusted( 0, 2, 0, -2 );
-            region += rect.adjusted( 1, 1, -1, -1 );
-            painter->setClipRegion( region );
-            QLinearGradient gradient;
-            if ( vertical )
-                gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
-            else
-                gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
-            gradient.setColorAt( 0.0, m_colorBarBegin );
-            gradient.setColorAt( 0.4, m_colorBarMiddle );
-            gradient.setColorAt( 0.6, m_colorBarMiddle );
-            gradient.setColorAt( 1.0, m_colorBarEnd );
-            painter->fillRect( rect, gradient );
-
-            painter->setPen( vertical ? m_colorBorderLight : m_colorBorder );
-            painter->drawLine( rect.bottomLeft() + QPoint( 2, 0 ), rect.bottomRight() - QPoint( 2, 0 ) );
-            painter->setPen( vertical ? m_colorBorder : m_colorBorderLight );
-            painter->drawLine( rect.topRight() + QPoint( 0, 2 ), rect.bottomRight() - QPoint( 0, 2 ) );
-            painter->setPen( m_colorBorderLight );
-            painter->drawPoint( rect.bottomRight() - QPoint( 1, 1 ) );
-            painter->restore();
-            return;
-        }
-
-        case CE_DockWidgetTitle: {
+    case CE_MenuBarItem:
+        if ( option->state & QStyle::State_Sunken && option->state & QStyle::State_Enabled ) {
+            painter->setPen( m_colorMenuBorder );
             QLinearGradient gradient( option->rect.topLeft(), option->rect.bottomLeft() );
+            gradient.setColorAt( 0.0, m_colorMenuTitleBegin );
+            gradient.setColorAt( 1.0, m_colorMenuTitleEnd );
+            painter->setBrush( gradient );
+            painter->drawRect( option->rect.adjusted( 0, 0, -1, 0 ) );
+        } else if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled ) {
+            painter->setPen( m_colorItemBorder );
+            QLinearGradient gradient( option->rect.topLeft(), option->rect.bottomLeft() );
+            gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
+            gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
+            painter->setBrush( gradient );
+            painter->drawRect( option->rect.adjusted( 0, 0, -1, -1 ) );
+        }
+        if ( const QStyleOptionMenuItem* optionItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
+            int flags = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+            if ( !styleHint( SH_UnderlineShortcut, option, widget ) )
+                flags |= Qt::TextHideMnemonic;
+            if ( !optionItem->icon.isNull() ) {
+                QPixmap pixmap = optionItem->icon.pixmap( pixelMetric( PM_SmallIconSize, option, widget ), QIcon::Normal );
+                drawItemPixmap( painter, option->rect, flags, pixmap );
+            } else {
+                drawItemText( painter, option->rect, flags, option->palette, true, optionItem->text, QPalette::Text );
+            }
+        }
+        return;
+
+    case CE_MenuEmptyArea:
+        painter->fillRect( option->rect, m_colorMenuBackground );
+        return;
+
+    case CE_MenuItem: {
+        if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled ) {
+            painter->setPen( m_colorItemBorder );
+            painter->setBrush( m_colorItemBackgroundBegin );
+            painter->drawRect( option->rect.adjusted( 1, 0, -3, -1 ) );
+        } else {
+            QLinearGradient gradient( QPoint( 0, 0 ), QPoint( 25, 0 ) );
             gradient.setColorAt( 0.0, m_colorBarBegin );
             gradient.setColorAt( 1.0, m_colorBarEnd );
-            painter->fillRect( option->rect, gradient );
-            if ( const QStyleOptionDockWidget* optionDockWidget = qstyleoption_cast<const QStyleOptionDockWidget*>( option ) ) {
-                QRect rect = option->rect.adjusted( 6, 0, -4, 0 );
-                if ( optionDockWidget->closable )
-                    rect.adjust( 0, 0, -16, 0 );
-                if ( optionDockWidget->floatable )
-                    rect.adjust( 0, 0, -16, 0 );
-                QString text = painter->fontMetrics().elidedText( optionDockWidget->title, Qt::ElideRight, rect.width() );
-                drawItemText( painter, rect, Qt::AlignLeft | Qt::AlignVCenter, option->palette,
-                    option->state & State_Enabled, text, QPalette::WindowText );
-            }
-            return;
+            QRect margin = option->rect;
+            margin.setWidth( 25 );
+            painter->fillRect( margin, gradient );
+            QRect background = option->rect;
+            background.setLeft( margin.right() + 1 );
+            painter->fillRect( background, m_colorMenuBackground );
         }
+        if ( const QStyleOptionMenuItem* optionItem = qstyleoption_cast<const QStyleOptionMenuItem*>( option ) ) {
+            if ( optionItem->menuItemType == QStyleOptionMenuItem::Separator ) {
+                painter->setPen( m_colorSeparator );
+                painter->drawLine( option->rect.left() + 32, ( option->rect.top() + option->rect.bottom() ) / 2,
+                                  option->rect.right(), ( option->rect.top() + option->rect.bottom() ) / 2 );
+                return;
+            }
+            QRect checkRect = option->rect.adjusted( 2, 1, -2, -2 );
+            checkRect.setWidth( 20 );
+            if ( optionItem->checked && option->state & QStyle::State_Enabled ) {
+                painter->setPen( m_colorItemBorder );
+                if ( option->state & QStyle::State_Selected && option->state & QStyle::State_Enabled )
+                    painter->setBrush( m_colorItemSunkenBegin );
+                else
+                    painter->setBrush( m_colorItemCheckedBegin );
+                painter->drawRect( checkRect );
+            }
+            if ( !optionItem->icon.isNull() ) {
+                QIcon::Mode mode;
+                if ( optionItem->state & State_Enabled )
+                    mode = ( optionItem->state & State_Selected ) ? QIcon::Active : QIcon::Normal;
+                else
+                    mode = QIcon::Disabled;
+                QIcon::State state = optionItem->checked ? QIcon::On : QIcon::Off;
+                QPixmap pixmap = optionItem->icon.pixmap( pixelMetric( PM_SmallIconSize, option, widget ), mode, state );
+                QRect rect = pixmap.rect();
+                rect.moveCenter( checkRect.center() );
+                painter->drawPixmap( rect.topLeft(), pixmap );
+            } else if ( optionItem->checked ) {
+                QStyleOption optionCheckMark;
+                optionCheckMark.initFrom( widget );
+                optionCheckMark.rect = checkRect;
+                if ( !( option->state & State_Enabled ) )
+                    optionCheckMark.palette.setBrush( QPalette::Text, optionCheckMark.palette.brush( QPalette::Disabled, QPalette::Text ) );
+                drawPrimitive( PE_IndicatorMenuCheckMark, &optionCheckMark, painter, widget );
+            }
+            QRect textRect = option->rect.adjusted( 32, 1, -16, -1 );
+            int flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+            if ( !styleHint( SH_UnderlineShortcut, option, widget ) )
+                flags |= Qt::TextHideMnemonic;
+            QString text = optionItem->text;
+            int pos = text.indexOf( '\t' );
+            if ( pos >= 0 ) {
+                drawItemText( painter, textRect, flags | Qt::AlignRight, option->palette, option->state & State_Enabled,
+                             text.mid( pos + 1 ), QPalette::Text );
+                text = text.left( pos );
+            }
+            drawItemText( painter, textRect, flags, option->palette, option->state & State_Enabled, text, QPalette::Text );
+            if ( optionItem->menuItemType == QStyleOptionMenuItem::SubMenu ) {
+                QStyleOption optionArrow;
+                optionArrow.initFrom( widget );
+                optionArrow.rect = option->rect.adjusted( 0, 4, -4, -4 );
+                optionArrow.rect.setLeft( option->rect.right() - 12 );
+                optionArrow.state = option->state & State_Enabled;
+                drawPrimitive( PE_IndicatorArrowRight, &optionArrow, painter, widget );
+            }
+        }
+        return;
+    }
 
-        case CE_TabBarTabShape:
+    case CE_ToolBar: {
+        QRect rect = option->rect;
+        bool vertical = false;
+        if ( const QToolBar* toolBar = qobject_cast<const QToolBar*>( widget ) ) {
+            vertical = ( toolBar->orientation() == Qt::Vertical );
+            if ( vertical )
+                rect.setBottom( toolBar->childrenRect().bottom() + 2 );
+            else
+                rect.setRight( toolBar->childrenRect().right() + 2 );
+        }
+        painter->save();
+        QRegion region = rect.adjusted( 2, 0, -2, 0 );
+        region += rect.adjusted( 0, 2, 0, -2 );
+        region += rect.adjusted( 1, 1, -1, -1 );
+        painter->setClipRegion( region );
+        QLinearGradient gradient;
+        if ( vertical )
+            gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
+        else
+            gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
+        gradient.setColorAt( 0.0, m_colorBarBegin );
+        gradient.setColorAt( 0.4, m_colorBarMiddle );
+        gradient.setColorAt( 0.6, m_colorBarMiddle );
+        gradient.setColorAt( 1.0, m_colorBarEnd );
+        painter->fillRect( rect, gradient );
+
+        painter->setPen( vertical ? m_colorBorderLight : m_colorBorder );
+        painter->drawLine( rect.bottomLeft() + QPoint( 2, 0 ), rect.bottomRight() - QPoint( 2, 0 ) );
+        painter->setPen( vertical ? m_colorBorder : m_colorBorderLight );
+        painter->drawLine( rect.topRight() + QPoint( 0, 2 ), rect.bottomRight() - QPoint( 0, 2 ) );
+        painter->setPen( m_colorBorderLight );
+        painter->drawPoint( rect.bottomRight() - QPoint( 1, 1 ) );
+        painter->restore();
+        return;
+    }
+
+    case CE_DockWidgetTitle: {
+        QLinearGradient gradient( option->rect.topLeft(), option->rect.bottomLeft() );
+        gradient.setColorAt( 0.0, m_colorBarBegin );
+        gradient.setColorAt( 1.0, m_colorBarEnd );
+        painter->fillRect( option->rect, gradient );
+        if ( const QStyleOptionDockWidget* optionDockWidget = qstyleoption_cast<const QStyleOptionDockWidget*>( option ) ) {
+            QRect rect = option->rect.adjusted( 6, 0, -4, 0 );
+            if ( optionDockWidget->closable )
+                rect.adjust( 0, 0, -16, 0 );
+            if ( optionDockWidget->floatable )
+                rect.adjust( 0, 0, -16, 0 );
+            QString text = painter->fontMetrics().elidedText( optionDockWidget->title, Qt::ElideRight, rect.width() );
+            drawItemText( painter, rect, Qt::AlignLeft | Qt::AlignVCenter, option->palette,
+                         option->state & State_Enabled, text, QPalette::WindowText );
+        }
+        return;
+    }
+
+        /*case CE_TabBarTabShape:
             if ( isStyledTabBar( widget ) ) {
                 bool firstTab = false;
                 bool lastTab = false;
@@ -935,36 +935,36 @@ void WindowsModernStyle::drawControl( ControlElement element, const QStyleOption
                 painter->restore();
                 return;
             }
-            break;
+            break;*/
 
-        case CE_ToolBoxTabShape: {
-            QRect rect = option->rect.adjusted( 0, 0, -1, -1 );
-            QLinearGradient gradient( rect.topLeft(), rect.bottomLeft() );
-            if ( option->state & QStyle::State_Sunken ) {
-                gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
-                gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
-                painter->setPen( m_colorBorder );
-            } else if ( option->state & State_MouseOver && option->state & State_Enabled ) {
-                gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
-                gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
-                painter->setPen( m_colorBorder );
-            } else {
-                gradient.setColorAt( 0.0, m_colorBarMiddle );
-                gradient.setColorAt( 1.0, m_colorBarEnd );
-                painter->setPen( m_colorBorderLight );
-            }
-            painter->setBrush( gradient );
-            painter->drawRect( rect );
-            return;
+    case CE_ToolBoxTabShape: {
+        QRect rect = option->rect.adjusted( 0, 0, -1, -1 );
+        QLinearGradient gradient( rect.topLeft(), rect.bottomLeft() );
+        if ( option->state & QStyle::State_Sunken ) {
+            gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
+            gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
+            painter->setPen( m_colorBorder );
+        } else if ( option->state & State_MouseOver && option->state & State_Enabled ) {
+            gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
+            gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
+            painter->setPen( m_colorBorder );
+        } else {
+            gradient.setColorAt( 0.0, m_colorBarMiddle );
+            gradient.setColorAt( 1.0, m_colorBarEnd );
+            painter->setPen( m_colorBorderLight );
         }
+        painter->setBrush( gradient );
+        painter->drawRect( rect );
+        return;
+    }
 
-        case CE_Splitter:
-            if ( qobject_cast<const QMainWindow*>( widget->window() ) )
-                return;
-            break;
+    case CE_Splitter:
+        if ( qobject_cast<const QMainWindow*>( widget->window() ) )
+            return;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if ( useVista() )
@@ -974,78 +974,78 @@ void WindowsModernStyle::drawControl( ControlElement element, const QStyleOption
 }
 
 void WindowsModernStyle::drawComplexControl( ComplexControl control, const QStyleOptionComplex* option,
-    QPainter* painter, const QWidget* widget ) const
+                                            QPainter* painter, const QWidget* widget ) const
 {
     switch ( control ) {
-        case CC_ToolButton: {
-            QToolBar* toolBar;
-            if ( widget && ( toolBar = qobject_cast<QToolBar*>( widget->parentWidget() ) ) ) {
-                if ( const QStyleOptionToolButton* optionToolButton = qstyleoption_cast<const QStyleOptionToolButton*>( option ) ) {
-                    QRect buttonRect = subControlRect( control, option, SC_ToolButton, widget );
-                    QStyle::State buttonState = option->state & ~State_Sunken;
-                    if ( option->state & State_Sunken ) {
-                        if ( optionToolButton->activeSubControls & SC_ToolButton )
-                            buttonState |= State_Sunken;
-                        else if ( optionToolButton->activeSubControls & SC_ToolButtonMenu )
-                            buttonState |= State_MouseOver;
-                    }
-                    bool selected = buttonState & State_MouseOver && option->state & State_Enabled;
-                    bool checked = buttonState & State_On;
-                    bool sunken = buttonState & State_Sunken;
-                    if ( selected || checked || sunken ) {
-                        QRect rect = buttonRect.adjusted( 0, 0, -1, -1 );
-                        painter->setPen( m_colorItemBorder );
-                        QLinearGradient gradient;
-                        if ( toolBar->orientation() == Qt::Vertical )
-                            gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
-                        else
-                            gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
-                        if ( (sunken || selected) && checked ) {
-                            gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
-                            gradient.setColorAt( 0.5, m_colorItemSunkenMiddle );
-                            gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
-                        } else if ( checked ) {
-                            gradient.setColorAt( 0.0, m_colorItemCheckedBegin );
-                            gradient.setColorAt( 0.5, m_colorItemCheckedMiddle );
-                            gradient.setColorAt( 1.0, m_colorItemCheckedEnd );
-                        } else {
-                            gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
-                            gradient.setColorAt( 0.5, m_colorItemBackgroundMiddle );
-                            gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
-                        }
-                        painter->setBrush( gradient );
-                        painter->drawRect( rect );
-                    }
-                    QStyleOptionToolButton optionLabel = *optionToolButton;
-                    int fw = pixelMetric( PM_DefaultFrameWidth, option, widget );
-                    optionLabel.rect = buttonRect.adjusted( fw, fw, -fw, -fw );
-                    drawControl( CE_ToolButtonLabel, &optionLabel, painter, widget );
-                    if ( optionToolButton->subControls & SC_ToolButtonMenu ) {
-                        QStyleOption optionMenu = *optionToolButton;
-                        optionMenu.rect = subControlRect( control, option, SC_ToolButtonMenu, widget );
-                        optionMenu.state = optionToolButton->state & ~State_Sunken;
-                        if ( optionToolButton->state & State_Sunken ) {
-                            if ( optionToolButton->activeSubControls & SC_ToolButton )
-                                optionMenu.state |= State_MouseOver | State_Sunken;
-                            else if ( optionToolButton->activeSubControls & SC_ToolButtonMenu )
-                                optionMenu.state |= State_Sunken;
-                        }
-                        drawPrimitive( PE_IndicatorButtonDropDown, &optionMenu, painter, widget );
-                    } else if ( optionToolButton->features & QStyleOptionToolButton::HasMenu ) {
-                        int size = pixelMetric( PM_MenuButtonIndicator, option, widget );
-                        QRect rect = optionToolButton->rect;
-                        QStyleOptionToolButton optionArrow = *optionToolButton;
-                        optionArrow.rect = QRect( rect.right() + 4 - size, rect.height() - size + 4, size - 5, size - 5 );
-                        drawPrimitive( PE_IndicatorArrowDown, &optionArrow, painter, widget );
-                    }
-                    return;
+    case CC_ToolButton: {
+        QToolBar* toolBar;
+        if ( widget && ( toolBar = qobject_cast<QToolBar*>( widget->parentWidget() ) ) ) {
+            if ( const QStyleOptionToolButton* optionToolButton = qstyleoption_cast<const QStyleOptionToolButton*>( option ) ) {
+                QRect buttonRect = subControlRect( control, option, SC_ToolButton, widget );
+                QStyle::State buttonState = option->state & ~State_Sunken;
+                if ( option->state & State_Sunken ) {
+                    if ( optionToolButton->activeSubControls & SC_ToolButton )
+                        buttonState |= State_Sunken;
+                    else if ( optionToolButton->activeSubControls & SC_ToolButtonMenu )
+                        buttonState |= State_MouseOver;
                 }
+                bool selected = buttonState & State_MouseOver && option->state & State_Enabled;
+                bool checked = buttonState & State_On;
+                bool sunken = buttonState & State_Sunken;
+                if ( selected || checked || sunken ) {
+                    QRect rect = buttonRect.adjusted( 0, 0, -1, -1 );
+                    painter->setPen( m_colorItemBorder );
+                    QLinearGradient gradient;
+                    if ( toolBar->orientation() == Qt::Vertical )
+                        gradient = QLinearGradient( rect.topLeft(), rect.topRight() );
+                    else
+                        gradient = QLinearGradient( rect.topLeft(), rect.bottomLeft() );
+                    if ( (sunken || selected) && checked ) {
+                        gradient.setColorAt( 0.0, m_colorItemSunkenBegin );
+                        gradient.setColorAt( 0.5, m_colorItemSunkenMiddle );
+                        gradient.setColorAt( 1.0, m_colorItemSunkenEnd );
+                    } else if ( checked ) {
+                        gradient.setColorAt( 0.0, m_colorItemCheckedBegin );
+                        gradient.setColorAt( 0.5, m_colorItemCheckedMiddle );
+                        gradient.setColorAt( 1.0, m_colorItemCheckedEnd );
+                    } else {
+                        gradient.setColorAt( 0.0, m_colorItemBackgroundBegin );
+                        gradient.setColorAt( 0.5, m_colorItemBackgroundMiddle );
+                        gradient.setColorAt( 1.0, m_colorItemBackgroundEnd );
+                    }
+                    painter->setBrush( gradient );
+                    painter->drawRect( rect );
+                }
+                QStyleOptionToolButton optionLabel = *optionToolButton;
+                int fw = pixelMetric( PM_DefaultFrameWidth, option, widget );
+                optionLabel.rect = buttonRect.adjusted( fw, fw, -fw, -fw );
+                drawControl( CE_ToolButtonLabel, &optionLabel, painter, widget );
+                if ( optionToolButton->subControls & SC_ToolButtonMenu ) {
+                    QStyleOption optionMenu = *optionToolButton;
+                    optionMenu.rect = subControlRect( control, option, SC_ToolButtonMenu, widget );
+                    optionMenu.state = optionToolButton->state & ~State_Sunken;
+                    if ( optionToolButton->state & State_Sunken ) {
+                        if ( optionToolButton->activeSubControls & SC_ToolButton )
+                            optionMenu.state |= State_MouseOver | State_Sunken;
+                        else if ( optionToolButton->activeSubControls & SC_ToolButtonMenu )
+                            optionMenu.state |= State_Sunken;
+                    }
+                    drawPrimitive( PE_IndicatorButtonDropDown, &optionMenu, painter, widget );
+                } else if ( optionToolButton->features & QStyleOptionToolButton::HasMenu ) {
+                    int size = pixelMetric( PM_MenuButtonIndicator, option, widget );
+                    QRect rect = optionToolButton->rect;
+                    QStyleOptionToolButton optionArrow = *optionToolButton;
+                    optionArrow.rect = QRect( rect.right() + 4 - size, rect.height() - size + 4, size - 5, size - 5 );
+                    drawPrimitive( PE_IndicatorArrowDown, &optionArrow, painter, widget );
+                }
+                return;
             }
-            break;
         }
+        break;
+    }
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if ( useVista() )
