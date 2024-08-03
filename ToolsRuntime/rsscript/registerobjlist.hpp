@@ -194,6 +194,8 @@ public:
     void addMacroDir(const QString &dir);
     const QStringList &macroDir() const;
 
+    void applyMacroDirs();
+
 private:
     RegisterObjList();
     void loadStaticPlugins();

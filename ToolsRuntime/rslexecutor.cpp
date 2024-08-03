@@ -97,6 +97,8 @@ RslExecutor::RslExecutor(QObject *parent) :
     m_RslSettings->beginGroup(QApplication::applicationName());
     setDebugMacroFlag(m_RslSettings->value("debugbreak", false).toBool());
     m_RslSettings->endGroup();
+
+    rslObjList()->applyMacroDirs();
 }
 
 RslExecutor::~RslExecutor()

@@ -221,6 +221,13 @@ const QStringList &RegisterObjList::macroDir() const
     return d->m_MacroPath;
 }
 
+void RegisterObjList::applyMacroDirs()
+{
+    QStringList lst = macroDir();
+    lst << staticMacroDir();
+    setIncDir(lst);
+}
+
 bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
 {
     Q_D(RegisterObjList);
