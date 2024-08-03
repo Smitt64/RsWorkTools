@@ -191,6 +191,9 @@ public:
     void addStaticMacroDir(const QString &dir);
     const QStringList &staticMacroDir() const;
 
+    void addMacroDir(const QString &dir);
+    const QStringList &macroDir() const;
+
 private:
     RegisterObjList();
     void loadStaticPlugins();
@@ -215,6 +218,7 @@ void addStaticModule(RslStaticModule *module)
 }
 
 TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
+TOOLSRUNTIME_EXPORT void rslAddMacroDir(const QString &dir);
 
 void RegisterStringList(void);
 void RslStringList();

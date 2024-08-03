@@ -24,7 +24,7 @@ public:
         m_StaticMacroPath.append(".\\mac");
     }
 
-    QStringList m_StaticMacroPath;
+    QStringList m_StaticMacroPath, m_MacroPath;
     QMap<QString, RegisterInfoBase*> m_Info;
     QMap<QString, RslStaticModule*> m_StaticModules;
     RegisterObjList *q_ptr;
@@ -209,6 +209,18 @@ const QStringList &RegisterObjList::staticMacroDir() const
     return d->m_StaticMacroPath;
 }
 
+void RegisterObjList::addMacroDir(const QString &dir)
+{
+    Q_D(RegisterObjList);
+    d->m_MacroPath.append(dir);
+}
+
+const QStringList &RegisterObjList::macroDir() const
+{
+    Q_D(const RegisterObjList);
+    return d->m_MacroPath;
+}
+
 bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
 {
     Q_D(RegisterObjList);
@@ -225,4 +237,9 @@ bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
 RegisterObjList *rslObjList()
 {
     return RegisterObjList::inst();
+}
+
+void rslAddMacroDir(const QString &dir)
+{
+    RegisterObjList::inst()->addMacroDir(dir);
 }
