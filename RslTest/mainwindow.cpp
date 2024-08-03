@@ -7,6 +7,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "toolsruntime.h"
 #include "optionsdlg/optionsdlg.h"
+#include <optionsdlg/rsloptionspage.h>
 #include "codeeditor/codehighlighter.h"
 #include <QVariant>
 #include <QDebug>
@@ -78,7 +79,8 @@ MainWindow::MainWindow(QWidget *parent)
         OptionsDlg dlg(pSettings, this);
         dlg.setDefaultStyle(DefaultStyleName);
         dlg.addStylePage(QString(), "style");
-        dlg.addCodeEditorPage();
+        dlg.addCodeEditorPage("CodeEditor", "theme");
+        dlg.addRslPage();
         dlg.exec();
     });
 }

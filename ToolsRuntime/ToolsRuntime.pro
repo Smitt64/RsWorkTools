@@ -25,6 +25,7 @@ SOURCES += \
     optionsdlg/OptionsPage.cpp \
     optionsdlg/codeeditoroptionspage.cpp \
     optionsdlg/optionsdlg.cpp \
+    optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
     rslmodule/toolsruntimemodule.cpp \
@@ -39,7 +40,8 @@ SOURCES += \
     rsscript/typeinfofunc.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
-    updatecheckermessagebox.cpp
+    updatecheckermessagebox.cpp \
+    widgets/stringlisteditor.cpp
 
 HEADERS += \
     ToolsRuntime_global.h \
@@ -57,6 +59,7 @@ HEADERS += \
     optionsdlg/OptionsPage.h \
     optionsdlg/codeeditoroptionspage.h \
     optionsdlg/optionsdlg.h \
+    optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
     rslexecutor.h \
     rslmodule/toolsruntimemodule.h \
@@ -71,7 +74,8 @@ HEADERS += \
     rsscript/typeinfo_p.h \
     toolsruntime.h \
     updatechecker.h \
-    updatecheckermessagebox.h
+    updatecheckermessagebox.h \
+    widgets/stringlisteditor.h
 
 # Default rules for deployment.
 unix {
@@ -84,7 +88,9 @@ FORMS += \
     errordlg.ui \
     optionsdlg/codeeditoroptionspage.ui \
     optionsdlg/optionsdlg.ui \
-    optionsdlg/styleoptionspage.ui
+    optionsdlg/rsloptionspage.ui \
+    optionsdlg/styleoptionspage.ui \
+    widgets/stringlisteditor.ui
 
 LIBS += -lVersion -lGdi32 -lUser32
 

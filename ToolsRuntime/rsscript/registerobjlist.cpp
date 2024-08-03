@@ -1,13 +1,15 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "registerobjlist.hpp"
 #include "registerinfobase.h"
 #include "rsldirs.h"
+#include "toolsruntime.h"
 #include "rsscript/RslModulePluginInterface.h"
 #include <QMap>
 #include <QPluginLoader>
 #include <QApplication>
 #include <QDir>
+#include <QFile>
 
 RegisterObjList *RegisterObjList::m_inst = nullptr;
 
@@ -18,8 +20,11 @@ public:
     RegisterObjListPrivate(RegisterObjList *obj)
     {
         q_ptr = obj;
+
+        m_StaticMacroPath.append(".\\mac");
     }
 
+    QStringList m_StaticMacroPath;
     QMap<QString, RegisterInfoBase*> m_Info;
     QMap<QString, RslStaticModule*> m_StaticModules;
     RegisterObjList *q_ptr;
@@ -91,6 +96,18 @@ RegisterObjList *RegisterObjList::inst()
     {
         RegisterObjList::m_inst = new RegisterObjList();
         RegisterObjList::m_inst->loadStaticPlugins();
+
+        QString ini = toolFullFileNameFromDir("rsl.ini");
+        if (ini.isEmpty())
+        {
+            QDir appDir(qApp->applicationDirPath());
+            QFile file(appDir.absoluteFilePath("rsl.ini"));
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                file.write("[General]");
+                file.close();
+            }
+        }
     }
 
     return RegisterObjList::m_inst;
@@ -178,6 +195,18 @@ void RegisterObjList::setIncDir(const QStringList &path)
 void RegisterObjList::setTextDir(const QString &path)
 {
     ToolsSetTextDir(path.toLocal8Bit().data());
+}
+
+void RegisterObjList::addStaticMacroDir(const QString &dir)
+{
+    Q_D(RegisterObjList);
+    d->m_StaticMacroPath.append(dir);
+}
+
+const QStringList &RegisterObjList::staticMacroDir() const
+{
+    Q_D(const RegisterObjList);
+    return d->m_StaticMacroPath;
 }
 
 bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)

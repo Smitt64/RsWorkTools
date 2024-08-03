@@ -21,7 +21,8 @@ public:
     ~OptionsDlg();
 
     void addStylePage(const QString &group, const QString &key);
-    void addCodeEditorPage();
+    void addCodeEditorPage(const QString &group, const QString &key);
+    void addRslPage();
     void setDefaultStyle(const QString &style);
     const QString &defaultStyle() const;
 

@@ -22,5 +22,10 @@
         <file>icons/shell32.dll_14_154-6.png</file>
         <file>icons/shell32.dll_14_274-0.png</file>
         <file>highlighter/sql_keys.txt</file>
+        <file>icons/msgr3en.dll_14_128_0-4.png</file>
+        <file>icons/shell32.dll_14_151-3.png</file>
+        <file>img/new.png</file>
+        <file>img/openfolderHS.png</file>
+        <file>img/remove.png</file>
     </qresource>
 </RCC>

@@ -4,6 +4,7 @@
 #include "ui_optionsdlg.h"
 #include "styleoptionspage.h"
 #include "codeeditoroptionspage.h"
+#include "rsloptionspage.h"
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QStyleFactory>
@@ -97,12 +98,21 @@ void OptionsDlg::addStylePage(const QString &group, const QString &key)
     addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), stylepage);
 }
 
-void OptionsDlg::addCodeEditorPage()
+void OptionsDlg::addCodeEditorPage(const QString &group, const QString &key)
 {
     Q_D(OptionsDlg);
 
     CodeEditorOptionsPage *page = new CodeEditorOptionsPage();
+    page->setSettingsKey(group, key);
     addPage(tr("Текстовый редактор"), QIcon(":/icons/wordpad.exe_14_128-5.png"), page);
+}
+
+void OptionsDlg::addRslPage()
+{
+    Q_D(OptionsDlg);
+
+    RslOptionsPage *page = new RslOptionsPage();
+    addPage(tr("Rsl интерпретатор"), QIcon(":/icons/shell32.dll_14_151-3.png"), page);
 }
 
 void OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *page)
