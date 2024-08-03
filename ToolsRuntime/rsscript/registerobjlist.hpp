@@ -183,8 +183,8 @@ public:
 
     RslStaticModule *staticModule(const QString &name);
 
-    static void setIncDir(const QString &path);
-    static void setIncDir(const QStringList &path);
+    void setIncDir(const QString &path);
+    void setIncDir(const QStringList &path);
 
     static void setTextDir(const QString &path);
 

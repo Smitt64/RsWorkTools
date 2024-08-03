@@ -30,6 +30,7 @@ public:
     RegisterObjList *q_ptr;
 
     //QPluginLoader m_Loader;
+    QString m_IncDir;
 
     QStringList m_PluginPath;
     QList<QPluginLoader*> m_Loaders;
@@ -184,7 +185,9 @@ RslStaticModule *RegisterObjList::staticModule(const QString &name)
 
 void RegisterObjList::setIncDir(const QString &path)
 {
-    ToolsSetIncDir(path.toLocal8Bit().data());
+    Q_D(RegisterObjList);
+    d->m_IncDir = path;
+    ToolsSetIncDir(d->m_IncDir.toLocal8Bit().data());
 }
 
 void RegisterObjList::setIncDir(const QStringList &path)
