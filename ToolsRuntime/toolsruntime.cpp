@@ -9,6 +9,7 @@
 #include <QTextStream>
 
 Q_LOGGING_CATEGORY(highlighterLog, "highlighter.style")
+Q_LOGGING_CATEGORY(rslLog, "rsl")
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
 QString toolFullFileNameFromDir(const QString &file)

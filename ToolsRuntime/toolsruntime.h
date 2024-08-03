@@ -8,6 +8,7 @@
 #include "ToolsRuntime_global.h"
 
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(highlighterLog);
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(rslLog);
 
 TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);

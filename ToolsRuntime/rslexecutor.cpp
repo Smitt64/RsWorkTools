@@ -261,6 +261,9 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     d->PlayRepProc = proc;
 
+    qInfo(rslLog()) << "Begin execute macro file:" << filename;
+    qInfo(rslLog()) << "Report filename:" << output;
+
     bool isErrors = true;
     RunRSLEx(filename.toLocal8Bit().data(),
              output.toLocal8Bit().data(),
@@ -273,6 +276,18 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
              &isErrors,
              &d->m_ErrList,
              output.toLocal8Bit().data());
+
+    if (isErrors)
+    {
+        QStringList err = errors();
+        qCritical(rslLog()) << "Execution finished with errors:";
+        std::for_each(err.begin(), err.end(), [=](const QString &text)
+                      {
+                          qCritical(rslLog()) << text;
+                      });
+    }
+    else
+        qInfo(rslLog()) << "Execution success finished" << output;
 
     d->PlayRepProc = RslExecutorProc();
 }
