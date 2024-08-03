@@ -20,8 +20,14 @@ public:
     RegisterObjListPrivate(RegisterObjList *obj)
     {
         q_ptr = obj;
-
+        m_IncDir = nullptr;
         m_StaticMacroPath.append(".\\mac");
+    }
+
+    ~RegisterObjListPrivate()
+    {
+        if (m_IncDir)
+            delete m_IncDir;
     }
 
     QStringList m_StaticMacroPath, m_MacroPath;
@@ -30,7 +36,7 @@ public:
     RegisterObjList *q_ptr;
 
     //QPluginLoader m_Loader;
-    QString m_IncDir;
+    char *m_IncDir;
 
     QStringList m_PluginPath;
     QList<QPluginLoader*> m_Loaders;
@@ -186,8 +192,13 @@ RslStaticModule *RegisterObjList::staticModule(const QString &name)
 void RegisterObjList::setIncDir(const QString &path)
 {
     Q_D(RegisterObjList);
-    d->m_IncDir = path;
-    ToolsSetIncDir(d->m_IncDir.toLocal8Bit().data());
+
+    if (d->m_IncDir)
+        delete d->m_IncDir;
+
+    d->m_IncDir = new char[path.size() + 1];
+    qstrcpy(d->m_IncDir, path.toLocal8Bit().data());
+    ToolsSetIncDir(d->m_IncDir);
 }
 
 void RegisterObjList::setIncDir(const QStringList &path)
