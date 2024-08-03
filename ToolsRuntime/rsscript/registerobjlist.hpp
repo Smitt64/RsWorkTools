@@ -219,6 +219,7 @@ void addStaticModule(RslStaticModule *module)
 
 TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
 TOOLSRUNTIME_EXPORT void rslAddMacroDir(const QString &dir);
+TOOLSRUNTIME_EXPORT void rslAddStaticMacroDir(const QString &dir);
 
 void RegisterStringList(void);
 void RslStringList();

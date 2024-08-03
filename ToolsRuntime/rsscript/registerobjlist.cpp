@@ -243,3 +243,8 @@ void rslAddMacroDir(const QString &dir)
 {
     RegisterObjList::inst()->addMacroDir(dir);
 }
+
+void rslAddStaticMacroDir(const QString &dir)
+{
+    RegisterObjList::inst()->addStaticMacroDir(dir);
+}
