@@ -196,6 +196,8 @@ public:
 
     void applyMacroDirs();
 
+    QString incDirs() const;
+
 private:
     RegisterObjList();
     void loadStaticPlugins();

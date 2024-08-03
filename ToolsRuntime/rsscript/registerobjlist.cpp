@@ -241,6 +241,11 @@ bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
     return true;
 }
 
+QString RegisterObjList::incDirs() const
+{
+    return ToolsGetIncDir();
+}
+
 RegisterObjList *rslObjList()
 {
     return RegisterObjList::inst();
