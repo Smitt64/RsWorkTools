@@ -1,5 +1,6 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+#include <QApplication>
 #include "playrep.h"
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
@@ -8,10 +9,12 @@
 #include "erlist.hpp"
 #include "rsscript/registerobjlist.hpp"
 #include "rsscript/rslstaticmodule.h"
+#include "toolsruntime.h"
 #include <QUuid>
 #include <QDebug>
 #include <QTextCodec>
 #include <QMessageBox>
+#include <QSettings>
 
 static QString FormatErrorMsg(ERRINFO *error)
 {
@@ -89,7 +92,11 @@ RslExecutor::RslExecutor(QObject *parent) :
     QObject(parent),
     d_ptr(new RslExecutorPrivate(this))
 {
+    QScopedPointer<QSettings> m_RslSettings(new QSettings(toolFullFileNameFromDir("rsl.ini"), QSettings::IniFormat));
 
+    m_RslSettings->beginGroup(QApplication::applicationName());
+    setDebugMacroFlag(m_RslSettings->value("debugbreak", false).toBool());
+    m_RslSettings->endGroup();
 }
 
 RslExecutor::~RslExecutor()
