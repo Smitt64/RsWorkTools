@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #ifndef RSLEXECUTOR_H
 #define RSLEXECUTOR_H
 
@@ -60,6 +60,8 @@ QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp 
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);
 
 QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id);
+QVariant::Type TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
+void ThrowParamTypeError(const int &id);
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 
 TOOLSRUNTIME_EXPORT void* MakeStringList(QStringList *lst, RegisterInfoBase::QObjectRslOwner owner);

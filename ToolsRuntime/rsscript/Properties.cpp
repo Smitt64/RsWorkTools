@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
@@ -36,6 +36,47 @@ void LoadFunctions()
     _LibRslTArraySize = (LibRslTArraySize)RSScriptLib->resolve("RslTArraySize");
     _LibRslTArrayGet = (LibRslTArrayGet)RSScriptLib->resolve("RslTArrayGet");
     _LibSetParm = (LibSetParm)RSScriptLib->resolve("SetParm");
+}
+
+QVariant::Type GetFuncParamType(const int &id)
+{
+    VALUE *val;
+    GetParm(id, &val);
+
+    QVariant::Type result = QVariant::Invalid;
+
+    switch(val->v_type)
+    {
+    case V_STRING:
+        result = QVariant::String;
+        break;
+
+    case V_INTEGER:
+        result = QVariant::Int;
+        break;
+
+    case V_BIGINT:
+        result = QVariant::LongLong;
+        break;
+
+    case V_BOOL:
+        result = QVariant::Bool;
+        break;
+
+    case V_DATE:
+        result = QVariant::Date;
+    break;
+
+    case V_TIME:
+        result = QVariant::Time;
+    break;
+
+    case V_GENOBJ:
+        result = QVariant::UserType;
+        break;
+    }
+
+    return result;
 }
 
 QVariant SetFromRslValue(void *value, bool isStringListProp)

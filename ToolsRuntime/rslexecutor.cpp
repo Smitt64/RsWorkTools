@@ -3,7 +3,6 @@
 #include "playrep.h"
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
-#include "conintf.hpp"
 #include "rsscript/TRsbRSLInstTmpl.hpp"
 #include "rslexecutor.h"
 #include "erlist.hpp"
@@ -318,4 +317,9 @@ QVariant GetFuncParam(const int &id)
     GetParm(id, &val);
 
     return SetFromRslValue(val);
+}
+
+void ThrowParamTypeError(const int &id)
+{
+    iError(IER_RUNTIME, "Param %d type missmatch", id);
 }

@@ -28,6 +28,8 @@ SOURCES += \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
+    rslmodule/regexp/regexp.cpp \
+    rslmodule/regexpmodule.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
     rsscript/Methods.cpp \
@@ -62,6 +64,8 @@ HEADERS += \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
     rslexecutor.h \
+    rslmodule/regexp/regexp.h \
+    rslmodule/regexpmodule.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
     rsscript/RslModulePluginInterface.h \
