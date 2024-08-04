@@ -4,14 +4,16 @@
 #include "rslmodule/toolsruntimemodule.h"
 #include "rsscript/registerobjlist.hpp"
 #include "rslmodule/regexpmodule.h"
+#include "rslmodule/sqlstaticmodule.h"
 
 QStringList RslToolsRuntimeModule::staticModules() const
 {
-    return { "ToolsRuntime", "RegExp" };
+    return { "ToolsRuntime", "RegExp", "Sql" };
 }
 
 void RslToolsRuntimeModule::registerStaticModules()
 {
     addStaticModule<ToolsRuntimeModule>(new ToolsRuntimeModule());
     addStaticModule<RegExpModule>(new RegExpModule());
+    addStaticModule<SqlStaticModule>(new SqlStaticModule());
 }

@@ -18,6 +18,7 @@
 #include <QStyleFactory>
 #include <QDebug>
 #include <QSettings>
+#include <QTabWidget>
 
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
 
@@ -57,10 +58,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     QDockWidget *doc = new QDockWidget("Errors");
 
-    CodeEditor *pEditor = new CodeEditor();
+    QString macro = rslFindMacroFile("Test.mac");
+
+    pEditor = new CodeEditor();
+    pOutput = new CodeEditor();
+
     pEditor->setReadOnly(true);
-    pEditor->setPlainText(toolReadTextFileContent("Test.mac", "IBM 866"));
-    setCentralWidget(pEditor);
+    pOutput->setReadOnly(true);
+    pEditor->setPlainText(toolReadTextFileContent(macro, "IBM 866"));
+
+    QTabWidget *pContainer = new QTabWidget(this);
+    pContainer->addTab(pEditor, tr("Макрос"));
+    pContainer->addTab(pOutput, tr("Вывод"));
+    pContainer->setDocumentMode(true);
+    setCentralWidget(pContainer);
     ToolApplyHighlighter(pEditor, HighlighterRsl);
 
     QListView *listView = new QListView(this);
@@ -95,15 +106,23 @@ void MainWindow::on_pushButton_clicked()
 {
     RslExecutor exec;
 
-    auto Proc = [&exec]()
+    /*auto Proc = [&exec]()
     {
-        QVariant result = exec.call("TestFunc", {"User Message"});
+        //QVariant result = exec.call("TestFunc", {"User Message"});
 
-        qDebug() << result;
-    };
+        //qDebug() << result;
+    };*/
+
+    pOutput->clear();
+    connect(&exec, &RslExecutor::WriteOut, [=](const QString &str)
+    {
+        QTextCursor cursor = pOutput->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertText(str);
+    });
 
     exec.setDebugMacroFlag(true);
-    exec.playRep("Test.mac", "1.txt", Proc);
+    exec.playRep("Test.mac", "1.txt");
 
     m_Errors.setStringList(exec.errors());
 }

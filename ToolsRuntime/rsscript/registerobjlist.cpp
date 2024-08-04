@@ -1,5 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+#include <QApplication>
+#include "playrep.h"
 #include "registerobjlist.hpp"
 #include "registerinfobase.h"
 #include "rsldirs.h"
@@ -7,7 +9,6 @@
 #include "rsscript/RslModulePluginInterface.h"
 #include <QMap>
 #include <QPluginLoader>
-#include <QApplication>
 #include <QDir>
 #include <QFile>
 
@@ -196,8 +197,19 @@ void RegisterObjList::setIncDir(const QString &path)
     if (d->m_IncDir)
         delete d->m_IncDir;
 
-    d->m_IncDir = new char[path.size() + 1];
-    qstrcpy(d->m_IncDir, path.toLocal8Bit().data());
+    QStringList lst = path.split(";");
+    for (QString &str : lst)
+    {
+        if (QDir::isRelativePath(str))
+        {
+            QDir d(qApp->applicationDirPath());
+            str = QDir::toNativeSeparators(d.absoluteFilePath(str));
+        }
+    }
+
+    QString newpath = lst.join(";");
+    d->m_IncDir = new char[newpath.size() + 1];
+    qstrcpy(d->m_IncDir, newpath.toLocal8Bit().data());
     ToolsSetIncDir(d->m_IncDir);
 }
 
@@ -273,4 +285,12 @@ void rslAddMacroDir(const QString &dir)
 void rslAddStaticMacroDir(const QString &dir)
 {
     RegisterObjList::inst()->addStaticMacroDir(dir);
+}
+
+QString rslFindMacroFile(const QString &macro)
+{
+    char file[_MAX_PATH] = {0};
+    rslObjList()->applyMacroDirs();
+    ToolsFindMacroFile(file, macro.toLocal8Bit().data());
+    return file;
 }

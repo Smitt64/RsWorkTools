@@ -1,4 +1,4 @@
-QT += gui widgets webengine webenginewidgets xml uitools
+QT += gui widgets webengine webenginewidgets xml uitools sql
 
 TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
@@ -30,6 +30,9 @@ SOURCES += \
     rslexecutor.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
+    rslmodule/sql/sqldatabase.cpp \
+    rslmodule/sql/sqlquery.cpp \
+    rslmodule/sqlstaticmodule.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
     rsscript/Methods.cpp \
@@ -66,6 +69,9 @@ HEADERS += \
     rslexecutor.h \
     rslmodule/regexp/regexp.h \
     rslmodule/regexpmodule.h \
+    rslmodule/sql/sqldatabase.h \
+    rslmodule/sql/sqlquery.h \
+    rslmodule/sqlstaticmodule.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
     rsscript/RslModulePluginInterface.h \

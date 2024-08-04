@@ -88,6 +88,7 @@ private:
     QStringList _StringList;
 };
 
+class CodeEditor;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -102,6 +103,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    CodeEditor *pEditor, *pOutput;
     QStringListModel m_Errors;
 };
 #endif // MAINWINDOW_H
