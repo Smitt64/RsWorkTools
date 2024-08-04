@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
@@ -7,6 +7,7 @@
 #include "registerobjlist.hpp"
 #include "rslexecutor.h"
 #include "rslibdynamicfuncs.h"
+#include "rslexecutor.h"
 #include <cstring>
 #include <QDebug>
 #include <QTextCodec>
@@ -216,6 +217,10 @@ void *CallMethod(const QMetaObject *meta,
                                                         NewVal.value.time.min,
                                                         NewVal.value.time.sec);
         }
+        else if (Type == QMetaType::QVariant)
+        {
+            (*reinterpret_cast<QVariant*>(*param)) = SetFromRslValue(&NewVal);
+        }
         else if (!Type)
         {
             if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
@@ -292,6 +297,12 @@ void *CallMethod(const QMetaObject *meta,
         ValueMake(&ret);
         switch(returnType)
         {
+        case QMetaType::QVariant:
+            SetValueFromVariant(std::bind(StdValueSetFunc, &ret,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2),
+                                *reinterpret_cast<QVariant*>(params[0]));
+            break;
         case QMetaType::Bool:
             ValueSet(&ret, V_BOOL, reinterpret_cast<bool*>(params[0]));
             break;

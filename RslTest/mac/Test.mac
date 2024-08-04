@@ -1,9 +1,8 @@
-import /*TestModule, */ToolsRuntime;
+import TestModule, ToolsRuntime;
 
 macro TestFunc(v)
 
-    debugbreak;
-    var err = ErrorsModel();
+    /*var err = ErrorsModel();
     err.appendError("Пример предупреждения", err.TypeWarning);
     err.appendError("Пример ошибки", err.TypeError);
     err.appendError("Пример сообщения", err.TypeInfo);
@@ -11,5 +10,10 @@ macro TestFunc(v)
     var dlg = ErrorDlg(ErrorModeInformation);
     dlg.setMessage("Описание назначения окна:");
     dlg.setErrors(err);
-    var result = dlg.exec();
+    var result = dlg.exec();*/
+    var obj = TestObject();
+        debugbreak;
+    var prm = obj.testVariant(12);
+
+    println(prm);
 end;

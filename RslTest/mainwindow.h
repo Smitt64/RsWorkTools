@@ -52,6 +52,11 @@ public:
         return k;
     }
 
+    Q_INVOKABLE QVariant testVariant(const QVariant &var)
+    {
+        return QVariant("var: " + var.toString());
+    }
+
     ChildObject *child()
     {
         return _child;

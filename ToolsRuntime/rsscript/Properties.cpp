@@ -199,6 +199,21 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
     VALUE *value = (VALUE*)val;
     switch(MetaType)
     {
+    case QMetaType::QVariant:
+        if (CHECK_TYPE(V_STRING) || CHECK_TYPE(V_INTEGER) || CHECK_TYPE(V_BIGINT) ||
+            CHECK_TYPE(V_DOUBLE) || CHECK_TYPE(V_DATE) || CHECK_TYPE(V_TIME) || CHECK_TYPE(V_BOOL))
+        {
+            result = true;
+        }
+        else
+        {
+            if (((VALUE*)val)->v_type == V_GENOBJ)
+            {
+                if (_LibRslIsTArray(P_GOBJ(((VALUE*)val)->value.obj)) != 0)
+                    result = true;
+            }
+        }
+        break;
     case QVariant::String:
         result = CHECK_TYPE(V_STRING);
         break;
