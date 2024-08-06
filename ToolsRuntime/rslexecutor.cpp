@@ -110,9 +110,11 @@ QStringList RslExecutor::errors()
 {
     Q_D(RslExecutor);
     QStringList list;
-    while (d->m_ErrList.ErrorNext())
+
+    TRSLErrorsList err(d->m_ErrList);
+    while (err.ErrorNext())
     {
-        ERRLISTELEM *elem = d->m_ErrList.GetCurrentErr();
+        ERRLISTELEM *elem = err.GetCurrentErr();
         list.append(FormatErrorMsg(&elem->info));
     }
 
