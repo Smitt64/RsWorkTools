@@ -139,6 +139,14 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
                 result = QVariant::fromValue(lst);
             }
         }
+        else
+        {
+            Qt::HANDLE handle = (Qt::HANDLE)RSCLSID(val->value.obj);
+            RegisterInfoBase *info = RegisterObjList::inst()->info(handle);
+
+            if (info)
+                result = QVariant::fromValue<QObject*>((QObject*)info->object(val->value.obj));
+        }
     }
         break;
     }

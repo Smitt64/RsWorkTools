@@ -7,6 +7,8 @@
 #include <QVariant>
 #include "rsscript/registerinfobase.h"
 #include "ToolsRuntime_global.h"
+#include <concepts>
+#include <type_traits>
 
 typedef void (*ToolRslStdProc)(void);
 typedef std::function<void(void)> RslExecutorProc;
@@ -60,10 +62,27 @@ QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp 
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);
 
 QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id);
+void TOOLSRUNTIME_EXPORT SetFuncParam(const int &id, const QVariant &value);
 QVariant::Type TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
 void ThrowParamTypeError(const int &id);
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 
 TOOLSRUNTIME_EXPORT void* MakeStringList(QStringList *lst, RegisterInfoBase::QObjectRslOwner owner);
+
+template<class T>
+T GetFuncParam(const int &id)
+{
+    QVariant val = GetFuncParam(id);
+    if constexpr (std::is_base_of_v<std::remove_pointer<T>, QObject> &&
+                  std::is_convertible_v<const volatile T*, const volatile QObject*>)
+    {
+        QObject *obj = val.value<QObject*>();
+
+        T result = qobject_cast<T>(obj);
+        return result;
+    }
+
+    return val.value<T>();
+}
 
 #endif // RSLEXECUTOR_H

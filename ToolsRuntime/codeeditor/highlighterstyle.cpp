@@ -510,7 +510,7 @@ public:
 
         try
         {
-            qInfo(highlighterLog()) << "Try load highlighter style:" << name;
+            qInfo(logHighlighter()) << "Try load highlighter style:" << name;
             if (!m_Styles.contains(name))
             {
                 QSharedPointer<StyleItem> item(new StyleItem());
@@ -519,15 +519,15 @@ public:
 
                 m_Themes.append(name);
             }
-            qInfo(highlighterLog()) << "Highlighter style successfully loaded";
+            qInfo(logHighlighter()) << "Highlighter style successfully loaded";
         }
         catch (QJsonParseError e)
         {
-            qWarning(highlighterLog()) << QString("Can't load highlighter style [%1]: %2")
+            qWarning(logHighlighter()) << QString("Can't load highlighter style [%1]: %2")
                                               .arg(name, e.errorString());
         }
         catch (QString e) {
-            qWarning(highlighterLog()) << QString("Can't load highlighter style [%1]: %2")
+            qWarning(logHighlighter()) << QString("Can't load highlighter style [%1]: %2")
                                               .arg(name, e);
         }
     }
@@ -537,27 +537,27 @@ public:
         bool hr = true;
         QDir syntaxhighlighter = QDir::currentPath();
 
-        qInfo(highlighterLog()) << "Try detect syntaxhighlighter folder";
+        qInfo(logHighlighter()) << "Try detect syntaxhighlighter folder";
         if (!syntaxhighlighter.cd("syntaxhighlighter"))
         {
-            qWarning(highlighterLog()) << QString("Working directory %1: false").arg(syntaxhighlighter.path());
+            qWarning(logHighlighter()) << QString("Working directory %1: false").arg(syntaxhighlighter.path());
             syntaxhighlighter = QDir(qApp->applicationDirPath());
 
             if (!syntaxhighlighter.cd("syntaxhighlighter"))
             {
                 hr = false;
-                qWarning(highlighterLog()) << QString("Application directory %1: false").arg(syntaxhighlighter.path());
+                qWarning(logHighlighter()) << QString("Application directory %1: false").arg(syntaxhighlighter.path());
             }
             else
-                qInfo(highlighterLog()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
+                qInfo(logHighlighter()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
         }
         else
-            qInfo(highlighterLog()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
+            qInfo(logHighlighter()) << QString("Syntaxhighlighter folder: %1").arg(syntaxhighlighter.path());
 
         if (!hr)
         {
             syntaxhighlighter = QDir(qApp->applicationDirPath());
-            qInfo(highlighterLog()) << "Creating syntaxhighlighter folder:"
+            qInfo(logHighlighter()) << "Creating syntaxhighlighter folder:"
                                     << syntaxhighlighter.mkdir("syntaxhighlighter");
         }
 

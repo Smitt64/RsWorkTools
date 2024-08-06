@@ -7,9 +7,13 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QTextStream>
+#include <QSqlQuery>
+#include <QSqlError>
 
-Q_LOGGING_CATEGORY(highlighterLog, "highlighter.style")
-Q_LOGGING_CATEGORY(rslLog, "rsl")
+Q_LOGGING_CATEGORY(logHighlighter, "Highlighter.Style")
+Q_LOGGING_CATEGORY(logRsl, "Rsl")
+Q_LOGGING_CATEGORY(logSql, "Sql")
+
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
 QString toolFullFileNameFromDir(const QString &file)
@@ -162,3 +166,29 @@ QString toolGetRuntimeVersion()
     return versionNumberString;
 }
 
+int toolExecuteQuery(QSqlQuery *query, QString *err)
+{
+    int stat = 0;
+
+    QMap<QString, QVariant> values = query->boundValues();
+    QMapIterator<QString, QVariant> i(values);
+    while(i.hasNext())
+    {
+        i.next();
+        qCInfo(logSql()) << i.key() << ": " << i.value();
+    }
+
+    bool result = query->exec();
+    if (!result)
+    {
+        stat = 1;
+        qCCritical(logSql()) << query->lastError().text();
+
+        if (err != Q_NULLPTR)
+            *err = query->lastError().text();
+    }
+    qCInfo(logSql()) << query->executedQuery();
+    qCInfo(logSql()) << "Result:" << result;
+
+    return stat;
+}

@@ -181,3 +181,8 @@ QVariant SqlQuery::value(const QString &name) const
     CHECK_CONNECTION(return QVariant());
     return m_Query->value(name);
 }
+
+QSqlQuery *SqlQuery::query()
+{
+    return m_Query.data();
+}

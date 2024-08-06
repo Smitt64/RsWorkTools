@@ -32,6 +32,8 @@ public:
 
     Q_INVOKABLE bool exec(const QString &query = QString());
 
+    QSqlQuery *query();
+
     QString executedQuery() const;
     QString lastQuery() const;
     QString lastError() const;

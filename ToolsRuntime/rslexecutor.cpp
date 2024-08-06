@@ -263,8 +263,8 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     d->PlayRepProc = proc;
 
-    qInfo(rslLog()) << "Begin execute macro file:" << filename;
-    qInfo(rslLog()) << "Report filename:" << output;
+    qInfo(logRsl()) << "Begin execute macro file:" << filename;
+    qInfo(logRsl()) << "Report filename:" << output;
 
     bool isErrors = true;
     RunRSLEx(filename.toLocal8Bit().data(),
@@ -282,14 +282,14 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
     if (isErrors)
     {
         QStringList err = errors();
-        qCritical(rslLog()) << "Execution finished with errors:";
+        qCritical(logRsl()) << "Execution finished with errors:";
         std::for_each(err.begin(), err.end(), [=](const QString &text)
                       {
-                          qCritical(rslLog()) << text;
+                          qCritical(logRsl()) << text;
                       });
     }
     else
-        qInfo(rslLog()) << "Execution success finished" << output;
+        qInfo(logRsl()) << "Execution success finished" << output;
 
     d->PlayRepProc = RslExecutorProc();
 }
@@ -341,6 +341,18 @@ QVariant GetFuncParam(const int &id)
     GetParm(id, &val);
 
     return SetFromRslValue(val);
+}
+
+void SetFuncParam(const int &id, const QVariant &value)
+{
+    auto SetterFunc = [=](int type, void *ptr) -> void
+    {
+        SetParm(id, type, ptr);
+    };
+
+    SetValueFromVariant(SetterFunc, value);
+
+    SetValueFromVariant(SetterFunc, value);
 }
 
 void ThrowParamTypeError(const int &id)
