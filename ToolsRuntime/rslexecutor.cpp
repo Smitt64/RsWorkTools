@@ -345,14 +345,28 @@ QVariant GetFuncParam(const int &id)
     return SetFromRslValue(val);
 }
 
+int GetFuncParamCount()
+{
+    return GetNumParm();
+}
+
+void SetReturnVal(const QVariant &value)
+{
+    auto SetterFunc = [=](int type, void *ptr) -> void
+    {
+        ReturnVal(type, ptr);
+        //SetParm(id, type, ptr);
+    };
+
+    SetValueFromVariant(SetterFunc, value);
+}
+
 void SetFuncParam(const int &id, const QVariant &value)
 {
     auto SetterFunc = [=](int type, void *ptr) -> void
     {
         SetParm(id, type, ptr);
     };
-
-    SetValueFromVariant(SetterFunc, value);
 
     SetValueFromVariant(SetterFunc, value);
 }

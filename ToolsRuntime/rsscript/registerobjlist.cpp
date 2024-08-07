@@ -267,6 +267,11 @@ bool RegisterObjList::AddObject(const QString &name, const bool &canCreate)
     return true;
 }
 
+void RegisterObjList::AddStdProc (const char *name, RslFuncProc proc)
+{
+    ::AddStdProc(V_UNDEF, name, (RslStdProc)proc, 0);
+}
+
 QString RegisterObjList::incDirs() const
 {
     return ToolsGetIncDir();

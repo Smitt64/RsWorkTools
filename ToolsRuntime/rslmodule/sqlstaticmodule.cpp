@@ -53,5 +53,5 @@ void SqlStaticModule::Proc()
     RegisterObjList::inst()->AddObject<SqlQuery>();
     RegisterObjList::inst()->AddObject<SqlDatabase>();
 
-    AddStdProc(V_BOOL, "toolExecuteQuery", Rsl_toolExecuteQuery, 0);
+    RegisterObjList::inst()->AddStdProc("toolExecuteQuery", Rsl_toolExecuteQuery);
 }

@@ -4,9 +4,29 @@
 #include "rsscript/registerobjlist.hpp"
 #include "toolsruntinersl.h"
 #include "errordlg.h"
+#include "rslexecutor.h"
 #include <errorsmodel.h>
 
 Q_GLOBAL_STATIC(ToolsRuntime, pToolsRuntime)
+
+static void Rsl_toolFormatStr()
+{
+    enum
+    {
+        prm_Format = 0,
+    };
+
+    if (GetFuncParamType(prm_Format) != QVariant::String)
+        ThrowParamTypeError(prm_Format);
+
+    QString format = GetFuncParam(prm_Format).toString();
+
+    int size = GetFuncParamCount();
+    for (int i = 1; i < size; i++)
+        format = format.arg(GetFuncParam(i).toString());
+
+    SetReturnVal(format);
+}
 
 ToolsRuntimeModule::ToolsRuntimeModule() :
     RslStaticModule()
@@ -31,9 +51,6 @@ void ToolsRuntimeModule::Proc()
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
+
+    RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
 }
-
-/*void ToolsRuntimeModule::rslGetPostgreSQLInstallLocation()
-{
-
-}*/

@@ -8,6 +8,8 @@
 #include "rslstaticmodule.h"
 #include "ToolsRuntime_global.h"
 
+typedef void (*RslFuncProc)(void);
+
 class RslStaticModule;
 TOOLSRUNTIME_EXPORT RegisterInfoBase *findInfo(const QString &name);
 
@@ -180,6 +182,7 @@ public:
     }
 
     bool AddObject(const QString &name, const bool &canCreate = true);
+    void AddStdProc (const char *name, RslFuncProc proc);
 
     RslStaticModule *staticModule(const QString &name);
 
