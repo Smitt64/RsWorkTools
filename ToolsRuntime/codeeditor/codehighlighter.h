@@ -58,9 +58,11 @@ private:
 
 enum HighlighterSyntax
 {
-    HighlighterCpp = 1,
+    HighlighterPlain = 0,
+    HighlighterCpp,
     HighlighterRsl,
     HighlighterSql,
+    HighlighterXml,
 };
 
 TOOLSRUNTIME_EXPORT void ToolApplyHighlighter(QPlainTextEdit *pEditor,

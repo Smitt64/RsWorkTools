@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntimemodule.h"
 #include "rsscript/registerobjlist.hpp"
+#include "codeeditor/codehighlighter.h"
 #include "toolsruntinersl.h"
 #include "errordlg.h"
 #include "rslexecutor.h"
@@ -46,6 +47,13 @@ void ToolsRuntimeModule::Proc()
     addConstant("ErrorModeInformation", ErrorDlg::ModeInformation);
     addConstant("ErrorModeMessageBox", ErrorDlg::ModeMessageBox);
     addConstant("ErrorModeWidget", ErrorDlg::ModeWidget);
+
+    addConstant("HighlighterPlain", HighlighterPlain);
+    addConstant("HighlighterCpp", HighlighterCpp);
+    addConstant("HighlighterRsl", HighlighterRsl);
+    addConstant("HighlighterSql", HighlighterRsl);
+    addConstant("HighlighterXml", HighlighterXml);
+
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
     RegisterObjList::inst()->AddObject<ErrorsModel>();
