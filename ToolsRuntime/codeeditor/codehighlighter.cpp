@@ -272,7 +272,12 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
     }
 
     CodeEditor *pCodeEditor = qobject_cast<CodeEditor*>(pEditor);
-    QSharedPointer<StyleItem> sstyle = pCodeHighlighter->style();
+    QSharedPointer<StyleItem> sstyle;
+
+    if (pCodeHighlighter)
+        sstyle = pCodeHighlighter->style();
+    else
+        sstyle = HighlighterStyle::inst()->style();
 
     QColor background = sstyle->editorBackground();
 
