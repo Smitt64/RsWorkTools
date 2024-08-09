@@ -265,8 +265,11 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
     else if (syntax == HighlighterSql)
         pCodeHighlighter = new SqlCodeHighlighter(pEditor);
 
-    pCodeHighlighter->setStyle(style);
-    pCodeHighlighter->setDocument(pEditor->document());
+    if (pCodeHighlighter)
+    {
+        pCodeHighlighter->setStyle(style);
+        pCodeHighlighter->setDocument(pEditor->document());
+    }
 
     CodeEditor *pCodeEditor = qobject_cast<CodeEditor*>(pEditor);
     QSharedPointer<StyleItem> sstyle = pCodeHighlighter->style();
