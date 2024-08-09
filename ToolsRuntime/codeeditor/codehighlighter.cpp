@@ -264,6 +264,8 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
         pCodeHighlighter = new RslCodeHighlighter(pEditor);
     else if (syntax == HighlighterSql)
         pCodeHighlighter = new SqlCodeHighlighter(pEditor);
+    else
+        pCodeHighlighter = new CodeHighlighter(pEditor);
 
     if (pCodeHighlighter)
     {
