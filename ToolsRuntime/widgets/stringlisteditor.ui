@@ -17,6 +17,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QComboBox" name="categoryCombo">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -38,7 +48,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../WorkFMT/FmtLib/res/fmt.qrc">
+        <iconset resource="../res/res.qrc">
          <normaloff>:/img/new.png</normaloff>:/img/new.png</iconset>
        </property>
       </widget>
@@ -52,7 +62,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../WorkFMT/FmtLib/res/fmt.qrc">
+        <iconset resource="../res/res.qrc">
          <normaloff>:/img/openfolderHS.png</normaloff>:/img/openfolderHS.png</iconset>
        </property>
       </widget>
@@ -66,7 +76,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../WorkFMT/FmtLib/res/fmt.qrc">
+        <iconset resource="../res/res.qrc">
          <normaloff>:/img/remove.png</normaloff>:/img/remove.png</iconset>
        </property>
       </widget>
@@ -86,7 +96,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../WorkFMT/FmtLib/res/fmt.qrc"/>
+  <include location="../res/res.qrc"/>
  </resources>
  <connections/>
 </ui>

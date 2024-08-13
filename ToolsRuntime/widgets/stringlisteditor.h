@@ -26,6 +26,7 @@ public:
     bool click(QString &text, QWidget *parent) Q_DECL_OVERRIDE;
 };
 
+class QComboBox;
 class QAbstractButton;
 class StringListEditorPrivate;
 class TOOLSRUNTIME_EXPORT StringListEditor : public QWidget
@@ -46,14 +47,19 @@ public:
     void append(const QStringList &lst);
 
     void addStatic(const QString &value);
+    void addStatic(const qint16 &id, const QString &value);
+
     void addStatic(const QStringList &lst);
+    void addStatic(const qint16 &id, const QStringList &lst);
     void addList(const QStringList &lst);
 
     void setHandler(StringListEditorHandler *handler);
 
     QStringList stringList();
-
+    QComboBox *categoryWidget();
     QAbstractButton *button(StandartButtons btn);
+
+    void setCategoryes(const QStringList &lst);
 
 private:
     Ui::StringListEditor *ui;

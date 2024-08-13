@@ -151,12 +151,30 @@ public:
         m_pHandler = nullptr;
     }
 
+    qint16 category() const 
+    { 
+        Q_Q(const StringListEditor);
+        return q->ui->categoryCombo->currentIndex(); 
+    }
+
+    QStandardItemModel *category()
+    {
+        Q_Q(StringListEditor);
+        return m_pModel.value(q->ui->categoryCombo->currentIndex());
+    }
+
+    QStringList &staticStrings()
+    {
+        Q_Q(StringListEditor);
+        return m_StaticStrings[q->ui->categoryCombo->currentIndex()];
+    }
+
     StringListEditorHandler *m_pHandler;
-    QStandardItemModel *m_pModel;
+    QMap<qint16, QStandardItemModel*> m_pModel;
     EditableJarDelegate *m_pDelegate;
     StringListEditor *q_ptr;
 
-    QStringList m_StaticStrings;
+    QMap<qint16, QStringList> m_StaticStrings;
 };
 
 StringListEditor::StringListEditor(QWidget *parent)
@@ -166,20 +184,22 @@ StringListEditor::StringListEditor(QWidget *parent)
 {
     Q_D(StringListEditor);
     ui->setupUi(this);
+    ui->categoryCombo->addItem("General");
+    ui->categoryCombo->setVisible(false);
 
-    d->m_pModel = new QStandardItemModel(parent);
-    d->m_pModel->setColumnCount(1);
+    d->m_pModel[0] = new QStandardItemModel(parent);
+    d->m_pModel[0]->setColumnCount(1);
     d->m_pDelegate = new EditableJarDelegate(ui->listView);
-    ui->listView->setModel(d->m_pModel);
+    ui->listView->setModel(d->m_pModel[0]);
     ui->listView->setItemDelegate(d->m_pDelegate);
 
     ui->addFilesBtn->setVisible(false);
 
     connect(ui->newBtn, &QPushButton::clicked, [=]()
     {
-        int rowcount = d->m_pModel->rowCount();
-        d->m_pModel->insertRow(rowcount);
-        ui->listView->edit(d->m_pModel->index(rowcount, 0));
+        int rowcount = d->category()->rowCount();
+        d->category()->insertRow(rowcount);
+        ui->listView->edit(d->category()->index(rowcount, 0));
     });
 
     connect(ui->remBtn, &QPushButton::clicked, [=]()
@@ -190,7 +210,7 @@ StringListEditor::StringListEditor(QWidget *parent)
         if (!index.isValid())
             return;
 
-        d->m_pModel->removeRow(index.row());
+        d->category()->removeRow(index.row());
     });
 }
 
@@ -208,14 +228,26 @@ void StringListEditor::addStatic(const QString &value)
     item->setText(value);
     item->setSelectable(false);
 
-    d->m_StaticStrings.append(value);
-    d->m_pModel->appendRow(item);
+    d->staticStrings().append(value);
+    d->category()->appendRow(item);
+}
+
+void StringListEditor::addStatic(const qint16 &id, const QString &value)
+{
+    Q_D(StringListEditor);
+    d->m_StaticStrings[id].append(value);
 }
 
 void StringListEditor::addStatic(const QStringList &lst)
 {
     for (const QString &file : lst)
         addStatic(file);
+}
+
+void StringListEditor::addStatic(const qint16 &id, const QStringList &lst)
+{
+    for (const QString &file : lst)
+        addStatic(id, file);
 }
 
 void StringListEditor::addList(const QStringList &lst)
@@ -227,7 +259,7 @@ void StringListEditor::addList(const QStringList &lst)
         QStandardItem *item = new QStandardItem();
         item->setText(file);
 
-        d->m_pModel->appendRow(item);
+        d->category()->appendRow(item);
     }
 }
 
@@ -236,11 +268,11 @@ QStringList StringListEditor::stringList()
     Q_D(StringListEditor);
 
     QStringList files;
-    for (int i = 0; i < d->m_pModel->rowCount(); i++)
+    for (int i = 0; i < d->category()->rowCount(); i++)
     {
-        QStandardItem *item = d->m_pModel->item(i);
+        QStandardItem *item = d->category()->item(i);
 
-        if (item->isEditable() && item->isEditable() && !d->m_StaticStrings.contains(item->text()))
+        if (item->isEditable() && item->isEditable() && !d->staticStrings().contains(item->text()))
             files.append(item->text());
     }
 
@@ -274,7 +306,7 @@ void StringListEditor::append(const QString &value)
     QStandardItem *item = new QStandardItem();
     item->setText(value);
 
-    d->m_pModel->appendRow(item);
+    d->category()->appendRow(item);
 }
 
 void StringListEditor::append(const QStringList &lst)
@@ -287,4 +319,33 @@ void StringListEditor::setHandler(StringListEditorHandler *handler)
     Q_D(StringListEditor);
     d->m_pHandler = handler;
     d->m_pDelegate->m_pHandler = handler;
+}
+
+QComboBox *StringListEditor::categoryWidget()
+{
+    return ui->categoryCombo;
+}
+
+void StringListEditor::setCategoryes(const QStringList &lst)
+{
+    Q_D(StringListEditor);
+
+    QMapIterator it(d->m_pModel);
+    while (it.hasNext())
+    {
+        it.next();
+        delete it.value();
+    }
+
+    d->m_pModel.clear();
+    ui->categoryCombo->clear();
+    
+    for (const QString &cat : lst)
+    {
+        ui->categoryCombo->addItem(cat);
+        d->m_pModel[ui->categoryCombo->count() - 1] = new QStandardItemModel(parent());
+        d->m_pModel[ui->categoryCombo->count() - 1]->setColumnCount(1);
+    }
+
+    ui->categoryCombo->setVisible(true);
 }
