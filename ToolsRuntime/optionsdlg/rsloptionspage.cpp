@@ -24,6 +24,7 @@ public:
         m_RslSettings.reset(new QSettings(toolFullFileNameFromDir("rsl.ini"), QSettings::IniFormat));
         pStringListEditor = new StringListEditor(parent);
         pStringListEditor->layout()->setMargin(0);
+        //pStringListEditor->setCategoryes({"test1", "test2"});
 
         pStringListEditor->setHandler(&m_Handler);
         pStringListEditor->addStatic(RegisterObjList::inst()->staticMacroDir());

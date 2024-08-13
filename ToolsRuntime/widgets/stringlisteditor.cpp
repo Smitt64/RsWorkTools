@@ -160,7 +160,9 @@ public:
     QStandardItemModel *category()
     {
         Q_Q(StringListEditor);
-        return m_pModel.value(q->ui->categoryCombo->currentIndex());
+
+        int index = q->ui->categoryCombo->currentIndex();
+        return m_pModel.value(index);
     }
 
     QStringList &staticStrings()
@@ -211,6 +213,11 @@ StringListEditor::StringListEditor(QWidget *parent)
             return;
 
         d->category()->removeRow(index.row());
+    });
+
+    connect(ui->categoryCombo, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) -> void 
+    {
+        ui->listView->setModel(d->m_pModel[index]);
     });
 }
 
@@ -348,4 +355,5 @@ void StringListEditor::setCategoryes(const QStringList &lst)
     }
 
     ui->categoryCombo->setVisible(true);
+    ui->listView->setModel(d->m_pModel[0]);
 }
