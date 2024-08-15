@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
 	RslTest \
-        RslToolRuntimeStatic \
-        ToolsRuntime \
+    RslToolRuntimeStatic \
+    ToolsRuntime \
     WindowsModernStyle
 
 
