@@ -28,11 +28,13 @@ SOURCES += \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
+    rslmodule/dialogs/message_box.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
     rslmodule/sql/sqldatabase.cpp \
     rslmodule/sql/sqlquery.cpp \
     rslmodule/sqlstaticmodule.cpp \
+    rslmodule/stddialogs.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
     rsscript/Methods.cpp \
@@ -72,6 +74,7 @@ HEADERS += \
     rslmodule/sql/sqldatabase.h \
     rslmodule/sql/sqlquery.h \
     rslmodule/sqlstaticmodule.h \
+    rslmodule/stddialogs.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
     rsscript/RslModulePluginInterface.h \

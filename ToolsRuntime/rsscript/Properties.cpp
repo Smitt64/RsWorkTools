@@ -38,12 +38,12 @@ void LoadFunctions()
     _LibSetParm = (LibSetParm)RSScriptLib->resolve("SetParm");
 }
 
-QVariant::Type GetFuncParamType(const int &id)
+int GetFuncParamType(const int &id)
 {
     VALUE *val;
     GetParm(id, &val);
 
-    QVariant::Type result = QVariant::Invalid;
+    int result = QVariant::Invalid;
 
     switch(val->v_type)
     {
@@ -72,7 +72,32 @@ QVariant::Type GetFuncParamType(const int &id)
     break;
 
     case V_GENOBJ:
-        result = QVariant::UserType;
+    {
+        TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(val->value.obj));
+
+        if (TArrayText)
+        {
+            bool isStringList = true;
+
+            int size = _LibRslTArraySize(TArrayText);
+            for (int i = 0; i < size; i++)
+            {
+                VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+                if (item->v_type != V_STRING)
+                {
+                    isStringList = false;
+                    break;
+                }
+            }
+
+            if (isStringList)
+                result = QVariant::StringList;
+            else
+                result = QMetaType::QVariantList;
+        }
+        else
+            result = QVariant::UserType;
+    }
         break;
     }
 

@@ -85,3 +85,5 @@ PVS-Studio.log
 RslTest/RslTest.ini
 
 build/
+
+.vscode/

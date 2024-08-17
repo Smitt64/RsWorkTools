@@ -337,12 +337,12 @@ void AddFunctionToRsl(const QString &name, ToolRslStdProc proc)
     AddStdProc(V_UNDEF, name.toLocal8Bit().data(), proc, 0);
 }
 
-QVariant GetFuncParam(const int &id)
+QVariant GetFuncParam(const int &id, bool isStringListProp)
 {
     VALUE *val;
     GetParm(id, &val);
 
-    return SetFromRslValue(val);
+    return SetFromRslValue(val, isStringListProp);
 }
 
 int GetFuncParamCount()

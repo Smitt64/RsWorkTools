@@ -61,11 +61,11 @@ void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
 QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp = false);
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);
 
-QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id);
+QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id, bool isStringListProp = false);
 int TOOLSRUNTIME_EXPORT GetFuncParamCount();
 void TOOLSRUNTIME_EXPORT SetFuncParam(const int &id, const QVariant &value);
 void TOOLSRUNTIME_EXPORT SetReturnVal(const QVariant &value);
-QVariant::Type TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
+int TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
 void ThrowParamTypeError(const int &id);
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 
