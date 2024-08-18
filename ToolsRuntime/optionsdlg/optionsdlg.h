@@ -30,6 +30,7 @@ public:
 
 public slots:
     virtual int exec() Q_DECL_OVERRIDE;
+    virtual void accept() Q_DECL_OVERRIDE;
 
 protected:
     void addPage(const QString &title, const QIcon &icon, OptionsPage *page);

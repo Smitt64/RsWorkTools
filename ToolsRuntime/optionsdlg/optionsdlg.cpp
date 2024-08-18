@@ -67,6 +67,12 @@ OptionsDlg::OptionsDlg(QSettings *settings, QWidget *parent)
     ui->listWidget->setItemAlignment(Qt::AlignCenter);
 
     d->m_pSettings = settings;
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(false);
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setDefault(false);
+
 
     connect(ui->listWidget, &QListWidget::itemClicked, [=](QListWidgetItem *item)
     {
@@ -144,6 +150,14 @@ void OptionsDlg::done(int r)
 {
     Q_D(OptionsDlg);
     QDialog::done(r);
+}
+
+void OptionsDlg::accept()
+{
+    if (!ui->buttonBox->button(QDialogButtonBox::Ok)->hasFocus())
+        return;
+
+    QDialog::accept();
 }
 
 const QString &OptionsDlg::defaultStyle() const
