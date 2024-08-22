@@ -25,10 +25,7 @@ public:
     RslExecutor(QObject *parent = nullptr);
     virtual ~RslExecutor();
 
-    void playRep(const QString &filename, const QString &output = QString(), RslExecutorProc proc = RslExecutorProc());
-    /*bool init(const QString &output = QString());
-    bool push(const QString &filename);
-    bool pop();*/
+    virtual void playRep(const QString &filename, const QString &output = QString(), RslExecutorProc proc = RslExecutorProc());
 
     QStringList errors();
 
@@ -36,8 +33,6 @@ public:
 
     static QString getSymbolName(Qt::HANDLE sym);
     static void globalSet(Qt::HANDLE sym, const QVariant &value);
-    //static void globalSet(const QString &name, const QVariant &value);
-    //SetDebugMacroFlag
     void setDebugMacroFlag(const bool &Eanble);
 
 signals:

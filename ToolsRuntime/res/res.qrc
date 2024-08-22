@@ -27,5 +27,7 @@
         <file>img/new.png</file>
         <file>img/openfolderHS.png</file>
         <file>img/remove.png</file>
+        <file>icons/imjputy.exe_14_5008_1041-1.png</file>
+        <file>icons/osk.exe_14_APP_OSK-2.png</file>
     </qresource>
 </RCC>

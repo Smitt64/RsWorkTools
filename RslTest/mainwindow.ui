@@ -27,9 +27,9 @@
     <property name="title">
      <string>Меню</string>
     </property>
-    <addaction name="action"/>
-    <addaction name="action_2"/>
-    <addaction name="action_3"/>
+    <addaction name="actionElement1"/>
+    <addaction name="actionElement2"/>
+    <addaction name="actionElement3"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -55,22 +55,30 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="action">
+  <action name="actionElement1">
+   <property name="icon">
+    <iconset resource="../ToolsRuntime/res/res.qrc">
+     <normaloff>:/img/openfolderHS.png</normaloff>:/img/openfolderHS.png</iconset>
+   </property>
    <property name="text">
     <string>Элемент</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="actionElement2">
    <property name="text">
     <string>Элемент</string>
    </property>
   </action>
-  <action name="action_3">
+  <action name="actionElement3">
    <property name="text">
     <string>Элемент</string>
    </property>
   </action>
   <action name="actionOptions">
+   <property name="icon">
+    <iconset resource="../ToolsRuntime/res/res.qrc">
+     <normaloff>:/icons/shell32.dll_14_274-0.png</normaloff>:/icons/shell32.dll_14_274-0.png</iconset>
+   </property>
    <property name="text">
     <string>Тест опции</string>
    </property>
@@ -86,6 +94,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../ToolsRuntime/res/res.qrc"/>
+ </resources>
  <connections/>
 </ui>

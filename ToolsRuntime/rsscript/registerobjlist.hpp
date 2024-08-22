@@ -228,6 +228,7 @@ TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
 TOOLSRUNTIME_EXPORT void rslAddMacroDir(const QString &dir);
 TOOLSRUNTIME_EXPORT void rslAddStaticMacroDir(const QString &dir);
 TOOLSRUNTIME_EXPORT QString rslFindMacroFile(const QString &macro);
+TOOLSRUNTIME_EXPORT QMap<QString,QString> rslGetMacroInfo(const QString &macro);
 
 void RegisterStringList(void);
 void RslStringList();

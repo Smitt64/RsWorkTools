@@ -512,11 +512,11 @@ int CodeEditorOptionsPage::save()
 
     if (!d->m_Group.isEmpty())
         ini->beginGroup(d->m_Group);
+    else
+        ini->beginGroup("General");
 
     ini->setValue(d->m_Key, ui->comboBox->currentText());
-
-    if (!d->m_Group.isEmpty())
-        ini->endGroup();
+    ini->endGroup();
 
     return 0;
 }
@@ -529,10 +529,10 @@ void CodeEditorOptionsPage::restore()
 
     if (!d->m_Group.isEmpty())
         ini->beginGroup(d->m_Group);
+    else
+        ini->beginGroup("General");
 
     ui->comboBox->setCurrentText(ini->value(d->m_Key, "Default").toString());
     d->currentTextChanged(ui->comboBox->currentText());
-
-    if (!d->m_Group.isEmpty())
-        ini->endGroup();
+    ini->endGroup();
 }

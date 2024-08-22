@@ -11,6 +11,7 @@
 #include <QPluginLoader>
 #include <QDir>
 #include <QFile>
+#include <QRegExp>
 
 RegisterObjList *RegisterObjList::m_inst = nullptr;
 
@@ -298,4 +299,71 @@ QString rslFindMacroFile(const QString &macro)
     rslObjList()->applyMacroDirs();
     ToolsFindMacroFile(file, macro.toLocal8Bit().data());
     return file;
+}
+
+QMap<QString,QString> rslGetMacroInfo(const QString &macro)
+{
+    QMap<QString,QString> values;
+
+    auto ReadValues = [&values](const QString &matched)
+    {
+        QString content = matched;
+        content = content.remove("/*").remove("*/").trimmed();
+        QStringList lines = content.split("\n");
+        for (const QString &line : lines)
+        {
+            if (line.isEmpty())
+                continue;
+
+            QStringList items = line.split(":");
+
+            QString key = items[0].remove("$").trimmed().simplified();
+            values[key] = items[1].trimmed().simplified();
+        }
+        /*QRegExp rx("\\$([\\s\\S]*?)\\:\\s*(.*)");
+        rx.setMinimal(true);
+
+        int pos = 0;
+        qDebug() << rx.errorString();
+        while ((pos = rx.indexIn(matched, pos)) != -1)
+        {
+            QString key = rx.cap(1).trimmed().simplified();
+            QString value = rx.cap(2).trimmed().simplified();
+            values[key] = value;
+
+            pos += rx.matchedLength();
+        }*/
+        //QRegularExpression rx("^\\$([\\s\\S]*?)\\:\\s*(.*)$");
+
+        /*QRegularExpressionMatchIterator match = rx.globalMatch(matched, 0);
+        while (match.hasNext())
+        {
+            QRegularExpressionMatch i = match.next();
+            if (i.hasMatch())
+            {
+                QString key = i.captured(1).trimmed();
+                QString value = i.captured(2).trimmed();
+                values[key] = value;
+            }
+        }*/
+    };
+
+    QFile f(macro);
+    if (f.open(QIODevice::ReadOnly))
+    {
+        QRegularExpression rx("\\/\\*[\\s\\S]*?\\*\\/");
+
+        QTextStream stream(&f);
+        stream.setCodec("IBM 866");
+        QString content = stream.readAll();
+
+        QRegularExpressionMatch match = rx.match(content);
+        if (match.hasMatch())
+        {
+            QString matched = match.captured();
+            ReadValues(matched);
+        }
+        f.close();
+    }
+    return values;
 }

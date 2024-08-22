@@ -13,6 +13,7 @@
 Q_LOGGING_CATEGORY(logHighlighter, "Highlighter.Style")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
+Q_LOGGING_CATEGORY(logSettings, "Settings")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 

@@ -5,6 +5,7 @@
 #include "styleoptionspage.h"
 #include "codeeditoroptionspage.h"
 #include "rsloptionspage.h"
+#include "commandsoptions.h"
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QStyleFactory>
@@ -41,14 +42,13 @@ public:
         for (OptionsPage *page : m_Pages)
         {
             (void)page->save();
+            m_pSettings->sync();
 
             StyleOptionsPage *stylepage = qobject_cast<StyleOptionsPage*>(page);
 
             if (stylepage)
                 m_CurrentStyle = stylepage->currentStyle();
         }
-
-        m_pSettings->sync();
     }
 
     QSettings *m_pSettings;
@@ -72,7 +72,6 @@ OptionsDlg::OptionsDlg(QSettings *settings, QWidget *parent)
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(false);
     ui->buttonBox->button(QDialogButtonBox::Cancel)->setDefault(false);
-
 
     connect(ui->listWidget, &QListWidget::itemClicked, [=](QListWidgetItem *item)
     {
@@ -133,6 +132,12 @@ void OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *p
     d->m_Pages.append(page);
 }
 
+void OptionsDlg::addCommandsPage()
+{
+    CommandsOptions *page = new CommandsOptions();
+    addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
+}
+
 void OptionsDlg::setDefaultStyle(const QString &style)
 {
     Q_D(OptionsDlg);
@@ -189,7 +194,9 @@ int OptionsDlg::exec()
     Q_D(OptionsDlg);
     for (OptionsPage *page : qAsConst(d->m_Pages))
     {
+        d->m_pSettings->sync();
         page->restore();
+        d->m_pSettings->sync();
 
         StyleOptionsPage *stylepage = qobject_cast<StyleOptionsPage*>(page);
 
@@ -197,6 +204,7 @@ int OptionsDlg::exec()
             d->m_CurrentStyle = stylepage->currentStyle();
     }
 
+    d->m_pSettings->sync();
     int result = QDialog::exec();
 
     if (result == QDialog::Accepted)

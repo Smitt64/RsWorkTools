@@ -15,6 +15,7 @@
 #include <QTextCodec>
 #include <QMessageBox>
 #include <QSettings>
+#include <QTemporaryFile>
 
 static QString FormatErrorMsg(ERRINFO *error)
 {
@@ -79,6 +80,8 @@ public:
 
         return NULL;
     }
+
+    QScopedPointer<QTemporaryFile> m_pOutput;
 
     char *Output;
 
@@ -265,12 +268,26 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     d->PlayRepProc = proc;
 
+    if (output.isEmpty())
+    {
+        d->m_pOutput.reset(new QTemporaryFile());
+        d->m_pOutput->open();
+
+        d->Output = new char[1024];
+        qstrcpy(d->Output, d->m_pOutput->fileName().toLocal8Bit().data());
+    }
+    else
+    {
+        d->Output = new char[output.length() + 1];
+        qstrcpy(d->Output, output.toLocal8Bit().data());
+    }
+
     qInfo(logRsl()) << "Begin execute macro file:" << filename;
     qInfo(logRsl()) << "Report filename:" << output;
 
     bool isErrors = true;
     RunRSLEx(filename.toLocal8Bit().data(),
-             output.toLocal8Bit().data(),
+             d->Output,
              d->UserData.nameSpace,
              Executor_MsgProc,
              RslPlayRepActionProc,
@@ -279,7 +296,7 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
              0,
              &isErrors,
              &d->m_ErrList,
-             output.toLocal8Bit().data());
+             d->Output);
 
     if (isErrors)
     {

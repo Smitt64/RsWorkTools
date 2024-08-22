@@ -22,8 +22,12 @@ SOURCES += \
     codeeditor/sqlcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
+    iconlibdlg.cpp \
     optionsdlg/OptionsPage.cpp \
     optionsdlg/codeeditoroptionspage.cpp \
+    optionsdlg/commandsoptions.cpp \
+    optionsdlg/commandsstorage.cpp \
+    optionsdlg/jsonsettings.cpp \
     optionsdlg/optionsdlg.cpp \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
@@ -48,7 +52,9 @@ SOURCES += \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
-    widgets/stringlisteditor.cpp
+    widgets/selectactiondlg.cpp \
+    widgets/stringlisteditor.cpp \
+    windowactionsregistry.cpp
 
 HEADERS += \
     ToolsRuntime_global.h \
@@ -63,8 +69,12 @@ HEADERS += \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
+    iconlibdlg.h \
     optionsdlg/OptionsPage.h \
     optionsdlg/codeeditoroptionspage.h \
+    optionsdlg/commandsoptions.h \
+    optionsdlg/commandsstorage.h \
+    optionsdlg/jsonsettings.h \
     optionsdlg/optionsdlg.h \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
@@ -88,7 +98,9 @@ HEADERS += \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
-    widgets/stringlisteditor.h
+    widgets/selectactiondlg.h \
+    widgets/stringlisteditor.h \
+    windowactionsregistry.h
 
 # Default rules for deployment.
 unix {
@@ -99,15 +111,19 @@ unix {
 FORMS += \
     aboutdlg.ui \
     errordlg.ui \
+    iconlibdlg.ui \
     optionsdlg/codeeditoroptionspage.ui \
+    optionsdlg/commandsoptions.ui \
     optionsdlg/optionsdlg.ui \
     optionsdlg/rsloptionspage.ui \
     optionsdlg/styleoptionspage.ui \
+    widgets/selectactiondlg.ui \
     widgets/stringlisteditor.ui
 
 LIBS += -lVersion -lGdi32 -lUser32
 
 RESOURCES += \
+    res/iconlib.qrc \
     res/res.qrc
 
 release: LIBS += -L./rstools/lib/release

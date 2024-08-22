@@ -7,6 +7,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "toolsruntime.h"
 #include "optionsdlg/optionsdlg.h"
+#include "optionsdlg/jsonsettings.h"
 #include <optionsdlg/rsloptionspage.h>
 #include "codeeditor/codehighlighter.h"
 #include <QVariant>
@@ -19,7 +20,9 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTabWidget>
+#include "windowactionsregistry.h"
 
+//QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
 
 constexpr static const char name[] = "TestModule";
@@ -50,11 +53,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    qApp->setStyle(pSettings->value("Style", "windowsvista").toString());
+    //QSettings::Format format = (QSettings::Format)registerJsonSettingsFormat();
+    //pSettings = new QSettings(format, QSettings::UserScope, "RslTest");
 
+    qApp->setStyle(pSettings->value("Style", "windowsvista").toString());
     //ui->listView->setModel(&m_Errors);
 
     QAction *exec = ui->toolBar->addAction("Выполнить");
+    exec->setObjectName("actionElementExec");
 
     QDockWidget *doc = new QDockWidget("Errors");
 
@@ -92,8 +98,24 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.addStylePage(QString(), "style");
         dlg.addCodeEditorPage("CodeEditor", "theme");
         dlg.addRslPage();
+        dlg.addCommandsPage();
         dlg.exec();
     });
+
+    ui->menu->insertAction(nullptr, exec);
+
+    RslExecutor *executor = new RslExecutor();
+    windowActionsRegistry()->scanActions(ui->menu);
+    windowActionsRegistry()->scanActions(ui->menu_2);
+    windowActionsRegistry()->setRslExecutor(executor);
+
+    QList<QToolBar*> toolBars = windowActionsRegistry()->makeToolBars(pSettings, "UserCommands", "ToolBars");
+    for (QToolBar *toolbar : toolBars)
+        addToolBar(toolbar);
+
+#ifdef _DEBUG
+    windowActionsRegistry()->printActions();
+#endif
 }
 
 MainWindow::~MainWindow()
