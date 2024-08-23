@@ -389,11 +389,12 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         {
             RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
 
-            //qDebug() << info << obj << meta->className();
-
-            TGenObject *Child = nullptr;
-            info->Create((void**)&Child, obj, RegisterInfoBase::CppOwner);
-            Setter(V_GENOBJ, P_GOBJ(Child));
+            if (info)
+            {
+                TGenObject *Child = nullptr;
+                info->Create((void**)&Child, obj, RegisterInfoBase::CppOwner);
+                Setter(V_GENOBJ, P_GOBJ(Child));
+            }
         }
     }
         break;
