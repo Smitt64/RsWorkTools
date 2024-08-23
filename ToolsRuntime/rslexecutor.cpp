@@ -95,12 +95,6 @@ RslExecutor::RslExecutor(QObject *parent) :
     QObject(parent),
     d_ptr(new RslExecutorPrivate(this))
 {
-    QScopedPointer<QSettings> m_RslSettings(new QSettings(toolFullFileNameFromDir("rsl.ini"), QSettings::IniFormat));
-
-    m_RslSettings->beginGroup(QApplication::applicationName());
-    setDebugMacroFlag(m_RslSettings->value("debugbreak", false).toBool());
-    m_RslSettings->endGroup();
-
     rslObjList()->applyMacroDirs();
 }
 
@@ -284,6 +278,18 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     qInfo(logRsl()) << "Begin execute macro file:" << filename;
     qInfo(logRsl()) << "Report filename:" << output;
+
+    QScopedPointer<QSettings> m_RslSettings(new QSettings(toolFullFileNameFromDir("rsl.ini"), QSettings::IniFormat));
+
+    m_RslSettings->beginGroup(QApplication::applicationName());
+    bool debugbreak = m_RslSettings->value("debugbreak", false).toBool();
+    setDebugMacroFlag(debugbreak);
+    m_RslSettings->endGroup();
+
+    if (debugbreak)
+        qInfo(logRsl()) << "Debugbreak enabled...";
+    else
+        qInfo(logRsl()) << "Debugbreak disabled...";
 
     bool isErrors = true;
     RunRSLEx(filename.toLocal8Bit().data(),
