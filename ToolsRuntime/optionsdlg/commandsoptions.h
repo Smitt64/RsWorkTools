@@ -19,6 +19,7 @@ public:
     CommandsOptions(QWidget *parent = nullptr);
     virtual ~CommandsOptions();
 
+    void setUseRslcommands(const bool &v);
     virtual int save() Q_DECL_OVERRIDE;
     virtual void restore() Q_DECL_OVERRIDE;
 

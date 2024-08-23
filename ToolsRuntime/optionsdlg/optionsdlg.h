@@ -23,7 +23,7 @@ public:
     void addStylePage(const QString &group, const QString &key);
     void addCodeEditorPage(const QString &group, const QString &key);
     void addRslPage();
-    void addCommandsPage();
+    void addCommandsPage(bool UseRslCommands = true);
     void setDefaultStyle(const QString &style);
     const QString &defaultStyle() const;
 

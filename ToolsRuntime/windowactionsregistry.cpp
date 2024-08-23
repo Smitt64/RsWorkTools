@@ -2,6 +2,7 @@
 #include "optionsdlg/commandsstorage.h"
 #include "rslexecutor.h"
 #include <QAction>
+#include <QMap>
 #include <QMenu>
 #include <QDebug>
 #include <QAbstractTableModel>
@@ -16,6 +17,7 @@ typedef struct
     QString alias;
 }ActionInfo;
 
+typedef QList<ActionInfo> ActionInfoList;
 class WindowActionsRegistryPrivate
 {
     Q_DECLARE_PUBLIC(WindowActionsRegistry);
@@ -41,7 +43,8 @@ public:
     WindowActionsRegistry *q_ptr;
 
     RslExecutor *m_pExec;
-    QList<ActionInfo> actions;
+    ActionInfoList actions;
+    ActionsRegistryMap actionMap;
 };
 
 WindowActionsRegistry::WindowActionsRegistry(QObject *parent)
@@ -96,9 +99,30 @@ QAction *WindowActionsRegistry::getAction(const QString &name) const
     return nullptr;
 }
 
+int WindowActionsRegistry::menuCount() const
+{
+    Q_D(const WindowActionsRegistry);
+    return d->actionMap.size();
+}
+
+QStringList WindowActionsRegistry::menuNames() const
+{
+    Q_D(const WindowActionsRegistry);
+    return d->actionMap.keys();
+}
+
+QList<QAction*> WindowActionsRegistry::menuActions(const QString &name) const
+{
+    Q_D(const WindowActionsRegistry);
+    return d->actionMap[name];
+}
+
 void WindowActionsRegistry::scanActions(QMenu *menu)
 {
     Q_D(WindowActionsRegistry);
+
+    int index = d->actionMap.size();
+    QString menuname = QString("%1_%2").arg(index + 1, 2, QLatin1Char('0')).arg(menu->title());
 
     for (int i = 0; i < menu->actions().size(); ++i)
     {
@@ -106,12 +130,20 @@ void WindowActionsRegistry::scanActions(QMenu *menu)
         if (action->menu())
             scanActions(action->menu());
 
-        ActionInfo info;
-        info.action = action;
-        info.alias = action->objectName();
+        if (!action->isSeparator())
+        {
+            ActionInfo info;
+            info.action = action;
+            info.alias = action->objectName();
 
-        if (!info.alias.isEmpty() && !d->isExistsAction(action))
-            d->actions.append(info);
+            if (!info.alias.isEmpty() && !d->isExistsAction(action))
+                d->actions.append(info);
+
+            if (!d->actionMap.contains(menuname))
+                d->actionMap.insert(menuname, QList<QAction*>());
+
+            d->actionMap[menuname].append(action);
+        }
     }
 }
 

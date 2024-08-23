@@ -89,6 +89,14 @@ CommandsOptions::~CommandsOptions()
     delete commandsStorage;
 }
 
+void CommandsOptions::setUseRslcommands(const bool &v)
+{
+    ui->buttonAddMacro->setVisible(v);
+    ui->buttonIcon->setVisible(v);
+    ui->buttonName->setVisible(v);
+    ui->line_2->setVisible(v);
+}
+
 void CommandsOptions::onAddToolBarButton()
 {
     QString name = QInputDialog::getText(this, tr("Панель инструментов"), "Введите название панели инструментов:");

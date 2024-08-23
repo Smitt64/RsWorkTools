@@ -10,6 +10,7 @@ class QToolBar;
 class QSettings;
 class RslExecutor;
 class WindowActionsRegistryPrivate;
+typedef QMap<QString, QList<QAction*>> ActionsRegistryMap;
 class TOOLSRUNTIME_EXPORT WindowActionsRegistry : public QObject
 {
     Q_OBJECT
@@ -25,6 +26,10 @@ public:
     void scanActions(QMenu *menu);
 
     void setRslExecutor(RslExecutor *executor);
+
+    int menuCount() const;
+    QStringList menuNames() const;
+    QList<QAction*> menuActions(const QString &name) const;
 
     QList<QToolBar*> makeToolBars(const QByteArray &data, bool base64 = false);
     QList<QToolBar*> makeToolBars(QSettings *settings, const QString &group, const QString &key);
