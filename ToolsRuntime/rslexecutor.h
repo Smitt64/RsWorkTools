@@ -61,7 +61,7 @@ int TOOLSRUNTIME_EXPORT GetFuncParamCount();
 void TOOLSRUNTIME_EXPORT SetFuncParam(const int &id, const QVariant &value);
 void TOOLSRUNTIME_EXPORT SetReturnVal(const QVariant &value);
 int TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
-void ThrowParamTypeError(const int &id);
+void TOOLSRUNTIME_EXPORT ThrowParamTypeError(const int &id);
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 
 TOOLSRUNTIME_EXPORT void* MakeStringList(QStringList *lst, RegisterInfoBase::QObjectRslOwner owner);
