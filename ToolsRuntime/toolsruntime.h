@@ -22,4 +22,6 @@ TOOLSRUNTIME_EXPORT bool toolSaveResourceToFile(const QString &resname, const QS
 TOOLSRUNTIME_EXPORT bool toolGetPostgreSQLInstallLocation(QDir &dir);
 TOOLSRUNTIME_EXPORT int toolExecuteQuery(QSqlQuery *query, QString *err = Q_NULLPTR);
 
+TOOLSRUNTIME_EXPORT int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code);
+
 #endif // TOOLSRUNTIME_H

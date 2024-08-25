@@ -1,6 +1,7 @@
 #include "stddialogs.h"
 #include "rslexecutor.h"
 #include "rsscript/registerobjlist.hpp"
+#include "toolsruntime.h"
 #include <limits>
 #include <QInputDialog>
 #include <QApplication>
@@ -276,6 +277,39 @@ static void toolSaveFileName()
     SetReturnVal(val);
 }
 
+static void toolShowCodeDialog_rsl()
+{
+    QWidget *parent = QApplication::activeWindow();
+
+    enum
+    {
+        prm_Title = 0,
+        prm_Type,
+        prm_Code
+    };
+
+    int type = 0;
+    QString title, code;
+
+    if (GetFuncParamType(prm_Title) == QVariant::String)
+        title = GetFuncParam(prm_Title).toString();
+    else
+        ThrowParamTypeError(prm_Title);
+
+    if (GetFuncParamType(prm_Code) == QVariant::String)
+        code = GetFuncParam(prm_Code).toString();
+    else
+        ThrowParamTypeError(prm_Code);
+
+    if (GetFuncParamType(prm_Type) == QVariant::Int)
+        type = GetFuncParam(prm_Type).toInt();
+    else
+        ThrowParamTypeError(prm_Type);
+
+    int result = toolShowCodeDialog(parent, title, type, code);
+    SetReturnVal(result);
+}
+
 StdDialogs::StdDialogs() :
     RslStaticModule()
 {
@@ -309,6 +343,9 @@ void StdDialogs::Proc()
     addConstant("MsgBtn_Ignore", QMessageBox::Ignore);
     addConstant("MsgBtn_NoButton", QMessageBox::NoButton);
 
+    addConstant("DialogAccepted", QDialog::Accepted);
+    addConstant("DialogRejected", QDialog::Rejected);
+
     RegisterObjList::inst()->AddStdProc("toolGetText", toolGetText);
     RegisterObjList::inst()->AddStdProc("toolGetNumber", toolGetNumber);
     RegisterObjList::inst()->AddStdProc("toolGetItem", toolGetItem);
@@ -324,4 +361,6 @@ void StdDialogs::Proc()
     RegisterObjList::inst()->AddStdProc("msgInformation", msgInformation);
     RegisterObjList::inst()->AddStdProc("msgQuestion", msgQuestion);
     RegisterObjList::inst()->AddStdProc("msgGetButtonConstantName", msgGetButtonConstantName);
+
+    RegisterObjList::inst()->AddStdProc("toolShowCodeDialog", toolShowCodeDialog_rsl);
 }

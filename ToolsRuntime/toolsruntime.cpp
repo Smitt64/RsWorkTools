@@ -9,6 +9,11 @@
 #include <QTextStream>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QSyntaxHighlighter>
+#include <codeeditor/codehighlighter.h>
+#include <codeeditor/codeeditor.h>
 
 Q_LOGGING_CATEGORY(logHighlighter, "Highlighter.Style")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
@@ -192,4 +197,26 @@ int toolExecuteQuery(QSqlQuery *query, QString *err)
     qCInfo(logSql()) << "Result:" << result;
 
     return stat;
+}
+
+int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code)
+{
+    int result = 0;
+    QDialog dlg(parent);
+    CodeEditor *editor = new CodeEditor(&dlg);
+    QVBoxLayout *main = new QVBoxLayout(&dlg);
+    editor->setReadOnly(true);
+
+    ToolApplyHighlighter(editor, type);
+
+    main->addWidget(editor);
+    dlg.setMinimumSize(640, 480);
+    dlg.setWindowTitle(title);
+    dlg.setLayout(main);
+
+    editor->setPlainText(code);
+
+    result = dlg.exec();
+
+    return result;
 }
