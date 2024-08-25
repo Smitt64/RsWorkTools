@@ -206,15 +206,14 @@ int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, c
     CodeEditor *editor = new CodeEditor(&dlg);
     QVBoxLayout *main = new QVBoxLayout(&dlg);
     editor->setReadOnly(true);
-
-    ToolApplyHighlighter(editor, type);
-
     main->addWidget(editor);
     dlg.setMinimumSize(640, 480);
     dlg.setWindowTitle(title);
     dlg.setLayout(main);
 
     editor->setPlainText(code);
+
+    ToolApplyHighlighter(editor, type);
 
     result = dlg.exec();
 

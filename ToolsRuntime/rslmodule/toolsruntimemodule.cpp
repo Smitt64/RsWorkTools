@@ -51,7 +51,7 @@ void ToolsRuntimeModule::Proc()
     addConstant("HighlighterPlain", HighlighterPlain);
     addConstant("HighlighterCpp", HighlighterCpp);
     addConstant("HighlighterRsl", HighlighterRsl);
-    addConstant("HighlighterSql", HighlighterRsl);
+    addConstant("HighlighterSql", HighlighterSql);
     addConstant("HighlighterXml", HighlighterXml);
 
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));

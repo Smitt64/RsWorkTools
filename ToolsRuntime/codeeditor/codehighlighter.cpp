@@ -304,16 +304,14 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
         pCodeEditor->setTabStopWidth(tabWidth);
         pCodeEditor->setCodeHighlighter(pCodeHighlighter);
     }
-    else
-    {
-        pEditor->setStyleSheet(QString("QPlainTextEdit { background-color: rgb(%1, %2, %3); color: rgb(%4, %5, %6) }")
-                          .arg(background.red())
-                          .arg(background.green())
-                          .arg(background.blue())
-                          .arg(def.foreground().color().red())
-                          .arg(def.foreground().color().green())
-                          .arg(def.foreground().color().blue()));
 
-        pEditor->setAutoFillBackground(true);
-    }
+    pEditor->setStyleSheet(QString("QPlainTextEdit { background-color: rgb(%1, %2, %3); color: rgb(%4, %5, %6) }")
+                               .arg(background.red())
+                               .arg(background.green())
+                               .arg(background.blue())
+                               .arg(def.foreground().color().red())
+                               .arg(def.foreground().color().green())
+                               .arg(def.foreground().color().blue()));
+
+    pEditor->setAutoFillBackground(true);
 }
