@@ -380,6 +380,27 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     }
         break;
 
+    case QMetaType::QVariantList:
+    {
+        QVariantList lst = value.toList();
+        TGenObject *ValueArray = (TGenObject*)_LibRslTArrayCreate(lst.size(), lst.size());
+
+        int i = 0;
+        for (const QVariant &item : lst)
+        {
+            VALUE val;
+            SetValueFromVariant(std::bind(StdValueSetFunc, &val,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2),
+                                item);
+
+            _LibRslTArrayPut(ValueArray, i++, &val);
+            ValueClear(&val);
+        }
+        Setter(V_GENOBJ, ValueArray);
+    }
+        break;
+
     case QMetaType::QObjectStar:
     {
         QObject *obj = value.value<QObject*>();
