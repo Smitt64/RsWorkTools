@@ -55,7 +55,7 @@ void SqlCodeHighlighter::reset()
     {
         rule.pattern = QRegularExpression(pattern);
         rule.format = style->format(FormatKeyword);
-        rule.isNotCaseInsensitive = true;
+        rule.isNotCaseInsensitive = false;
 
         addHighlightingRule(rule);
     }
