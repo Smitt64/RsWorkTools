@@ -28,7 +28,7 @@ public:
     virtual void playRep(const QString &filename, const QString &output = QString(), RslExecutorProc proc = RslExecutorProc());
 
     QStringList errors();
-
+    QString outputFileName() const;
     QVariant call(const QString &name, const QVariantList &params);
 
     static QString getSymbolName(Qt::HANDLE sym);

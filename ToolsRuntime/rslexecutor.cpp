@@ -103,6 +103,12 @@ RslExecutor::~RslExecutor()
     delete d_ptr;
 }
 
+QString RslExecutor::outputFileName() const
+{
+    Q_D(const RslExecutor);
+    return d->Output;
+}
+
 QStringList RslExecutor::errors()
 {
     Q_D(RslExecutor);
