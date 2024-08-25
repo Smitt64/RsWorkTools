@@ -368,6 +368,41 @@ QVariant GetFuncParam(const int &id, bool isStringListProp)
     return SetFromRslValue(val, isStringListProp);
 }
 
+bool IsFuncParamQtObject(const int &id)
+{
+    VALUE *val;
+    GetParm(id, &val);
+
+    Qt::HANDLE handle = (Qt::HANDLE)RSCLSID(val->value.obj);
+    RegisterInfoBase *info = RegisterObjList::inst()->info(handle);
+
+    return info;
+}
+
+int GetFuncParamObjOwner(const int &id)
+{
+    if (!IsFuncParamQtObject(id))
+        return -1;
+
+    VALUE *val;
+    GetParm(id, &val);
+
+    QObjectRsl *obj = (QObjectRsl*)val->value.obj;
+    return obj->owner;
+}
+
+void SetFuncParamObjOwner(const int &id, const int &owner)
+{
+    if (!IsFuncParamQtObject(id))
+        return;
+
+    VALUE *val;
+    GetParm(id, &val);
+
+    QObjectRsl *obj = (QObjectRsl*)val->value.obj;
+    obj->owner = (RegisterInfoBase::QObjectRslOwner)owner;
+}
+
 int GetFuncParamCount()
 {
     return GetNumParm();
