@@ -17,6 +17,8 @@
 #include <QSettings>
 #include <QTemporaryFile>
 
+static char ErrorString[1024];
+
 static QString FormatErrorMsg(ERRINFO *error)
 {
     //Ошибка party.mac строка 20[1]: неопределенный идентификатор dfg
@@ -435,7 +437,15 @@ void SetFuncParam(const int &id, const QVariant &value)
     SetValueFromVariant(SetterFunc, value);
 }
 
-void ThrowParamTypeError(const int &id)
+void ThrowParamTypeError(const int &id, const QString &needtype)
 {
-    iError(IER_RUNTIME, "Param %d type missmatch", id);
+    if (needtype.isEmpty())
+        sprintf(ErrorString, "Param %d type missmatch", id);
+    else
+    {
+        sprintf(ErrorString, "Param %d type missmatch, required %s",
+                id, needtype.toLocal8Bit().data());
+    }
+
+    iError(IER_RUNTIME, ErrorString);
 }

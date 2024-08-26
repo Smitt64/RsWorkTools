@@ -221,6 +221,50 @@ void *CallMethod(const QMetaObject *meta,
         {
             (*reinterpret_cast<QVariant*>(*param)) = SetFromRslValue(&NewVal);
         }
+        else if (Type == QMetaType::QVariantList)
+        {
+            if (!CnvType(&NewVal, V_GENOBJ))
+                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+
+            TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(NewVal.value.obj));
+
+            if (!TArrayText)
+                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+
+            (*reinterpret_cast<QVariantList*>(*param)) = QVariantList();
+
+            int size = _LibRslTArraySize(TArrayText);
+            for (int i = 0; i < size; i++)
+            {
+                VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+
+                QVariant var = SetFromRslValue(item);
+                (*reinterpret_cast<QVariantList*>(*param)).append(var);
+            }
+        }
+        else if (Type == QMetaType::QStringList)
+        {
+            if (!CnvType(&NewVal, V_GENOBJ))
+                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+
+            TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(NewVal.value.obj));
+
+            if (!TArrayText)
+                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+
+            (*reinterpret_cast<QStringList*>(*param)) = QStringList();
+
+            int size = _LibRslTArraySize(TArrayText);
+            for (int i = 0; i < size; i++)
+            {
+                VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+
+                QVariant var = SetFromRslValue(item);
+
+                if (var.canConvert(QMetaType::QString))
+                    (*reinterpret_cast<QStringList*>(*param)).append(var.toString());
+            }
+        }
         else if (!Type)
         {
             if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
@@ -350,6 +394,45 @@ void *CallMethod(const QMetaObject *meta,
             ValueSet(&ret, V_TIME, &rsldate);
         }
             break;
+        case QMetaType::QStringList:
+        {
+            QStringList *list = reinterpret_cast<QStringList*>(params[0]);
+            TGenObject *ValueArray = (TGenObject*)_LibRslTArrayCreate(list->size(), list->size());
+
+            int i = 0;
+            for (const QString &item : *list)
+            {
+                VALUE val;
+                ValueSet(&val, V_STRING, codec->fromUnicode(item).data());
+                _LibRslTArrayPut(ValueArray, i++, &val);
+                ValueClear(&val);
+            }
+
+            ValueSet(&ret, V_GENOBJ, ValueArray);
+        }
+            break;
+
+        case QMetaType::QVariantList:
+        {
+            QVariantList *list = reinterpret_cast<QVariantList*>(params[0]);
+            TGenObject *ValueArray = (TGenObject*)_LibRslTArrayCreate(list->size(), list->size());
+
+            int i = 0;
+            for (const QVariant &item : *list)
+            {
+                VALUE val;
+                SetValueFromVariant(std::bind(StdValueSetFunc, &val,
+                                              std::placeholders::_1,
+                                              std::placeholders::_2),
+                                    item);
+
+                _LibRslTArrayPut(ValueArray, i++, &val);
+                ValueClear(&val);
+            }
+            ValueSet(&ret, V_GENOBJ, ValueArray);
+        }
+            break;
+
         case QMetaType::UnknownType:
         {
             QString normalized = QString(method.typeName()).remove("&").remove("*");
@@ -365,8 +448,6 @@ void *CallMethod(const QMetaObject *meta,
         }
             break;
         }
-
-
 
         ReturnVal2(&ret);
         ValueClear(&ret);
