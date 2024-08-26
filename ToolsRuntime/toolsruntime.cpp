@@ -219,3 +219,29 @@ int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, c
 
     return result;
 }
+
+int toolHighlighterByName(const QString &name)
+{
+    if (!name.compare("HighlighterCpp", Qt::CaseInsensitive) ||
+        !name.compare("Cpp", Qt::CaseInsensitive))
+    {
+        return HighlighterCpp;
+    }
+    else if (!name.compare("HighlighterRsl", Qt::CaseInsensitive) ||
+               !name.compare("Rsl", Qt::CaseInsensitive))
+    {
+        return HighlighterRsl;
+    }
+    else if (!name.compare("HighlighterSql", Qt::CaseInsensitive) ||
+             !name.compare("Sql", Qt::CaseInsensitive))
+    {
+        return HighlighterSql;
+    }
+    else if (!name.compare("HighlighterXml", Qt::CaseInsensitive) ||
+             !name.compare("xml", Qt::CaseInsensitive))
+    {
+        return HighlighterXml;
+    }
+
+    return HighlighterPlain;
+}

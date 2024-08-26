@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntinersl.h"
 #include "toolsruntime.h"
 
@@ -31,4 +31,9 @@ QString ToolsRuntime::GetRuntimeVersion() const
 QString ToolsRuntime::FullFileNameFromDir(const QString &file)
 {
     return toolFullFileNameFromDir(file);
+}
+
+int ToolsRuntime::HighlighterByName(const QString &name)
+{
+    return toolHighlighterByName(name);
 }

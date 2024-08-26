@@ -24,4 +24,6 @@ TOOLSRUNTIME_EXPORT int toolExecuteQuery(QSqlQuery *query, QString *err = Q_NULL
 
 TOOLSRUNTIME_EXPORT int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code);
 
+TOOLSRUNTIME_EXPORT int toolHighlighterByName(const QString &name);
+
 #endif // TOOLSRUNTIME_H
