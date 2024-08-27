@@ -18,9 +18,9 @@ bool ToolsRuntime::GetPostgreSQLInstallLocation(QString &dir)
     return result;
 }
 
-QString ToolsRuntime::ReadTextFileContent(const QString &filename)
+QString ToolsRuntime::ReadTextFileContent(const QString &filename, const QString &encode)
 {
-    return toolReadTextFileContent(filename);
+    return toolReadTextFileContent(filename, encode);
 }
 
 QString ToolsRuntime::GetRuntimeVersion() const

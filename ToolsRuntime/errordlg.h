@@ -15,11 +15,20 @@ class QDialogButtonBox;
 class ErrorsModel;
 class ErrorFilterModel;
 class ErrorDlgPrivate;
+/**
+ * @brief Диалоговое окно для отображения ошибок и предупреждений
+ */
+/**
+ * @brief Диалоговое окно для отображения ошибок и предупреждений
+ */
 class TOOLSRUNTIME_EXPORT ErrorDlg : public QDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Режимы отображения диалогового окна
+     */
     enum
     {
         ModeInformation,
@@ -27,10 +36,28 @@ public:
         ModeWidget
     };
     Q_INVOKABLE ErrorDlg(const qint16 &mode, QWidget *parent = Q_NULLPTR);
+
+    /**
+     * @brief Деструктор ErrorDlg
+     */
     virtual ~ErrorDlg();
 
+    /**
+     * @brief Устанавливает модель ошибок
+     * @param ошибки
+     */
     Q_INVOKABLE void setErrors(ErrorsModel *e);
+
+    /**
+     * @brief Устанавливает информационное сообщение
+     * @param сообщение
+     */
     Q_INVOKABLE void setMessage(const QString &msg);
+
+    /**
+     * @brief Возвращает кнопки диалогового окна
+     * @return
+     */
     QDialogButtonBox *buttons();
 
 private slots:

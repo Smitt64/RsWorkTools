@@ -10,24 +10,49 @@
 
 Q_GLOBAL_STATIC(ToolsRuntime, pToolsRuntime)
 
+/**
+ * @brief Форматирует строку с использованием аргументов функции
+ */
 static void Rsl_toolFormatStr()
 {
+    /**
+     * @brief Параметры функции
+     */
     enum
     {
         prm_Format = 0,
     };
 
+    /**
+     * @brief Проверяет тип параметра формата
+     */
     if (GetFuncParamType(prm_Format) != QVariant::String)
         ThrowParamTypeError(prm_Format);
 
+    /**
+     * @brief Получает формат из параметра функции
+     */
     QString format = GetFuncParam(prm_Format).toString();
 
+    /**
+     * @brief Получает количество параметров функции
+     */
     int size = GetFuncParamCount();
+    /**
+     * @brief Проходит по всем параметрам функции, начиная с первого аргумента формата
+     */
     for (int i = 1; i < size; i++)
+        /**
+         * @brief Заменяет в формате все вхождения % на соответствующий аргумент функции
+         */
         format = format.arg(GetFuncParam(i).toString());
 
+    /**
+     * @brief Устанавливает возвращаемое значение функции
+     */
     SetReturnVal(format);
 }
+
 
 ToolsRuntimeModule::ToolsRuntimeModule() :
     RslStaticModule()
