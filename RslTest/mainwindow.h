@@ -52,6 +52,11 @@ public:
         return k;
     }
 
+    Q_INVOKABLE int testMethod(QString k)
+    {
+        return 0;
+    }
+
     Q_INVOKABLE QVariant testVariant(const QVariant &var)
     {
         return QVariant("var: " + var.toString());
@@ -81,6 +86,9 @@ public:
     {
         _StringList = lst;
     }
+
+signals:
+    void testSignal();
 
 private:
     ChildObject *_child;

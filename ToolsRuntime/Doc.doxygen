@@ -740,26 +740,26 @@ STRICT_PROTO_MATCHING  = NO
 # list. This list is created by putting \todo commands in the documentation.
 # The default value is: YES.
 
-GENERATE_TODOLIST      = YES
+GENERATE_TODOLIST      = NO
 
 # The GENERATE_TESTLIST tag can be used to enable (YES) or disable (NO) the test
 # list. This list is created by putting \test commands in the documentation.
 # The default value is: YES.
 
-GENERATE_TESTLIST      = YES
+GENERATE_TESTLIST      = NO
 
 # The GENERATE_BUGLIST tag can be used to enable (YES) or disable (NO) the bug
 # list. This list is created by putting \bug commands in the documentation.
 # The default value is: YES.
 
-GENERATE_BUGLIST       = YES
+GENERATE_BUGLIST       = NO
 
 # The GENERATE_DEPRECATEDLIST tag can be used to enable (YES) or disable (NO)
 # the deprecated list. This list is created by putting \deprecated commands in
 # the documentation.
 # The default value is: YES.
 
-GENERATE_DEPRECATEDLIST= YES
+GENERATE_DEPRECATEDLIST= NO
 
 # The ENABLED_SECTIONS tag can be used to enable conditional documentation
 # sections, marked by \if <section_label> ... \endif and \cond <section_label>
@@ -1346,7 +1346,7 @@ IGNORE_PREFIX          =
 # If the GENERATE_HTML tag is set to YES, Doxygen will generate HTML output
 # The default value is: YES.
 
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
@@ -2219,7 +2219,7 @@ RTF_OUTPUT             = rtf
 # The default value is: NO.
 # This tag requires that the tag GENERATE_RTF is set to YES.
 
-COMPACT_RTF            = NO
+COMPACT_RTF            = YES
 
 # If the RTF_HYPERLINKS tag is set to YES, the RTF that is generated will
 # contain hyperlink fields. The RTF file will contain links (just like the HTML
@@ -2310,7 +2310,7 @@ MAN_LINKS              = NO
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML           = NO
+GENERATE_XML           = YES
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of

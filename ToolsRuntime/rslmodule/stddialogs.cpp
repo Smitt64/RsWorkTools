@@ -202,16 +202,12 @@ static void toolExistingDirectory()
     enum
     {
         prm_Title = 0,
-        prm_Msg,
         prm_Dir
     };
 
     QString title, msg, dir;
     if (GetFuncParamType(prm_Title) == QVariant::String)
         title = GetFuncParam(prm_Title).toString();
-
-    if (GetFuncParamType(prm_Msg) == QVariant::String)
-        msg = GetFuncParam(prm_Msg).toString();
 
     if (GetFuncParamType(prm_Dir) == QVariant::String)
         dir = GetFuncParam(prm_Dir).toString();
@@ -226,7 +222,6 @@ static void toolOpenFileName()
     enum
     {
         prm_Title = 0,
-        prm_Msg,
         prm_Dir,
         prm_Filter
     };
@@ -234,9 +229,6 @@ static void toolOpenFileName()
     QString title, msg, dir, filter;
     if (GetFuncParamType(prm_Title) == QVariant::String)
         title = GetFuncParam(prm_Title).toString();
-
-    if (GetFuncParamType(prm_Msg) == QVariant::String)
-        msg = GetFuncParam(prm_Msg).toString();
 
     if (GetFuncParamType(prm_Dir) == QVariant::String)
         dir = GetFuncParam(prm_Dir).toString();
@@ -254,7 +246,6 @@ static void toolSaveFileName()
     enum
     {
         prm_Title = 0,
-        prm_Msg,
         prm_Dir,
         prm_Filter
     };
@@ -262,9 +253,6 @@ static void toolSaveFileName()
     QString title, msg, dir, filter;
     if (GetFuncParamType(prm_Title) == QVariant::String)
         title = GetFuncParam(prm_Title).toString();
-
-    if (GetFuncParamType(prm_Msg) == QVariant::String)
-        msg = GetFuncParam(prm_Msg).toString();
 
     if (GetFuncParamType(prm_Dir) == QVariant::String)
         dir = GetFuncParam(prm_Dir).toString();
