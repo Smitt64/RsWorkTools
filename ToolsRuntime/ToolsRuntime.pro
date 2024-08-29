@@ -28,6 +28,7 @@ SOURCES += \
     optionsdlg/commandsoptions.cpp \
     optionsdlg/commandsstorage.cpp \
     optionsdlg/jsonsettings.cpp \
+    optionsdlg/logoptionspage.cpp \
     optionsdlg/optionsdlg.cpp \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
@@ -75,6 +76,7 @@ HEADERS += \
     optionsdlg/commandsoptions.h \
     optionsdlg/commandsstorage.h \
     optionsdlg/jsonsettings.h \
+    optionsdlg/logoptionspage.h \
     optionsdlg/optionsdlg.h \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
@@ -114,6 +116,7 @@ FORMS += \
     iconlibdlg.ui \
     optionsdlg/codeeditoroptionspage.ui \
     optionsdlg/commandsoptions.ui \
+    optionsdlg/logoptionspage.ui \
     optionsdlg/optionsdlg.ui \
     optionsdlg/rsloptionspage.ui \
     optionsdlg/styleoptionspage.ui \

@@ -12,18 +12,34 @@
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QSyntaxHighlighter>
+#include <QLoggingCategory>
 #include <codeeditor/codehighlighter.h>
 #include <codeeditor/codeeditor.h>
+#include <functional>
 
-Q_LOGGING_CATEGORY(logHighlighter, "Highlighter.Style")
+Q_LOGGING_CATEGORY(logUnknown, "Unknown")
+Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
 Q_LOGGING_CATEGORY(logSettings, "Settings")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
+typedef std::reference_wrapper<const QLoggingCategory> LoggingCategoryRef;
+typedef std::pair<QString, LoggingCategoryRef> LoggingCategoryPair;
+static std::map<QString, LoggingCategoryRef> InitCategoryList()
+{
+    std::map<QString, LoggingCategoryRef> _map;
+    _map.insert(LoggingCategoryPair("HighlighterStyle", std::cref(logHighlighter())));
+    _map.insert(LoggingCategoryPair("Rsl", std::cref(logRsl())));
+    _map.insert(LoggingCategoryPair("Sql", std::cref(logSql())));
+    return _map;
+}
+
 static bool m_fLogging = false;
 static QScopedPointer<QFile> m_logFile;
+static std::map<QString, LoggingCategoryRef> m_Category = InitCategoryList();
+
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QTextStream out(m_logFile.data());
@@ -39,7 +55,8 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
     }
 
     out << context.category << ": "
-        << msg << endl;
+        << msg << Qt::endl;
+
     out.flush();
 }
 
@@ -67,15 +84,6 @@ void toolDisableLogging()
     }
 }
 
-void toolSetLoggingRules(const QString &rules)
-{
-    if (!rules.isEmpty())
-    {
-        QString r = rules;
-        QLoggingCategory::setFilterRules(r.replace(";", "\n"));
-    }
-}
-
 bool toolInitLogging(const QString &prefix, const QString &rules)
 {
     QDir logDir(qApp->applicationDirPath());
@@ -86,13 +94,14 @@ bool toolInitLogging(const QString &prefix, const QString &rules)
         logDir.cd("logs");
     }
 
-    QString logFileName = QString("%2_%1.txt")
-                              .arg(logDir.absoluteFilePath(QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss_zzz")))
+    QString baseName = prefix + QString("_") + QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss_zzz");
+    QString logFileName = QString("%1.txt")
+                              .arg(logDir.absoluteFilePath(baseName))
                               .arg(prefix);
 
     m_logFile.reset(new QFile(logFileName));
 
-    if (m_logFile.data()->open(QFile::Append | QFile::Text))
+    if (m_logFile->open(QFile::Append | QFile::Text))
     {
         toolSetLoggingRules(rules);
         qInstallMessageHandler(messageHandler);
@@ -106,6 +115,43 @@ bool toolInitLogging(const QString &prefix, const QString &rules)
 
     return m_fLogging;
 }
+
+void toolLoggingCategoryListAdd(QLoggingCategory &category)
+{
+    m_Category.insert(LoggingCategoryPair(QLatin1String(category.categoryName()),
+                                 std::cref(category)));
+}
+
+QStringList toolLoggingCategoryList()
+{
+    QStringList list;
+    for (auto it = m_Category.begin(); it != m_Category.end(); ++it)
+        list.append(it->first);
+
+    return list;
+}
+
+const QLoggingCategory &toolLoggingCategory(const QString &name)
+{
+    for (auto it = m_Category.begin(); it != m_Category.end(); ++it)
+    {
+        if (it->first == name)
+            return it->second.get();
+    }
+
+    return logUnknown();
+}
+
+void toolSetLoggingRules(const QString &rules)
+{
+    if (!rules.isEmpty())
+    {
+        QString r = rules;
+        QLoggingCategory::setFilterRules(r.replace(";", "\n"));
+    }
+}
+
+// --------------------------------------------------------
 
 QString toolFullFileNameFromDir(const QString &file)
 {

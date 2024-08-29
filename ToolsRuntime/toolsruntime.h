@@ -9,6 +9,7 @@
 
 class QSqlQuery;
 
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logRsl);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logSql)
@@ -18,6 +19,10 @@ TOOLSRUNTIME_EXPORT QString toolLogginFileName();
 TOOLSRUNTIME_EXPORT bool toolIsLoggingEnabled();
 TOOLSRUNTIME_EXPORT void toolDisableLogging();
 TOOLSRUNTIME_EXPORT bool toolInitLogging(const QString &prefix, const QString &rules);
+TOOLSRUNTIME_EXPORT void toolLoggingCategoryListAdd(QLoggingCategory &category);
+TOOLSRUNTIME_EXPORT QStringList toolLoggingCategoryList();
+TOOLSRUNTIME_EXPORT void toolSetLoggingRules(const QString &rules);
+TOOLSRUNTIME_EXPORT const QLoggingCategory &toolLoggingCategory(const QString &name);
 
 TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);

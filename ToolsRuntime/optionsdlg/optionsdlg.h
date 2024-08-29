@@ -24,6 +24,7 @@ public:
     void addCodeEditorPage(const QString &group, const QString &key);
     void addRslPage();
     void addCommandsPage(bool UseRslCommands = true);
+    void addLogPage(const QString &prefix);
     void setDefaultStyle(const QString &style);
     const QString &defaultStyle() const;
 

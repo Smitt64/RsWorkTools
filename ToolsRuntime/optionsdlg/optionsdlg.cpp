@@ -6,6 +6,7 @@
 #include "codeeditoroptionspage.h"
 #include "rsloptionspage.h"
 #include "commandsoptions.h"
+#include "logoptionspage.h"
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QStyleFactory>
@@ -137,6 +138,13 @@ void OptionsDlg::addCommandsPage(bool UseRslCommands)
     CommandsOptions *page = new CommandsOptions();
     page->setUseRslcommands(UseRslCommands);
     addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
+}
+
+void OptionsDlg::addLogPage(const QString &prefix)
+{
+    LogOptionsPage *page = new LogOptionsPage();
+    page->setPrefix(prefix);
+    addPage(tr("Логирование"), QIcon(":/icons/fxscover.exe_14_108-2.png"), page);
 }
 
 void OptionsDlg::setDefaultStyle(const QString &style)

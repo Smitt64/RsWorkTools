@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.addCodeEditorPage("CodeEditor", "theme");
         dlg.addRslPage();
         dlg.addCommandsPage();
+        dlg.addLogPage("RslTest");
         dlg.exec();
     });
 
