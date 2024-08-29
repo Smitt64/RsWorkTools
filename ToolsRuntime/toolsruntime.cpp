@@ -22,6 +22,91 @@ Q_LOGGING_CATEGORY(logSettings, "Settings")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
+static bool m_fLogging = false;
+static QScopedPointer<QFile> m_logFile;
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QTextStream out(m_logFile.data());
+    out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
+
+    switch (type)
+    {
+    case QtInfoMsg:     out << "INF "; break;
+    case QtDebugMsg:    out << "DBG "; break;
+    case QtWarningMsg:  out << "WRN "; break;
+    case QtCriticalMsg: out << "CRT "; break;
+    case QtFatalMsg:    out << "FTL "; break;
+    }
+
+    out << context.category << ": "
+        << msg << endl;
+    out.flush();
+}
+
+QString toolLogginFileName()
+{
+    if (!m_logFile.isNull() && m_logFile->isOpen())
+        return m_logFile->fileName();
+
+    return QString();
+}
+
+bool toolIsLoggingEnabled()
+{
+    return m_fLogging;
+}
+
+void toolDisableLogging()
+{
+    if (!m_logFile.isNull() && m_logFile->isOpen())
+    {
+        m_logFile->close();
+        m_logFile.reset(Q_NULLPTR);
+        qInstallMessageHandler(Q_NULLPTR);
+        m_fLogging = false;
+    }
+}
+
+void toolSetLoggingRules(const QString &rules)
+{
+    if (!rules.isEmpty())
+    {
+        QString r = rules;
+        QLoggingCategory::setFilterRules(r.replace(";", "\n"));
+    }
+}
+
+bool toolInitLogging(const QString &prefix, const QString &rules)
+{
+    QDir logDir(qApp->applicationDirPath());
+
+    if (!logDir.cd("logs"))
+    {
+        logDir.mkdir("logs");
+        logDir.cd("logs");
+    }
+
+    QString logFileName = QString("%2_%1.txt")
+                              .arg(logDir.absoluteFilePath(QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss_zzz")))
+                              .arg(prefix);
+
+    m_logFile.reset(new QFile(logFileName));
+
+    if (m_logFile.data()->open(QFile::Append | QFile::Text))
+    {
+        toolSetLoggingRules(rules);
+        qInstallMessageHandler(messageHandler);
+        m_fLogging = true;
+    }
+    else
+    {
+        m_logFile.reset(Q_NULLPTR);
+        m_fLogging = false;
+    }
+
+    return m_fLogging;
+}
+
 QString toolFullFileNameFromDir(const QString &file)
 {
     QDir dir = QDir::current();
