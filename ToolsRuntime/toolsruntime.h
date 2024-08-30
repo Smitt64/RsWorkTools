@@ -22,7 +22,7 @@ TOOLSRUNTIME_EXPORT QString toolLogginFileName();
 TOOLSRUNTIME_EXPORT bool toolIsLoggingEnabled();
 TOOLSRUNTIME_EXPORT void toolDisableLogging();
 TOOLSRUNTIME_EXPORT bool toolInitLogging(const QString &prefix, const QString &rules);
-TOOLSRUNTIME_EXPORT void toolLoggingCategoryListAdd(QLoggingCategory &category);
+TOOLSRUNTIME_EXPORT void toolLoggingCategoryListAdd(const QLoggingCategory &category);
 TOOLSRUNTIME_EXPORT QStringList toolLoggingCategoryList();
 TOOLSRUNTIME_EXPORT void toolSetLoggingRules(const QString &rules);
 TOOLSRUNTIME_EXPORT const QLoggingCategory &toolLoggingCategory(const QString &name);

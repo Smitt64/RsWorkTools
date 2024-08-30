@@ -117,7 +117,7 @@ bool toolInitLogging(const QString &prefix, const QString &rules)
     return m_fLogging;
 }
 
-void toolLoggingCategoryListAdd(QLoggingCategory &category)
+void toolLoggingCategoryListAdd(const QLoggingCategory &category)
 {
     m_Category.insert(LoggingCategoryPair(QLatin1String(category.categoryName()),
                                  std::cref(category)));
