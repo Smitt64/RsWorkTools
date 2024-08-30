@@ -9,6 +9,11 @@ SqlDatabase::SqlDatabase(const QString &driver)
     db.reset(new QSqlDatabase(QSqlDatabase::addDatabase(driver, QUuid::createUuid().toString())));
 }
 
+SqlDatabase::SqlDatabase(QSqlDatabase& _db)
+{
+    db.reset(new QSqlDatabase(_db));
+}
+
 QSqlDatabase &SqlDatabase::database()
 {
     return *db;

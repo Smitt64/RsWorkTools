@@ -1,6 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntime.h"
+#include "rslmodule/sql/sqldatabase.h"
 #include <Windows.h>
 #include <QDir>
 #include <QApplication>
@@ -375,4 +376,9 @@ int toolHighlighterByName(const QString &name)
     }
 
     return HighlighterPlain;
+}
+
+void toolMakeSqlDatabaseObj(QSqlDatabase &db, QObject **obj)
+{
+    *obj = new SqlDatabase(db);
 }

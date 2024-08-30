@@ -25,6 +25,7 @@ public:
      * @param драйвер
      */
     Q_INVOKABLE SqlDatabase(const QString& driver);
+    SqlDatabase(QSqlDatabase& _db);
 
     /**
      * @brief Открывает соединение с базой данных
