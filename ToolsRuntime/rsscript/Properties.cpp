@@ -404,9 +404,12 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QMetaType::QObjectStar:
     {
         QObject *obj = value.value<QObject*>();
-        const QMetaObject *meta = obj->metaObject();
+        const QMetaObject *meta = nullptr;
 
-        if (meta)
+        if (obj)
+            meta = obj->metaObject();
+
+        if (meta && obj)
         {
             RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
 
