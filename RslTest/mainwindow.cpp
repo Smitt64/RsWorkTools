@@ -20,7 +20,10 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTabWidget>
+#include <QSignalTransition>
+#include <QStateMachine>
 #include "windowactionsregistry.h"
+#include <QSignalSpy>
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -124,6 +127,22 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+class CheckedTransition : public QSignalTransition
+{
+public:
+    CheckedTransition(TestObject *check)
+        : QSignalTransition(check, SIGNAL(testSignal(int))) {}
+protected:
+    bool eventTest(QEvent *e)
+    {
+        if (!QSignalTransition::eventTest(e))
+            return false;
+
+        QStateMachine::SignalEvent *se = static_cast<QStateMachine::SignalEvent*>(e);
+        qDebug() << se->arguments().at(0).toInt();
+        return (se->arguments().at(0).toInt() == Qt::Checked);
+    }
+};
 
 void MainWindow::on_pushButton_clicked()
 {
@@ -148,5 +167,22 @@ void MainWindow::on_pushButton_clicked()
     exec.playRep("Test.mac", "1.txt");
 
     m_Errors.setStringList(exec.errors());
+
+    //obj = new TestObject();
+    //spy = new QSignalSpy(obj, SIGNAL(testSignal(int)));
+    /*QState *s1 = new QState();
+    QState *s2 = new QState();
+    CheckedTransition *t = new CheckedTransition(obj);
+    s1->addTransition(t);
+
+    QStateMachine m;
+    m.addState(s1);
+    m.addState(s2);*/
+    //connect(obj, SIGNAL(testSignal(int)), SLOT(testSlot()));
+    //emit obj->testSignal(10);
 }
 
+void MainWindow::testSlot()
+{
+    qDebug() << spy->signal() << spy->takeFirst();
+}

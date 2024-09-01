@@ -6,10 +6,11 @@
 #include "rslmodule/regexpmodule.h"
 #include "rslmodule/sqlstaticmodule.h"
 #include "rslmodule/stddialogs.h"
+#include "rslmodule/uistaticmodule.h"
 
 QStringList RslToolsRuntimeModule::staticModules() const
 {
-    return { "ToolsRuntime", "RegExp", "Sql", "StdDialogs" };
+    return { "ToolsRuntime", "RegExp", "Sql", "StdDialogs", "Ui" };
 }
 
 void RslToolsRuntimeModule::registerStaticModules()
@@ -18,4 +19,5 @@ void RslToolsRuntimeModule::registerStaticModules()
     addStaticModule<RegExpModule>(new RegExpModule());
     addStaticModule<SqlStaticModule>(new SqlStaticModule());
     addStaticModule<StdDialogs>(new StdDialogs());
+    addStaticModule<UiStaticModule>(new UiStaticModule());
 }

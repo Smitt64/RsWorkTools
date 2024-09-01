@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include <QApplication>
 #include "playrep.h"
+#include "qglobal.h"
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
 #include "rsscript/TRsbRSLInstTmpl.hpp"
@@ -16,8 +17,13 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTemporaryFile>
+#include <QMap>
+#include <QGlobalStatic>
 
 static char ErrorString[1024];
+
+typedef QMap<Qt::HANDLE, RslExecutor*> RslInstanceExecutorsMap;
+Q_GLOBAL_STATIC(RslInstanceExecutorsMap, rslInstanceExecutors);
 
 static QString FormatErrorMsg(ERRINFO *error)
 {
@@ -47,6 +53,8 @@ public:
 
   RslExecutor *m_pExecutor;
   RslExecutorPrivate *m_pEcecPrivate;
+
+  HRSLINST hrsl;
 };
 
 class RslExecutorPrivate
@@ -191,6 +199,16 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
 
     switch(mes)
     {
+    case IM_BEGIN_PARSE:
+        UserData->hrsl = RslGetCurrentInst();
+        rslInstanceExecutors->insert(UserData->hrsl, UserData->m_pExecutor);
+        qInfo(logRsl()) << "RslPlayRepAction: HRSLINST =" << UserData->hrsl;
+        break;
+
+    case IM_DONE_INSTANCE:
+        (void)rslInstanceExecutors->take(UserData->hrsl);
+        break;
+
     case IM_DYNAMIC_MODULE:
     {
         TRslDynModule *DynModule = (TRslDynModule *)ptr;
@@ -325,6 +343,7 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
         qInfo(logRsl()) << "Execution success finished" << output;
 
     d->PlayRepProc = RslExecutorProc();
+    emit PlayRepFinished();
 }
 
 QVariant RslExecutor::call(const QString &name, const QVariantList &params)
@@ -448,4 +467,12 @@ void ThrowParamTypeError(const int &id, const QString &needtype)
     }
 
     iError(IER_RUNTIME, ErrorString);
+}
+
+RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst)
+{
+    if (!rslInstanceExecutors->contains(hrslinst))
+        return nullptr;
+
+    return rslInstanceExecutors->value(hrslinst);
 }

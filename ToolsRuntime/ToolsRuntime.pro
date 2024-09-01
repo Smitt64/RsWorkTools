@@ -1,4 +1,4 @@
-QT += gui widgets webengine webenginewidgets xml uitools sql
+QT += gui widgets webengine webenginewidgets xml uitools sql testlib
 
 TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
@@ -42,12 +42,15 @@ SOURCES += \
     rslmodule/stddialogs.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
+    rslmodule/uistaticmodule.cpp \
     rsscript/Methods.cpp \
     rsscript/Properties.cpp \
+    rsscript/Signals.cpp \
     rsscript/registerinfobase.cpp \
     rsscript/registerobjlist.cpp \
     rsscript/rsllistitemcontainer.cpp \
     rsscript/rsllistwrapper.cpp \
+    rsscript/rslobjconnections.cpp \
     rsscript/rslstaticmodule.cpp \
     rsscript/typeinfofunc.cpp \
     toolsruntime.cpp \
@@ -89,12 +92,14 @@ HEADERS += \
     rslmodule/stddialogs.h \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
+    rslmodule/uistaticmodule.h \
     rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
     rsscript/registerobjlist.hpp \
     rsscript/rslibdynamicfuncs.h \
     rsscript/rsllistwrapper.h \
+    rsscript/rslobjconnections.h \
     rsscript/rslstaticmodule.h \
     rsscript/typeinfo_p.h \
     toolsruntime.h \

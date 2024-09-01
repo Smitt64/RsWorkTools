@@ -88,7 +88,7 @@ public:
     }
 
 signals:
-    void testSignal();
+    void testSignal(int i);
 
 private:
     ChildObject *_child;
@@ -97,6 +97,7 @@ private:
 };
 
 class CodeEditor;
+class QSignalSpy;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -107,10 +108,12 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void testSlot();
 
 private:
     Ui::MainWindow *ui;
-
+    TestObject *obj;
+    QSignalSpy *spy;
     CodeEditor *pEditor, *pOutput;
     QStringListModel m_Errors;
 };

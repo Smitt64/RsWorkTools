@@ -23,7 +23,7 @@ static void Rsl_toolExecuteQuery()
         ThrowParamTypeError(prm_query);
     else
     {
-        SqlQuery *query = GetFuncParam<SqlQuery*>(0);
+        SqlQuery *query = GetFuncParam<SqlQuery*>(prm_query);
 
         if (!query)
             ThrowParamTypeError(prm_query);

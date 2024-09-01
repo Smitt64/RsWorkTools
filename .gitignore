@@ -87,3 +87,7 @@ RslTest/RslTest.ini
 build/
 
 .vscode/
+
+WindowsModernStyle/release/
+
+RslTest/release/

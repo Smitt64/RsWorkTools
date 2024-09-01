@@ -8,6 +8,7 @@
 #include "rslexecutor.h"
 #include <errorsmodel.h>
 
+extern void toolConnect();
 Q_GLOBAL_STATIC(ToolsRuntime, pToolsRuntime)
 
 /**
@@ -84,6 +85,6 @@ void ToolsRuntimeModule::Proc()
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
-
     RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
+    RegisterObjList::inst()->AddStdProc("toolConnect", toolConnect);
 }

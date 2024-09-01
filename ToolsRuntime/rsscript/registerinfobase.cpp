@@ -144,6 +144,10 @@ public:
                     AddedMethods.append(method.name());
                 }
             }
+            else if (method.methodType() == QMetaMethod::Signal)
+            {
+                qDebug() << method.methodSignature();
+            }
         }
 
         GenInfo.nMeth = ArrMethod.size();

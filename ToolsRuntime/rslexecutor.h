@@ -38,6 +38,7 @@ public:
 signals:
     void WriteOut(QString);
     void ErrorMessage(int, QString);
+    void PlayRepFinished();
 
 protected:
     virtual void PlayRepProc();
@@ -51,6 +52,7 @@ private:
     Q_DECLARE_PRIVATE(RslExecutor);
 };
 
+TOOLSRUNTIME_EXPORT RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst);
 bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val, bool isOutParam = false);
 void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
 QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp = false);

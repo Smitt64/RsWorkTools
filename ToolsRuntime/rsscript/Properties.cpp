@@ -453,7 +453,6 @@ int GenObjGetId(TGenObject *obj, long id, VALUE *val)
             return 1;
 
         QVariant value = rsl->object->property(property.name());
-        //qDebug() << "GenObjGetId" << value;
         auto SetterFunc = [=](int type, void *ptr) -> void
         {
             ValueSet(val, type, ptr);
