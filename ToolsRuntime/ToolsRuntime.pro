@@ -42,6 +42,9 @@ SOURCES += \
     rslmodule/stddialogs.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
+    rslmodule/types/point.cpp \
+    rslmodule/types/rect.cpp \
+    rslmodule/types/size.cpp \
     rslmodule/uistaticmodule.cpp \
     rsscript/Methods.cpp \
     rsscript/Properties.cpp \

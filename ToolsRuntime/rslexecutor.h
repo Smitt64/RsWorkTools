@@ -13,6 +13,8 @@
 typedef void (*ToolRslStdProc)(void);
 typedef std::function<void(void)> RslExecutorProc;
 
+#define QVariantR2M (QVariant::UserType + 1)
+
 class RslExecutorPrivate;
 class TOOLSRUNTIME_EXPORT RslExecutor : public QObject
 {
@@ -69,8 +71,19 @@ void TOOLSRUNTIME_EXPORT SetReturnVal(const QVariant &value);
 int TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
 
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
-
 void TOOLSRUNTIME_EXPORT ThrowParamTypeError(const int &id, const QString &needtype = QString());
+
+bool TOOLSRUNTIME_EXPORT IsRectRsl(Qt::HANDLE obj);
+QRect TOOLSRUNTIME_EXPORT GetRectRsl(Qt::HANDLE obj);
+Qt::HANDLE TOOLSRUNTIME_EXPORT CreateRectRsl(const QRect &rect);
+
+Qt::HANDLE TOOLSRUNTIME_EXPORT CreatePointRsl(const QPoint &pt);
+bool TOOLSRUNTIME_EXPORT IsPointRsl(Qt::HANDLE obj);
+QPoint TOOLSRUNTIME_EXPORT GetPointRsl(Qt::HANDLE obj);
+
+bool TOOLSRUNTIME_EXPORT IsSizeRsl(Qt::HANDLE obj);
+QSize TOOLSRUNTIME_EXPORT GetSizeRsl(Qt::HANDLE obj);
+Qt::HANDLE TOOLSRUNTIME_EXPORT CreateSizeRsl(const QSize &sz);
 
 template<class T>
 void ThrowParamTypeError(const int &id)

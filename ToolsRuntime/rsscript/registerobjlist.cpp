@@ -7,6 +7,7 @@
 #include "rsldirs.h"
 #include "toolsruntime.h"
 #include "rsscript/RslModulePluginInterface.h"
+#include "rslobjconnections.h"
 #include <QMap>
 #include <QPluginLoader>
 #include <QDir>
@@ -49,7 +50,7 @@ public:
 RegisterObjList::RegisterObjList():
     d_ptr(new RegisterObjListPrivate(this))
 {
-
+    qRegisterMetaType<R2M>("R2M");
 }
 
 void RegisterObjList::loadStaticPlugins()

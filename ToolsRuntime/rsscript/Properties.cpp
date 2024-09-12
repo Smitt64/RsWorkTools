@@ -7,6 +7,7 @@
 #include "registerobjlist.hpp"
 #include "rslexecutor.h"
 #include "rslibdynamicfuncs.h"
+#include "rslobjconnections.h"
 #include <cstring>
 #include <QDebug>
 #include <QTextCodec>
@@ -15,6 +16,7 @@
 #include <QMetaProperty>
 #include <QLibrary>
 #include <QMetaType>
+#include <QRect>
 
 Q_GLOBAL_STATIC_WITH_ARGS(QLibrary, RSScriptLib, ("RSScript"))
 
@@ -24,6 +26,12 @@ LibRslIsTArray _LibRslIsTArray = nullptr;
 LibRslTArraySize _LibRslTArraySize = nullptr;
 LibRslTArrayGet _LibRslTArrayGet = nullptr;
 LibSetParm _LibSetParm = nullptr;
+LibRslObjInvoke _LibRslObjInvoke = nullptr;
+LibRslAddUniClass _LibRslAddUniClass = nullptr;
+LibRslFindUniClass _LibRslFindUniClass = nullptr;
+LibRslGetUniClass _LibRslGetUniClass = nullptr;
+LibRslUniCast _LibRslUniCast = nullptr;
+LibCreateObjectOfClassEx _LibCreateObjectOfClassEx = nullptr;
 
 void LoadFunctions()
 {
@@ -36,6 +44,12 @@ void LoadFunctions()
     _LibRslTArraySize = (LibRslTArraySize)RSScriptLib->resolve("RslTArraySize");
     _LibRslTArrayGet = (LibRslTArrayGet)RSScriptLib->resolve("RslTArrayGet");
     _LibSetParm = (LibSetParm)RSScriptLib->resolve("SetParm");
+    _LibRslObjInvoke = (LibRslObjInvoke)RSScriptLib->resolve("RslObjInvoke");
+    _LibRslAddUniClass = (LibRslAddUniClass)RSScriptLib->resolve("RslAddUniClass");
+    _LibRslFindUniClass = (LibRslFindUniClass)RSScriptLib->resolve("RslFindUniClass");
+    _LibRslGetUniClass = (LibRslGetUniClass)RSScriptLib->resolve("RslGetUniClass");
+    _LibRslUniCast = (LibRslUniCast)RSScriptLib->resolve("RslUniCast");
+    _LibCreateObjectOfClassEx = (LibCreateObjectOfClassEx)RSScriptLib->resolve("CreateObjectOfClassEx");
 }
 
 int GetFuncParamType(const int &id)
@@ -71,8 +85,13 @@ int GetFuncParamType(const int &id)
         result = QVariant::Time;
     break;
 
+    case V_R2M:
+        result = QVariantR2M;
+        break;
+
     case V_GENOBJ:
     {
+        TGenObject *obj = P_GOBJ(val->value.obj);
         TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(val->value.obj));
 
         if (TArrayText)
@@ -96,7 +115,14 @@ int GetFuncParamType(const int &id)
                 result = QMetaType::QVariantList;
         }
         else
-            result = QVariant::UserType;
+        {
+            if (IsRectRsl(obj))
+                result = QVariant::Rect;
+            else if (IsSizeRsl(obj))
+                result = QVariant::Size;
+            else
+                result = QVariant::UserType;
+        }
     }
         break;
     }
@@ -143,6 +169,15 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
     }
         break;
 
+    case V_R2M:
+    {
+        R2M r2m;
+        r2m.obj = val->value.r2m.obj;
+        r2m.id = val->value.r2m.id;
+        result = QVariant::fromValue(r2m);
+    }
+        break;
+
     case V_GENOBJ:
     {
         TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(val->value.obj));
@@ -171,6 +206,15 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
 
             if (info)
                 result = QVariant::fromValue<QObject*>((QObject*)info->object(val->value.obj));
+            else
+            {
+                if (IsRectRsl(val->value.obj))
+                    result = GetRectRsl(val->value.obj);
+                else if (IsSizeRsl(val->value.obj))
+                    result = GetSizeRsl(val->value.obj);
+                else if (IsPointRsl(val->value.obj))
+                    result = GetPointRsl(val->value.obj);
+            }
         }
     }
         break;
@@ -281,6 +325,29 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
                 result = true;
         }
         break;
+
+    case QMetaType::QRect:
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            if (IsRectRsl(P_GOBJ(((VALUE*)val)->value.obj)))
+                result = true;
+        }
+        break;
+
+    case QMetaType::QSize:
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            if (IsSizeRsl(P_GOBJ(((VALUE*)val)->value.obj)))
+                result = true;
+        }
+        break;
+
+    case QMetaType::QPoint:
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            if (IsPointRsl(P_GOBJ(((VALUE*)val)->value.obj)))
+                result = true;
+        }
 
     default:
         result = false;
@@ -400,6 +467,27 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         Setter(V_GENOBJ, ValueArray);
     }
         break;
+
+    case QMetaType::QRect:
+    {
+        TGenObject *obj = (TGenObject*)CreateRectRsl(value.toRect());
+        Setter(V_GENOBJ, obj);
+    }
+        break;
+
+    case QMetaType::QSize:
+    {
+        TGenObject *obj = (TGenObject*)CreateSizeRsl(value.toSize());
+        Setter(V_GENOBJ, obj);
+    }
+    break;
+
+    case QMetaType::QPoint:
+    {
+        TGenObject *obj = (TGenObject*)CreatePointRsl(value.toPoint());
+        Setter(V_GENOBJ, obj);
+    }
+    break;
 
     case QMetaType::QObjectStar:
     {

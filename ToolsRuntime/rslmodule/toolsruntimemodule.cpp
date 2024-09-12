@@ -4,6 +4,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "codeeditor/codehighlighter.h"
 #include "toolsruntinersl.h"
+#include "rsscript/rslibdynamicfuncs.h"
 #include "errordlg.h"
 #include "rslexecutor.h"
 #include <errorsmodel.h>
@@ -87,4 +88,8 @@ void ToolsRuntimeModule::Proc()
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
     RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
     RegisterObjList::inst()->AddStdProc("toolConnect", toolConnect);
+
+    RegisterRectRsl();
+    RegisterSizeRsl();
+    RegisterPointRsl();
 }

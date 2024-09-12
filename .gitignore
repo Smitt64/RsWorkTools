@@ -91,3 +91,5 @@ build/
 WindowsModernStyle/release/
 
 RslTest/release/
+
+RslToolRuntimeStatic/release/

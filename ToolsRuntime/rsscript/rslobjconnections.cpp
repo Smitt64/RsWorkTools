@@ -1,7 +1,10 @@
+#include <QSignalSpy>
+#include "rsl/dlmintf.h"
+#include "statvars.h"
+#include "rsl/isymbol.h"
+#include "rslibdynamicfuncs.h"
 #include "rslobjconnections.h"
 #include "rslexecutor.h"
-#include <QDebug>
-#include <QSignalSpy>
 
 RslObjConnections::RslObjConnections(QObject *parent)
     : QObject{parent}
@@ -17,6 +20,11 @@ RslObjConnections::~RslObjConnections()
 void RslObjConnections::setMacroFunc(const QString &macro)
 {
     m_MacroName = macro;
+}
+
+void RslObjConnections::setMacroFunc(const R2M &R2m)
+{
+    m_R2m = R2m;
 }
 
 int RslObjConnections::execIndex() const
@@ -43,4 +51,26 @@ void RslObjConnections::ExecuteMacroFunc()
 
     if (!m_MacroName.isEmpty())
         excutor->call(m_MacroName, arguments);
+    else
+    {
+        if (m_R2m.obj)
+        {
+            VALUE retVal;
+            ValueMake(&retVal);
+
+            int nPar = arguments.size();
+            VALUE *prm = new VALUE[nPar];
+            for (int i = 0; i < nPar; i++)
+            {
+                ValueMake(&prm[i]);
+
+                SetValueFromVariant(std::bind(StdValueSetFunc, &prm[i],
+                                              std::placeholders::_1,
+                                              std::placeholders::_2),
+                                    arguments[i]);
+            }
+
+            _LibRslObjInvoke((TGenObject*)m_R2m.obj, m_R2m.id, RSL_DISP_RUN, nPar, prm, &retVal);
+        }
+    }
 }

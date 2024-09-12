@@ -1,9 +1,5 @@
-#include "rsl/dlmintf.h"
-#include "statvars.h"
-#include "rsl/isymbol.h"
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
-#include "rslexecutor.h"
 #include "rslexecutor.h"
 #include "toolsruntime.h"
 #include "rslobjconnections.h"
@@ -24,17 +20,27 @@ void toolConnect()
         prm_function
     };
 
+    R2M r2m;
     QString signal, function;
     int type = GetFuncParamType(prm_obj);
 
     if (type != QVariant::UserType && type != QMetaType::QObjectStar)
         ThrowParamTypeError<QObject>(prm_obj);
 
-    if (GetFuncParamType(prm_signal) == QVariant::String)
+    type = GetFuncParamType(prm_signal);
+    if (type == QVariant::String)
         signal = GetFuncParam(prm_signal).toString();
 
-    if (GetFuncParamType(prm_function) == QVariant::String)
+    type = GetFuncParamType(prm_function);
+    if (type == QVariant::String)
         function = GetFuncParam(prm_function).toString();
+    else
+    {
+        if (type == QVariantR2M)
+            r2m = GetFuncParam(prm_function).value<R2M>();
+        else
+            ThrowParamTypeError<R2M>(prm_function);
+    }
 
     QObject *obj = GetFuncParam<QObject*>(prm_obj);
 
@@ -76,7 +82,12 @@ void toolConnect()
 
     //qDebug() << meta->indexOfSignal(signalmethod.methodSignature()) - meta->methodOffset();
     RslObjConnections *connector = new RslObjConnections(executor);
-    connector->setMacroFunc(function);
+
+    if (!function.isEmpty())
+        connector->setMacroFunc(function);
+    else
+        connector->setMacroFunc(r2m);
+
     connector->initSignalSpy(obj, signalmethod.methodSignature());
 
     QObject::connect(executor, &RslExecutor::destroyed, connector, &RslObjConnections::deleteLater);
