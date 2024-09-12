@@ -62,6 +62,13 @@ public:
         return QVariant("var: " + var.toString());
     }
 
+    Q_INVOKABLE QRect testRect(const QRect &var)
+    {
+        QRect rc = var;
+        rc.moveTo(10, 10);
+        return rc;
+    }
+
     ChildObject *child()
     {
         return _child;

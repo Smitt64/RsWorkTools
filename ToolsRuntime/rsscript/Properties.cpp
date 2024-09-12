@@ -120,6 +120,8 @@ int GetFuncParamType(const int &id)
                 result = QVariant::Rect;
             else if (IsSizeRsl(obj))
                 result = QVariant::Size;
+            else if (IsPointRsl(obj))
+                result = QVariant::Point;
             else
                 result = QVariant::UserType;
         }

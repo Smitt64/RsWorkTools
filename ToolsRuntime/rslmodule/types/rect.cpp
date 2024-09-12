@@ -5,6 +5,7 @@
 #include "rslexecutor.h"
 #include "rsscript/rslibdynamicfuncs.h"
 #include <QRect>
+#include <QDebug>
 
 class QRectRsl
 {
@@ -175,8 +176,53 @@ void QRectRsl::Initialise(int firstParmOffs)
         prm_height
     };
 
-    if (GetFuncParamCount() == 0)
+    int count = GetFuncParamCount();
+    if (count <= 2)
         return;
+
+    if (count == 5)
+    {
+        if (GetFuncParamType(firstParmOffs + prm_x) != QVariant::Int)
+            ThrowParamTypeError<int>(prm_x + firstParmOffs);
+
+        if (GetFuncParamType(firstParmOffs + prm_y) != QVariant::Int)
+            ThrowParamTypeError<int>(prm_y + firstParmOffs);
+
+        if (GetFuncParamType(firstParmOffs + prm_width) != QVariant::Int)
+            ThrowParamTypeError<int>(prm_width + firstParmOffs);
+
+        if (GetFuncParamType(firstParmOffs + prm_height) != QVariant::Int)
+            ThrowParamTypeError<int>(prm_height + firstParmOffs);
+
+        int x = GetFuncParam(firstParmOffs + prm_x).toInt();
+        int y = GetFuncParam(firstParmOffs + prm_y).toInt();
+        int width = GetFuncParam(firstParmOffs + prm_width).toInt();
+        int height = GetFuncParam(firstParmOffs + prm_height).toInt();
+
+        rect = QRect(x, y, width, height);
+    }
+    else if (count == 3)
+    {
+        int type = GetFuncParamType(firstParmOffs + prm_x);
+        int type2 = GetFuncParamType(firstParmOffs + prm_y);
+
+        if (type == QVariant::Point && type2 == QVariant::Point)
+        {
+            QPoint topLeft = GetFuncParam(firstParmOffs + prm_x).toPoint();
+            QPoint bottomRight = GetFuncParam(firstParmOffs + prm_y).toPoint();
+
+            rect = QRect(topLeft, bottomRight);
+        }
+        else if (type == QVariant::Point && type2 == QVariant::Size)
+        {
+            QPoint topLeft = GetFuncParam(firstParmOffs + prm_x).toPoint();
+            QSize size = GetFuncParam(firstParmOffs + prm_y).toSize();
+
+            rect = QRect(topLeft, size);
+        }
+        else
+            ThrowParamTypeError(firstParmOffs);
+    }
 }
 
 RSL_INIT_IMP(QRectRsl)

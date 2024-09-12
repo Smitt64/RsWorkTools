@@ -38,7 +38,6 @@ public:
     TestModule() :
         RslStaticModule()
     {
-
     }
 
 protected:
@@ -47,7 +46,6 @@ protected:
         addConstant("TEST_Constant", "TestConstant");
         RegisterObjList::inst()->AddObject<TestObject>();
         RegisterObjList::inst()->AddObject<ChildObject>();
-        //RegisterObjList::inst()->AddObject("TestObject");
     }
 };
 

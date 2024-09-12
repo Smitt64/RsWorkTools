@@ -86,8 +86,21 @@ void QPointRsl::Initialise(int firstParmOffs)
         prm_y,
     };
 
-    if (GetFuncParamCount() == 0)
+    int ParamCount = GetFuncParamCount();
+    if (ParamCount <= 1)
         return;
+
+    int type = GetFuncParamType(prm_x + firstParmOffs);
+
+    if (type != QVariant::Int)
+        ThrowParamTypeError<int>(prm_x + firstParmOffs);
+
+    type = GetFuncParamType(prm_y + firstParmOffs);
+    if (type != QVariant::Int)
+        ThrowParamTypeError<int>(prm_y + firstParmOffs);
+
+    pt.setX(GetFuncParam(prm_x + firstParmOffs).toInt());
+    pt.setY(GetFuncParam(prm_y + firstParmOffs).toInt());
 }
 
 RSL_INIT_IMP(QPointRsl)

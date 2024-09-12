@@ -1,5 +1,6 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+#include "qvariant.h"
 #include "rsl/dlmintf.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
@@ -16,6 +17,7 @@
 #include <QMetaProperty>
 #include <QLibrary>
 #include <QMetaType>
+#include <QRect>
 
 static bool CompareParamTypes(const QMetaMethod &method, int offset)
 {
@@ -221,6 +223,10 @@ void *CallMethod(const QMetaObject *meta,
         {
             (*reinterpret_cast<QVariant*>(*param)) = SetFromRslValue(&NewVal);
         }
+        else if (Type == QMetaType::QRect)
+        {
+            (*reinterpret_cast<QRect*>(*param)) = SetFromRslValue(&NewVal).toRect();
+        }
         else if (Type == QMetaType::QVariantList)
         {
             if (!CnvType(&NewVal, V_GENOBJ))
@@ -394,6 +400,24 @@ void *CallMethod(const QMetaObject *meta,
             ValueSet(&ret, V_TIME, &rsldate);
         }
             break;
+        case QMetaType::QRect:
+        {
+            TGenObject *obj = (TGenObject*)CreateRectRsl(*reinterpret_cast<QRect*>(params[0]));
+            ValueSet(&ret, V_GENOBJ, obj);
+        }
+            break;
+        case QMetaType::QPoint:
+        {
+            TGenObject *obj = (TGenObject*)CreatePointRsl(*reinterpret_cast<QPoint*>(params[0]));
+            ValueSet(&ret, V_GENOBJ, obj);
+        }
+        break;
+        case QMetaType::QSize:
+        {
+            TGenObject *obj = (TGenObject*)CreateSizeRsl(*reinterpret_cast<QSize*>(params[0]));
+            ValueSet(&ret, V_GENOBJ, obj);
+        }
+        break;
         case QMetaType::QStringList:
         {
             QStringList *list = reinterpret_cast<QStringList*>(params[0]);
