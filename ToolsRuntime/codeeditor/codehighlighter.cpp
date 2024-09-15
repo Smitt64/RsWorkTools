@@ -6,8 +6,11 @@
 #include "rslcodehighlighter.h"
 #include "sqlcodehighlighter.h"
 #include "codeeditor.h"
+#include "xmlcodehighlighter.h"
 #include <QPlainTextEdit>
 #include <QDebug>
+
+// https://github.com/Waqar144/QSourceHighlite/blob/master/qsourcehighliter.cpp
 
 #define TABSTOP 4
 
@@ -264,6 +267,8 @@ void ToolApplyHighlighter(QPlainTextEdit *pEditor,
         pCodeHighlighter = new RslCodeHighlighter(pEditor);
     else if (syntax == HighlighterSql)
         pCodeHighlighter = new SqlCodeHighlighter(pEditor);
+    else if (syntax == HighlighterXml)
+        pCodeHighlighter = new XmlCodeHighlighter(pEditor);
     else
         pCodeHighlighter = new CodeHighlighter(pEditor);
 

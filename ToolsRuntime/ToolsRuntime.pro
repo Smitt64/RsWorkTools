@@ -20,6 +20,7 @@ SOURCES += \
     codeeditor/highlighterstyle.cpp \
     codeeditor/rslcodehighlighter.cpp \
     codeeditor/sqlcodehighlighter.cpp \
+    codeeditor/xmlcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
     iconlibdlg.cpp \
@@ -73,6 +74,7 @@ HEADERS += \
     codeeditor/highlighterstyle.h \
     codeeditor/rslcodehighlighter.h \
     codeeditor/sqlcodehighlighter.h \
+    codeeditor/xmlcodehighlighter.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
