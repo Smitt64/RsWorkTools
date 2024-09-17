@@ -85,6 +85,10 @@ bool TOOLSRUNTIME_EXPORT IsSizeRsl(Qt::HANDLE obj);
 QSize TOOLSRUNTIME_EXPORT GetSizeRsl(Qt::HANDLE obj);
 Qt::HANDLE TOOLSRUNTIME_EXPORT CreateSizeRsl(const QSize &sz);
 
+Qt::HANDLE TOOLSRUNTIME_EXPORT CreateByteArrayRsl(const QByteArray &pt);
+bool TOOLSRUNTIME_EXPORT IsByteArrayRsl(Qt::HANDLE obj);
+QByteArray TOOLSRUNTIME_EXPORT GetByteArrayRsl(Qt::HANDLE obj);
+
 template<class T>
 void ThrowParamTypeError(const int &id)
 {

@@ -122,6 +122,8 @@ int GetFuncParamType(const int &id)
                 result = QVariant::Size;
             else if (IsPointRsl(obj))
                 result = QVariant::Point;
+            else if (IsByteArrayRsl(obj))
+                result = QVariant::ByteArray;
             else
                 result = QVariant::UserType;
         }
@@ -216,6 +218,8 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
                     result = GetSizeRsl(val->value.obj);
                 else if (IsPointRsl(val->value.obj))
                     result = GetPointRsl(val->value.obj);
+                else if (IsByteArrayRsl(val->value.obj))
+                    result = GetByteArrayRsl(val->value.obj);
             }
         }
     }
@@ -278,6 +282,15 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
     VALUE *value = (VALUE*)val;
     switch(MetaType)
     {
+    case QMetaType::QObjectStar:
+        if (CHECK_TYPE(V_GENOBJ))
+        {
+            RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(value->value.obj));
+
+            if (info)
+                result = true;
+        }
+        break;
     case QMetaType::QVariant:
         if (CHECK_TYPE(V_STRING) || CHECK_TYPE(V_INTEGER) || CHECK_TYPE(V_BIGINT) ||
             CHECK_TYPE(V_DOUBLE) || CHECK_TYPE(V_DATE) || CHECK_TYPE(V_TIME) || CHECK_TYPE(V_BOOL))
@@ -350,6 +363,15 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
             if (IsPointRsl(P_GOBJ(((VALUE*)val)->value.obj)))
                 result = true;
         }
+        break;
+
+    case QMetaType::QByteArray:
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            if (IsByteArrayRsl(P_GOBJ(((VALUE*)val)->value.obj)))
+                result = true;
+        }
+        break;
 
     default:
         result = false;
@@ -490,6 +512,13 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         Setter(V_GENOBJ, obj);
     }
     break;
+
+    case QMetaType::QByteArray:
+    {
+        TGenObject *obj = (TGenObject*)CreateByteArrayRsl(value.toByteArray());
+        Setter(V_GENOBJ, obj);
+    }
+        break;
 
     case QMetaType::QObjectStar:
     {

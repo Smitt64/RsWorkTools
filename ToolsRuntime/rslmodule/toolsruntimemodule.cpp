@@ -92,4 +92,5 @@ void ToolsRuntimeModule::Proc()
     RegisterRectRsl();
     RegisterSizeRsl();
     RegisterPointRsl();
+    RegisterByteArrayRsl();
 }

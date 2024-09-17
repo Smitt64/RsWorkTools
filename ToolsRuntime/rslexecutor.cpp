@@ -469,6 +469,13 @@ void ThrowParamTypeError(const int &id, const QString &needtype)
     iError(IER_RUNTIME, ErrorString);
 }
 
+void ThrowMethodNotFoundError(const QString &needtype)
+{
+    sprintf(ErrorString, "Method \"%s\" not found", needtype.toLocal8Bit().data());
+
+    iError(IER_RUNTIME, ErrorString);
+}
+
 RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst)
 {
     if (!rslInstanceExecutors->contains(hrslinst))

@@ -35,6 +35,11 @@ SOURCES += \
     optionsdlg/styleoptionspage.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
+    rslmodule/io/iobuffer.cpp \
+    rslmodule/io/iodevice.cpp \
+    rslmodule/io/iofile.cpp \
+    rslmodule/io/iotextstream.cpp \
+    rslmodule/iostaticmodule.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
     rslmodule/sql/sqldatabase.cpp \
@@ -43,6 +48,7 @@ SOURCES += \
     rslmodule/stddialogs.cpp \
     rslmodule/toolsruntimemodule.cpp \
     rslmodule/toolsruntinersl.cpp \
+    rslmodule/types/QByteArrayRsl.cpp \
     rslmodule/types/point.cpp \
     rslmodule/types/rect.cpp \
     rslmodule/types/size.cpp \
@@ -89,6 +95,11 @@ HEADERS += \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
     rslexecutor.h \
+    rslmodule/io/iobuffer.h \
+    rslmodule/io/iodevice.h \
+    rslmodule/io/iofile.h \
+    rslmodule/io/iotextstream.h \
+    rslmodule/iostaticmodule.h \
     rslmodule/regexp/regexp.h \
     rslmodule/regexpmodule.h \
     rslmodule/sql/sqldatabase.h \

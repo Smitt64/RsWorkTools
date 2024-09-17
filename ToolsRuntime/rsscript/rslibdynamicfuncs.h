@@ -34,5 +34,6 @@ extern void LoadFunctions();
 extern void RegisterSizeRsl();
 extern void RegisterRectRsl();
 extern void RegisterPointRsl();
+extern void RegisterByteArrayRsl();
 
 #endif // RSLIBDYNAMICFUNCS_H

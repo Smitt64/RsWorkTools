@@ -1,5 +1,6 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+#include "rslexecutor.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "playrep.h"
@@ -309,8 +310,14 @@ void RegisterInfoBase::Create(void **GenObject, QObject *cls, const QObjectRslOw
         const QMetaObject &meta = d->MetaObject;
 
         int id = FindMethod(&meta, meta.className(), NumParam, true);
-        QMetaMethod method = meta.constructor(id);
-        obj->object = (QObject*)CallMethod(&meta, method, QMetaObject::CreateInstance, id, nullptr);
+
+        if (id >= 0)
+        {
+            QMetaMethod method = meta.constructor(id);
+            obj->object = (QObject*)CallMethod(&meta, method, QMetaObject::CreateInstance, id, nullptr);
+        }
+        else
+            ThrowParamTypeError(1);
     }
 
     *GenObject = P_GOBJ(obj);

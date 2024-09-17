@@ -129,7 +129,7 @@ void *CallMethod(const QMetaObject *meta,
     };
 
 
-    auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val, const  QString &normalized) -> void
+    auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val, const  QString &normalized, bool isPtr = false) -> void
     {
         RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
 
@@ -227,6 +227,10 @@ void *CallMethod(const QMetaObject *meta,
         {
             (*reinterpret_cast<QRect*>(*param)) = SetFromRslValue(&NewVal).toRect();
         }
+        else if (Type == QMetaType::QByteArray)
+        {
+            (*reinterpret_cast<QByteArray*>(*param)) = SetFromRslValue(&NewVal).toByteArray();
+        }
         else if (Type == QMetaType::QVariantList)
         {
             if (!CnvType(&NewVal, V_GENOBJ))
@@ -271,6 +275,16 @@ void *CallMethod(const QMetaObject *meta,
                     (*reinterpret_cast<QStringList*>(*param)).append(var.toString());
             }
         }
+        else if (Type == QMetaType::QObjectStar)
+        {
+            if (!CnvType(&NewVal, V_GENOBJ))
+                iError(IER_RUNTIME, "Param type missmatch, required QObject");
+
+            RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(val->value.obj));
+
+            if (info)
+                *((void**)param[0]) = info->object(val->value.obj);
+        }
         else if (!Type)
         {
             if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
@@ -299,7 +313,8 @@ void *CallMethod(const QMetaObject *meta,
         GetParm(i + offset, &val);
 
         int RealType = method.parameterType(i);
-        QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
+        QString TypeStr = QString(paramsTypes[i]);
+        QString normalized = TypeStr.remove("&").remove("*");
 
         if (!RealType)
             RealType = QMetaType::type(normalized.toLocal8Bit().data());
@@ -415,6 +430,12 @@ void *CallMethod(const QMetaObject *meta,
         case QMetaType::QSize:
         {
             TGenObject *obj = (TGenObject*)CreateSizeRsl(*reinterpret_cast<QSize*>(params[0]));
+            ValueSet(&ret, V_GENOBJ, obj);
+        }
+        break;
+        case QMetaType::QByteArray:
+        {
+            TGenObject *obj = (TGenObject*)CreateByteArrayRsl(*reinterpret_cast<QByteArray*>(params[0]));
             ValueSet(&ret, V_GENOBJ, obj);
         }
         break;
