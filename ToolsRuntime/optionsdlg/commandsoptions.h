@@ -11,7 +11,9 @@ class CommandsOptions;
 
 class QMenu;
 class CommandsStorage;
+class QStyledItemDelegate;
 class OptionsMenuStyledItemDelegate;
+class QAbstractTableModel;
 class TOOLSRUNTIME_EXPORT CommandsOptions : public OptionsPage
 {
     Q_OBJECT
@@ -47,5 +49,7 @@ private:
     OptionsMenuStyledItemDelegate *menuStyledItemDelegate;
     CommandsStorage *commandsStorage;
 };
+
+void TOOLSRUNTIME_EXPORT GetMenuStyledItemDelegate(QStyledItemDelegate **delegate, QObject *parent = nullptr);
 
 #endif // COMMANDSOPTIONS_H

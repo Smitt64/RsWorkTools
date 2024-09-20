@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QAction>
+#include "ToolsRuntime_global.h"
 
 typedef struct tagToolBarsAction
 {
@@ -17,7 +18,7 @@ typedef struct tagToolBarsAction
 }ToolBarsAction;
 
 class QAbstractTableModel;
-class ToolBarsStorage
+class TOOLSRUNTIME_EXPORT ToolBarsStorage
 {
 public:
     ToolBarsStorage();
@@ -51,7 +52,7 @@ private:
 };
 
 typedef QList<ToolBarsStorage*> ToolBarsStorageList;
-class CommandsStorage
+class TOOLSRUNTIME_EXPORT CommandsStorage
 {
 public:
     CommandsStorage();

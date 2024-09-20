@@ -49,6 +49,11 @@ private:
     QSize m_ActionSize;
 };
 
+void GetMenuStyledItemDelegate(QStyledItemDelegate **delegate, QObject *parent)
+{
+    *delegate = new OptionsMenuStyledItemDelegate(parent);
+}
+
 CommandsOptions::CommandsOptions(QWidget *parent)
     : OptionsPage(parent)
     , ui(new Ui::CommandsOptions)
