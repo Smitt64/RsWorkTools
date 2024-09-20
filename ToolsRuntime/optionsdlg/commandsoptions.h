@@ -2,6 +2,7 @@
 #define COMMANDSOPTIONS_H
 
 #include "optionsdlg/OptionsPage.h"
+#include "ToolsRuntime_global.h"
 #include <QWidget>
 
 namespace Ui {
@@ -11,7 +12,7 @@ class CommandsOptions;
 class QMenu;
 class CommandsStorage;
 class OptionsMenuStyledItemDelegate;
-class CommandsOptions : public OptionsPage
+class TOOLSRUNTIME_EXPORT CommandsOptions : public OptionsPage
 {
     Q_OBJECT
 

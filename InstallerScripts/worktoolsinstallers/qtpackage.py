@@ -30,7 +30,8 @@ class QtPackage(InstallerPackageInfoBase):
             'Qt{}WebChannel.dll',
             'Qt{}Test.dll',
             'libEGL.dll',
-            'QtWebEngineProcess.exe'
+            'QtWebEngineProcess.exe',
+            'designer.exe'
         ]
 
         self.__VersionedDlls = [
@@ -68,7 +69,7 @@ class QtPackage(InstallerPackageInfoBase):
         #self.ForcedInstallation = True
 
     def getVersion(self):
-        return self.__qt_element.getVersion() + '.2'
+        return self.__qt_element.getVersion() + '.3'
 
     def __extract_major(self, version):
         dot = version.find('.')
