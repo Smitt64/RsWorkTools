@@ -140,6 +140,11 @@ void OptionsDlg::addCommandsPage(bool UseRslCommands)
     addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
 }
 
+void OptionsDlg::addCommandsPage(CommandsOptions *page)
+{
+    addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
+}
+
 void OptionsDlg::addLogPage(const QString &prefix)
 {
     LogOptionsPage *page = new LogOptionsPage();

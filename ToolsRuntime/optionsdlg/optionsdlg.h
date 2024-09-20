@@ -12,6 +12,7 @@ class OptionsDlg;
 
 class QSettings;
 class OptionsPage;
+class CommandsOptions;
 class OptionsDlgPrivate;
 class TOOLSRUNTIME_EXPORT OptionsDlg : public QDialog
 {
@@ -24,6 +25,7 @@ public:
     void addCodeEditorPage(const QString &group, const QString &key);
     void addRslPage();
     void addCommandsPage(bool UseRslCommands = true);
+    void addCommandsPage(CommandsOptions *page);
     void addLogPage(const QString &prefix);
     void setDefaultStyle(const QString &style);
     const QString &defaultStyle() const;
