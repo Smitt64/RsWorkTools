@@ -234,14 +234,14 @@ void CommandsOptions::onRemoveCommand()
     }
 }
 
-void CommandsOptions::onAddMacro()
+void CommandsOnAddMacro(ToolBarsStorage *toolbar, QWidget *parent)
 {
-    QFileDialog dlg(this);
+    QFileDialog dlg(parent);
     dlg.setAcceptMode(QFileDialog::AcceptOpen);
     dlg.setFileMode(QFileDialog::ExistingFile);
     dlg.setOptions(QFileDialog::DontUseNativeDialog | QFileDialog::ReadOnly | QFileDialog::DontUseSheet);
-    dlg.setNameFilter(tr("Макросы (*.mac)"));
-    dlg.setWindowTitle(tr("Выберите макрос"));
+    dlg.setNameFilter(QObject::tr("Макросы (*.mac)"));
+    dlg.setWindowTitle(QObject::tr("Выберите макрос"));
 
     QList<QUrl> urls;
     QStringList macrodirs = rslObjList()->incDirs().split(";");
@@ -267,9 +267,15 @@ void CommandsOptions::onAddMacro()
             name = info.baseName();
         }
 
-        ToolBarsStorage *toolbar = commandsStorage->toolBarsStorage(ui->comboBox->currentIndex());
+        //ToolBarsStorage *toolbar = commandsStorage->toolBarsStorage(ui->comboBox->currentIndex());
         toolbar->addAction(macro, name);
     }
+}
+
+void CommandsOptions::onAddMacro()
+{
+    ToolBarsStorage *toolbar = commandsStorage->toolBarsStorage(ui->comboBox->currentIndex());
+    CommandsOnAddMacro(toolbar, this);
 }
 
 void CommandsOptions::onChangeLibIcon()

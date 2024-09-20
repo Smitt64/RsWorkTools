@@ -14,6 +14,7 @@ class CommandsStorage;
 class QStyledItemDelegate;
 class OptionsMenuStyledItemDelegate;
 class QAbstractTableModel;
+class ToolBarsStorage;
 class TOOLSRUNTIME_EXPORT CommandsOptions : public OptionsPage
 {
     Q_OBJECT
@@ -50,6 +51,7 @@ private:
     CommandsStorage *commandsStorage;
 };
 
+void TOOLSRUNTIME_EXPORT CommandsOnAddMacro(ToolBarsStorage *toolbar, QWidget *parent = nullptr);
 void TOOLSRUNTIME_EXPORT GetMenuStyledItemDelegate(QStyledItemDelegate **delegate, QObject *parent = nullptr);
 
 #endif // COMMANDSOPTIONS_H
