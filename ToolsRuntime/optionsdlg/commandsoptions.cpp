@@ -5,6 +5,7 @@
 #include "widgets\selectactiondlg.h"
 #include "iconlibdlg.h"
 #include "rsscript/registerobjlist.hpp"
+#include "rslexecutor.h"
 #include <QInputDialog>
 #include <QStyledItemDelegate>
 #include <QMenu>
@@ -254,21 +255,31 @@ void CommandsOnAddMacro(ToolBarsStorage *toolbar, QWidget *parent)
     if (dlg.exec() == QDialog::Accepted)
     {
         QString macro = dlg.selectedUrls().first().toLocalFile();
-        QMap<QString, QString> macInfo = rslGetMacroInfo(macro);
 
-        QString name;
-        if (macInfo.contains("Title"))
-            name = macInfo.value("Title");
-        else if (macInfo.contains("Description"))
-            name = macInfo.value("Description");
+        if (IsMacroExistsFunction(macro, "ExecAction"))
+        {
+            QMap<QString, QString> macInfo = rslGetMacroInfo(macro);
+
+            QString name;
+            if (macInfo.contains("Title"))
+                name = macInfo.value("Title");
+            else if (macInfo.contains("Description"))
+                name = macInfo.value("Description");
+            else
+            {
+                QFileInfo info(dlg.selectedUrls().first().toLocalFile());
+                name = info.baseName();
+            }
+
+            toolbar->addAction(macro, name);
+        }
         else
         {
-            QFileInfo info(dlg.selectedUrls().first().toLocalFile());
-            name = info.baseName();
+            QFileInfo fi(macro);
+            QMessageBox::critical(parent, QObject::tr("Ошибка"),
+                                  QObject::tr("Макрос <b>%1</b> не содержит макрофункции <b>ExecAction</b>")
+                                  .arg(fi.fileName()));
         }
-
-        //ToolBarsStorage *toolbar = commandsStorage->toolBarsStorage(ui->comboBox->currentIndex());
-        toolbar->addAction(macro, name);
     }
 }
 

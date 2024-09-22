@@ -205,7 +205,8 @@ void RegisterObjList::setIncDir(const QString &path)
         if (QDir::isRelativePath(str))
         {
             QDir d(qApp->applicationDirPath());
-            str = QDir::toNativeSeparators(d.absoluteFilePath(str));
+            d = QDir(d.absoluteFilePath(str));
+            str = QDir::toNativeSeparators(d.canonicalPath());
         }
     }
 
@@ -321,32 +322,6 @@ QMap<QString,QString> rslGetMacroInfo(const QString &macro)
             QString key = items[0].remove("$").trimmed().simplified();
             values[key] = items[1].trimmed().simplified();
         }
-        /*QRegExp rx("\\$([\\s\\S]*?)\\:\\s*(.*)");
-        rx.setMinimal(true);
-
-        int pos = 0;
-        qDebug() << rx.errorString();
-        while ((pos = rx.indexIn(matched, pos)) != -1)
-        {
-            QString key = rx.cap(1).trimmed().simplified();
-            QString value = rx.cap(2).trimmed().simplified();
-            values[key] = value;
-
-            pos += rx.matchedLength();
-        }*/
-        //QRegularExpression rx("^\\$([\\s\\S]*?)\\:\\s*(.*)$");
-
-        /*QRegularExpressionMatchIterator match = rx.globalMatch(matched, 0);
-        while (match.hasNext())
-        {
-            QRegularExpressionMatch i = match.next();
-            if (i.hasMatch())
-            {
-                QString key = i.captured(1).trimmed();
-                QString value = i.captured(2).trimmed();
-                values[key] = value;
-            }
-        }*/
     };
 
     QFile f(macro);

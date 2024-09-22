@@ -483,3 +483,32 @@ RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst)
 
     return rslInstanceExecutors->value(hrslinst);
 }
+
+bool IsMacroExistsFunction(const QString &filename, const QString &name)
+{
+    bool result = false;
+    STD_USERDATA user;
+    memset(&user, 0, sizeof(STD_USERDATA));
+
+    QScopedPointer<QTemporaryFile> report(new QTemporaryFile());
+    report->open();
+
+    char *Output = new char[1024];
+    qstrcpy(Output, report->fileName().toLocal8Bit().data());
+
+    QScopedPointer<TRSLConInstance> ptr(new TRSLConInstance());
+    ptr->Init(filename.toLocal8Bit().data(), Output,
+              QUuid::createUuid().toByteArray().data(), NULL,
+              Executor_MsgProc, &user);
+
+    if (ptr->AddModule(filename.toLocal8Bit().data()))
+    {
+        HRSLSYM hInst = ptr->RslGetInstSymbol(name.toLocal8Bit().data());
+
+        if (hInst)
+            result = true;
+    }
+
+    delete[] Output;
+    return result;
+}

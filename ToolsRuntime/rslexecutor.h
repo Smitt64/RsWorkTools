@@ -54,6 +54,7 @@ private:
     Q_DECLARE_PRIVATE(RslExecutor);
 };
 
+bool TOOLSRUNTIME_EXPORT IsMacroExistsFunction(const QString &filename, const QString &name);
 TOOLSRUNTIME_EXPORT RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst);
 bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val, bool isOutParam = false);
 void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
