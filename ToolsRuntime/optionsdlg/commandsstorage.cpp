@@ -199,6 +199,26 @@ QJsonArray ToolBarsStorage::save() const
     return actionsArray;
 }
 
+void ToolBarsStorage::load(QJsonArray actions)
+{
+    for (QJsonValueRef action : actions)
+    {
+        QJsonObject actionObj = action.toObject();
+        QString ref = actionObj["ref"].toString();
+        QString macro = actionObj["macro"].toString();
+        QString title = actionObj["title"].toString();
+        QString icon = actionObj["icon"].toString();
+
+        ToolBarsAction item;
+        item.ref = windowActionsRegistry()->getAction(ref);
+        item.macrofile = macro;
+        item.title = title;
+        item.icon = icon;
+
+        addAction(item);
+    }
+}
+
 QAbstractTableModel *ToolBarsStorage::model() const
 {
     return m_model;
@@ -325,22 +345,7 @@ void CommandsStorage::load(const QByteArray &data)
 
         ToolBarsStorage *storage = new ToolBarsStorage();
         storage->setName(name);
-        for (QJsonValueRef action : actions)
-        {
-            QJsonObject actionObj = action.toObject();
-            QString ref = actionObj["ref"].toString();
-            QString macro = actionObj["macro"].toString();
-            QString title = actionObj["title"].toString();
-            QString icon = actionObj["icon"].toString();
-
-            ToolBarsAction item;
-            item.ref = windowActionsRegistry()->getAction(ref);
-            item.macrofile = macro;
-            item.title = title;
-            item.icon = icon;
-
-            storage->addAction(item);
-        }
+        storage->load(actions);
 
         m_toolBarsStorages.append(storage);
     }

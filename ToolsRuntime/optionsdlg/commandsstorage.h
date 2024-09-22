@@ -44,6 +44,7 @@ public:
     QAbstractTableModel *model() const;
 
     QJsonArray save() const;
+    void load(QJsonArray actions);
 
 private:
     QString m_Name;
