@@ -200,17 +200,6 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
 
     switch(mes)
     {
-    case IM_INITRSCOM:
-        rslInitRsCom();
-        qInfo(logRsl()) << "IM_INITRSCOM";
-        //((TAppObjData *)ptr)->obj = rslGetAppIntf();
-        break;
-    case IM_GET_APPOBJ:
-        ((TAppObjData *)ptr)->obj = rslGetAppIntf();
-        qInfo(logRsl()) << "IM_GET_APPOBJ: RCWHOST ="
-                        << ((TAppObjData *)ptr)->obj;
-        break;
-
     case IM_GETHOSTINFO:
     {
         THostInfoData *data = (THostInfoData *)ptr;

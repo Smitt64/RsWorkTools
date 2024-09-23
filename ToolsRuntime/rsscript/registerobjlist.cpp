@@ -51,8 +51,6 @@ RegisterObjList::RegisterObjList():
     d_ptr(new RegisterObjListPrivate(this))
 {
     qRegisterMetaType<R2M>("R2M");
-
-    rslInitRsCom();
 }
 
 void RegisterObjList::loadStaticPlugins()
