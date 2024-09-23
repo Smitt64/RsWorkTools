@@ -58,6 +58,7 @@ SOURCES += \
     rsscript/Signals.cpp \
     rsscript/registerinfobase.cpp \
     rsscript/registerobjlist.cpp \
+    rsscript/rscomfunc.cpp \
     rsscript/rsllistitemcontainer.cpp \
     rsscript/rsllistwrapper.cpp \
     rsscript/rslobjconnections.cpp \

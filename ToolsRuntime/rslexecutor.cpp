@@ -11,6 +11,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "rsscript/rslstaticmodule.h"
 #include "toolsruntime.h"
+#include "toolver.h"
 #include <QUuid>
 #include <QDebug>
 #include <QTextCodec>
@@ -199,10 +200,32 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
 
     switch(mes)
     {
+    case IM_INITRSCOM:
+        rslInitRsCom();
+        qInfo(logRsl()) << "IM_INITRSCOM";
+        //((TAppObjData *)ptr)->obj = rslGetAppIntf();
+        break;
+    case IM_GET_APPOBJ:
+        ((TAppObjData *)ptr)->obj = rslGetAppIntf();
+        qInfo(logRsl()) << "IM_GET_APPOBJ: RCWHOST ="
+                        << ((TAppObjData *)ptr)->obj;
+        break;
+
+    case IM_GETHOSTINFO:
+    {
+        THostInfoData *data = (THostInfoData *)ptr;
+        data->useFdecimal  = true;
+        data->isGUI        = false;
+        data->toolsVersion = RSL_TOOLS_VERSION;
+
+        qInfo(logRsl()) << "IM_GETHOSTINFO";
+    }
+        break;
+
     case IM_BEGIN_PARSE:
         UserData->hrsl = RslGetCurrentInst();
         rslInstanceExecutors->insert(UserData->hrsl, UserData->m_pExecutor);
-        qInfo(logRsl()) << "RslPlayRepAction: HRSLINST =" << UserData->hrsl;
+        qInfo(logRsl()) << "IM_BEGIN_PARSE: HRSLINST =" << UserData->hrsl;
         break;
 
     case IM_DONE_INSTANCE:

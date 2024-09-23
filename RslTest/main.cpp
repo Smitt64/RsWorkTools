@@ -6,8 +6,11 @@
 #include <QDebug>
 #include <QStyle>
 
+#include <objbase.h>
+
 int main(int argc, char *argv[])
 {
+    CoInitialize(NULL);
     QApplication a(argc, argv);
 
     qDebug() << qApp->style();
