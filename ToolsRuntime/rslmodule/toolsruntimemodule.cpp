@@ -81,6 +81,13 @@ void ToolsRuntimeModule::Proc()
     addConstant("HighlighterSql", HighlighterSql);
     addConstant("HighlighterXml", HighlighterXml);
 
+    addConstant("Base64Encoding", QByteArray::Base64Encoding);
+    addConstant("Base64UrlEncoding", QByteArray::Base64UrlEncoding);
+    addConstant("KeepTrailingEquals", QByteArray::KeepTrailingEquals);
+    addConstant("OmitTrailingEquals", QByteArray::OmitTrailingEquals);
+    addConstant("IgnoreBase64DecodingErrors", QByteArray::IgnoreBase64DecodingErrors);
+    addConstant("AbortOnBase64DecodingErrors", QByteArray::AbortOnBase64DecodingErrors);
+
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
     RegisterObjList::inst()->AddObject<ErrorsModel>();

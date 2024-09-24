@@ -14,6 +14,9 @@ class RsToolsPackage(RsComponentBase):
             'RSScript.dll'
         ]
 
+        self.__filesToCopy = ['ToolsRuntimeProj/ToolsRuntime/installerfiles/fs32cm.dll',
+                              'ToolsRuntimeProj/ToolsRuntime/installerfiles/rsldbg.dll']
+
         self.DisplayName = 'Rs Tools Binaries'
         self.Description = 'Динамический инструментальный Runtime'
         self.Name = 'com.rs.tools.runtime'
@@ -22,3 +25,4 @@ class RsToolsPackage(RsComponentBase):
 
     def makeData(self, datadir):
         self.copyArray(self.__ToolsToCopy, self.__RsDllDir)
+        self.copyArray(self.__filesToCopy, self.__RsDllDir)

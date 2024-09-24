@@ -7,6 +7,7 @@ from installer.installer import InstallerPackageInfoBase
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
         self.__filesToCopy = ['RsWorkTools/ToolsRuntime/{}/ToolsRuntime.dll']
+        
         self.__syntaxhighlighter = ['RsWorkTools/ToolsRuntime/syntaxhighlighter/Default.json',
             'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Dark).json',
             'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Light).json']

@@ -34,13 +34,6 @@ void IoStaticModule::Proc()
     addConstant("IoNewOnly", QIODevice::NewOnly);
     addConstant("IoExistingOnly", QIODevice::ExistingOnly);
 
-    addConstant("Base64Encoding", QByteArray::Base64Encoding);
-    addConstant("Base64UrlEncoding", QByteArray::Base64UrlEncoding);
-    addConstant("KeepTrailingEquals", QByteArray::KeepTrailingEquals);
-    addConstant("OmitTrailingEquals", QByteArray::OmitTrailingEquals);
-    addConstant("IgnoreBase64DecodingErrors", QByteArray::IgnoreBase64DecodingErrors);
-    addConstant("AbortOnBase64DecodingErrors", QByteArray::AbortOnBase64DecodingErrors);
-
     addConstant("FieldAlignLeft", QTextStream::AlignLeft);
     addConstant("FieldAlignRight", QTextStream::AlignRight);
     addConstant("FieldAlignCenter", QTextStream::AlignCenter);
