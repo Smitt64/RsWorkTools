@@ -73,6 +73,7 @@ void RegisterObjList::loadStaticPlugins()
     auto AddDll = [&loaded, &d](const QString &dll)
     {
         QPluginLoader *plugin = new QPluginLoader(dll);
+        qInfo(logRsl()) << "Check dll as plugin:" << dll;
         if (!plugin->isLoaded() && !loaded.contains(QFileInfo(dll).fileName()) && plugin->load())
         {
             RslStaticModuleInterface *plugininterface = dynamic_cast<RslStaticModuleInterface*>(plugin->instance());
@@ -84,10 +85,16 @@ void RegisterObjList::loadStaticPlugins()
                 loaded.append(QFileInfo(dll).fileName());
             }
             else
+            {
+                qInfo(logRsl()) << "Check result false: not rsl plugin";
                 delete plugin;
         }
+        }
         else
+        {
+            qInfo(logRsl()) << "Check result false:" << plugin->errorString();
             delete plugin;
+        }
     };
 
     for (const QString &dll : dlls)
