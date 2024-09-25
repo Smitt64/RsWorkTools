@@ -6,11 +6,13 @@ from installer.installer import InstallerPackageInfoBase
 
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
-        self.__filesToCopy = ['RsWorkTools/ToolsRuntime/{}/ToolsRuntime.dll']
+        self.__filesToCopy = ['ToolsRuntimeProj/ToolsRuntime/{}/ToolsRuntime.dll']
         
-        self.__syntaxhighlighter = ['RsWorkTools/ToolsRuntime/syntaxhighlighter/Default.json',
-            'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Dark).json',
-            'RsWorkTools/ToolsRuntime/syntaxhighlighter/Visual Studio (Light).json']
+        self.__styles = ['ToolsRuntimeProj/WindowsModernStyle/{}/WindowsModernStyle.dll']
+        self.__syntaxhighlighter = []
+        #['RsWorkTools/ToolsRuntime/syntaxhighlighter/Default.json',
+        #    'ToolsRuntimeProj/ToolsRuntime/syntaxhighlighter/Visual Studio (Dark).json',
+        #    'ToolsRuntimeProj/ToolsRuntime/syntaxhighlighter/Visual Studio (Light).json']
         
         super(RsToolsRuntimePackage, self).__init__()
         
@@ -26,6 +28,7 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkLbrSourceDir()
         syntaxhighlighterdir = os.path.join(self.DataPath, 'syntaxhighlighter')
+        stylesdir = os.path.join(self.DataPath, 'styles')
 
         for cpfiletemplate in self.__filesToCopy:
             filetocopy = cpfiletemplate.format(ConfigObj.inst().getBinaryType())
@@ -37,6 +40,17 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
             os.mkdir(syntaxhighlighterdir)
         except OSError as exc:
             pass
+
+        try:
+            os.mkdir(stylesdir)
+        except OSError as exc:
+            pass
+
+        for style in self.__styles:
+            filetocopy = style.format(ConfigObj.inst().getBinaryType())
+            srcexefile = os.path.join(fmtdir, filetocopy)
+            dstexefile = os.path.join(self.DataPath, 'styles/' + os.path.basename(filetocopy))
+            copyfile(srcexefile, dstexefile)
 
         for syntaxhighlighter in self.__syntaxhighlighter:
             srcfile = os.path.join(fmtdir, syntaxhighlighter)
