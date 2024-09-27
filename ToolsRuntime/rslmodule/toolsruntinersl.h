@@ -53,6 +53,9 @@ public:
      * @return
      */
     Q_INVOKABLE int HighlighterByName(const QString &name);
+
+    Q_INVOKABLE QString toString(const QTime &time, const QString &format);
+    Q_INVOKABLE QString toString(const QDate &date, const QString &format);
 };
 
 #endif // TOOLSRUNTINERSL_H

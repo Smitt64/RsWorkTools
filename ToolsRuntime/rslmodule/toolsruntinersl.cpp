@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntinersl.h"
 #include "toolsruntime.h"
+#include <QTime>
 
 ToolsRuntime::ToolsRuntime(QObject *parent) :
     QObject(parent)
@@ -36,4 +37,14 @@ QString ToolsRuntime::FullFileNameFromDir(const QString &file)
 int ToolsRuntime::HighlighterByName(const QString &name)
 {
     return toolHighlighterByName(name);
+}
+
+QString ToolsRuntime::toString(const QTime &time, const QString &format)
+{
+    return time.toString(format);
+}
+
+QString ToolsRuntime::toString(const QDate &date, const QString &format)
+{
+    return date.toString(format);
 }
