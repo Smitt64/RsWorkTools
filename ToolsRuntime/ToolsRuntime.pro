@@ -63,6 +63,7 @@ SOURCES += \
     rsscript/rslobjconnections.cpp \
     rsscript/rslstaticmodule.cpp \
     rsscript/typeinfofunc.cpp \
+    spelling/spellchecker.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
@@ -118,6 +119,7 @@ HEADERS += \
     rsscript/rslobjconnections.h \
     rsscript/rslstaticmodule.h \
     rsscript/typeinfo_p.h \
+    spelling/spellchecker.h \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
@@ -150,15 +152,17 @@ RESOURCES += \
     res/iconlib.qrc \
     res/res.qrc
 
-release: LIBS += -L./rstools/lib/release
-debug: LIBS += -L./rstools/lib/debug
+release: LIBS += -L./rstools/lib/release -L./hunspell/lib/release
+debug: LIBS += -L./rstools/lib/debug -L./hunspell/lib/debug
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/release/ -lrsl_toolsruntime
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lrsl_toolsruntimed
 else:unix: LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/ -lrsl_toolsruntime
-LIBS += -lRSScript -lrsrtlwm -lrsldlmms
+
+LIBS += -lRSScript -lrsrtlwm -lrsldlmms -llibhunspell
 #LIBS += -lrsldlmms
 INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit
+INCLUDEPATH += $$PWD/hunspell/include
 
 #DEFINES += BUILD_DLM
 #INCLUDEPATH += D:/Build/Complect.19/Build/rstools/tools/h d:/Build/PgSQL_Main/tools/Build/panel/h d:/Build/PgSQL_Main/tools/Build/bedit/h

@@ -7,6 +7,7 @@
 #include "rsscript/rslibdynamicfuncs.h"
 #include "errordlg.h"
 #include "rslexecutor.h"
+#include "spelling/spellchecker.h"
 #include <errorsmodel.h>
 
 extern void toolConnect();
@@ -55,12 +56,35 @@ static void Rsl_toolFormatStr()
     SetReturnVal(format);
 }
 
+static void Rsl_spellGetDictionaryPath()
+{
+    SetReturnVal(spellGetDictionaryPath());
+}
+
+static void Rsl_spellGetCheckerForLanguage()
+{
+    enum
+    {
+        prm_language = 0,
+    };
+
+    SpellChecker *checker = nullptr;
+    if (GetFuncParamType(prm_language) != QVariant::String)
+        ThrowParamTypeError<QString>(prm_language);
+    
+    QString language = GetFuncParam(prm_language).toString();
+    spellGetCheckerForLanguage(language, &checker);
+
+    if (checker)
+        SetReturnVal(QVariant::fromValue<QObject*>(checker));
+}
 
 ToolsRuntimeModule::ToolsRuntimeModule() :
     RslStaticModule()
 {
     RegisterObjList::inst()->RegisterRslObject<ToolsRuntime>();
     RegisterObjList::inst()->RegisterRslObject<ErrorsModel>();
+    RegisterObjList::inst()->RegisterRslObject<SpellChecker>();
     RegisterObjList::inst()->RegisterRslObject<ErrorDlg>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
@@ -90,11 +114,15 @@ void ToolsRuntimeModule::Proc()
 
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
+    RegisterObjList::inst()->AddObject<SpellChecker>();
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
+    
     RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
     RegisterObjList::inst()->AddStdProc("toolConnect", toolConnect);
+    RegisterObjList::inst()->AddStdProc("spellGetDictionaryPath", Rsl_spellGetDictionaryPath);
+    RegisterObjList::inst()->AddStdProc("spellGetCheckerForLanguage", Rsl_spellGetCheckerForLanguage);
 
     RegisterRectRsl();
     RegisterSizeRsl();
