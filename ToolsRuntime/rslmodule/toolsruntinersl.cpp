@@ -48,3 +48,13 @@ QString ToolsRuntime::toString(const QDate &date, const QString &format)
 {
     return date.toString(format);
 }
+
+QStringList ToolsRuntime::split(const QString &str, const QString &sep)
+{
+    return str.split(sep);
+}
+
+QString ToolsRuntime::join(const QStringList &lst, const QString &separator)
+{
+    return lst.join(separator);
+}

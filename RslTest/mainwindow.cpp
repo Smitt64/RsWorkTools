@@ -8,6 +8,8 @@
 #include "toolsruntime.h"
 #include "optionsdlg/optionsdlg.h"
 #include "optionsdlg/jsonsettings.h"
+#include "spelling/spellcheckerdlg.h"
+#include "spelling/spellchecker.h"
 #include <optionsdlg/rsloptionspage.h>
 #include "codeeditor/codehighlighter.h"
 #include <QVariant>
@@ -86,6 +88,8 @@ MainWindow::MainWindow(QWidget *parent)
     doc->setWidget(listView);
     addDockWidget(Qt::BottomDockWidgetArea, doc, Qt::Horizontal);
 
+    ui->spellCheckerAction->setIcon(QIcon(":/img/CheckSpellingHS.png"));
+
     RegisterObjList::inst()->RegisterRslObject<TestObject>();
     RegisterObjList::inst()->RegisterRslObject<ChildObject>();
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
@@ -102,6 +106,15 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.addCommandsPage();
         dlg.addLogPage("RslTest");
         dlg.exec();
+    });
+
+    connect(ui->spellCheckerAction, &QAction::triggered, [=]()
+    {
+        SpellChecker *checker = nullptr;
+        spellGetCheckerForLanguage("ru", &checker);
+
+        SpellCheckerDlg dlg(checker, this);
+        dlg.checkWord("приивет");
     });
 
     ui->menu->insertAction(nullptr, exec);

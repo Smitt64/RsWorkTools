@@ -56,6 +56,9 @@ public:
 
     Q_INVOKABLE QString toString(const QTime &time, const QString &format);
     Q_INVOKABLE QString toString(const QDate &date, const QString &format);
+
+    Q_INVOKABLE QStringList split(const QString &str, const QString &sep);
+    Q_INVOKABLE QString join(const QStringList &lst, const QString &separator);
 };
 
 #endif // TOOLSRUNTINERSL_H

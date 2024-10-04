@@ -36,7 +36,7 @@
      <string>Меню</string>
     </property>
     <addaction name="actionOptions"/>
-    <addaction name="action_5"/>
+    <addaction name="spellCheckerAction"/>
     <addaction name="separator"/>
     <addaction name="action_7"/>
    </widget>
@@ -83,9 +83,9 @@
     <string>Тест опции</string>
    </property>
   </action>
-  <action name="action_5">
+  <action name="spellCheckerAction">
    <property name="text">
-    <string>Элемент</string>
+    <string>SpellCheckerDialog</string>
    </property>
   </action>
   <action name="action_7">

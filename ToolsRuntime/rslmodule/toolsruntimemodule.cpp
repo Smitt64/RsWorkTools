@@ -8,6 +8,7 @@
 #include "errordlg.h"
 #include "rslexecutor.h"
 #include "spelling/spellchecker.h"
+#include "spelling/spellcheckerdlg.h"
 #include <errorsmodel.h>
 
 extern void toolConnect();
@@ -85,6 +86,7 @@ ToolsRuntimeModule::ToolsRuntimeModule() :
     RegisterObjList::inst()->RegisterRslObject<ToolsRuntime>();
     RegisterObjList::inst()->RegisterRslObject<ErrorsModel>();
     RegisterObjList::inst()->RegisterRslObject<SpellChecker>();
+    RegisterObjList::inst()->RegisterRslObject<SpellCheckerDlg>();
     RegisterObjList::inst()->RegisterRslObject<ErrorDlg>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
@@ -105,6 +107,13 @@ void ToolsRuntimeModule::Proc()
     addConstant("HighlighterSql", HighlighterSql);
     addConstant("HighlighterXml", HighlighterXml);
 
+    addConstant("SpellAbortCheck", SpellCheckerDlg::AbortCheck);
+    addConstant("SpellAddToDict", SpellCheckerDlg::AddToDict);
+    addConstant("SpellIgnoreOnce", SpellCheckerDlg::IgnoreOnce);
+    addConstant("SpellIgnoreAll", SpellCheckerDlg::IgnoreAll);
+    addConstant("SpellReplaceOnce", SpellCheckerDlg::ReplaceOnce);
+    addConstant("SpellReplaceAll", SpellCheckerDlg::ReplaceAll);
+
     addConstant("Base64Encoding", QByteArray::Base64Encoding);
     addConstant("Base64UrlEncoding", QByteArray::Base64UrlEncoding);
     addConstant("KeepTrailingEquals", QByteArray::KeepTrailingEquals);
@@ -115,6 +124,7 @@ void ToolsRuntimeModule::Proc()
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
     RegisterObjList::inst()->AddObject<SpellChecker>();
+    RegisterObjList::inst()->AddObject<SpellCheckerDlg>();
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
