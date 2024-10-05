@@ -27,6 +27,7 @@ public:
         QByteArray dictFilePathBA = dictFile.toLocal8Bit();
         QByteArray affixFilePathBA = affixFile.toLocal8Bit();
 
+        m_UserDictionary = userDictionary;
         _encoding = QStringLiteral("ISO8859-15");
 
         QFile _affixFile(affixFile);
