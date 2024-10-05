@@ -1,4 +1,5 @@
 #include "spellcheckerdlg.h"
+#include "qdebug.h"
 #include "spelling/spellchecker.h"
 #include "ui_spellcheckerdlg.h"
 #include <QPushButton>
@@ -35,8 +36,7 @@ SpellCheckerDlg::SpellCheckerDlg(QObject *checker, QWidget *parent)
             setResult(AbortCheck);
 
         d->m_pChecker->addToUserWordlist(ui->lblUnknownWord->text());
-        setResult(AddToDict);
-        accept();
+        done(AddToDict);
     });
 
     connect(ui->btnReplaceOnce, &QPushButton::clicked, [=]()
@@ -44,8 +44,7 @@ SpellCheckerDlg::SpellCheckerDlg(QObject *checker, QWidget *parent)
         if (!d->m_pChecker)
             setResult(AbortCheck);
 
-        setResult(ReplaceOnce);
-        accept();
+        done(ReplaceOnce);
     });
 
     connect(ui->btnReplaceAll, &QPushButton::clicked, [=]()
@@ -53,8 +52,7 @@ SpellCheckerDlg::SpellCheckerDlg(QObject *checker, QWidget *parent)
         if (!d->m_pChecker)
             setResult(AbortCheck);
 
-        setResult(ReplaceAll);
-        accept();
+        done(ReplaceAll);
     });
 
     connect(ui->btnIgnoreOnce, &QPushButton::clicked, [=]()
@@ -62,8 +60,7 @@ SpellCheckerDlg::SpellCheckerDlg(QObject *checker, QWidget *parent)
         if (!d->m_pChecker)
             setResult(AbortCheck);
 
-        setResult(IgnoreOnce);
-        accept();
+        done(IgnoreOnce);
     });
 
     connect(ui->btnIgnoreAll, &QPushButton::clicked, [=]()
@@ -71,8 +68,7 @@ SpellCheckerDlg::SpellCheckerDlg(QObject *checker, QWidget *parent)
         if (!d->m_pChecker)
             setResult(AbortCheck);
 
-        setResult(IgnoreAll);
-        accept();
+        done(IgnoreAll);
     });
 }
 
@@ -80,6 +76,11 @@ SpellCheckerDlg::~SpellCheckerDlg()
 {
     delete d_ptr;
     delete ui;
+}
+
+QString SpellCheckerDlg::replacement() const
+{
+    return ui->ledtReplaceWith->text();
 }
 
 int SpellCheckerDlg::checkWord(const QString &word)

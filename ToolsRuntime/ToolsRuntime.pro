@@ -65,6 +65,7 @@ SOURCES += \
     rsscript/typeinfofunc.cpp \
     spelling/spellchecker.cpp \
     spelling/spellcheckerdlg.cpp \
+    spelling/spellstringsdlg.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
@@ -122,6 +123,7 @@ HEADERS += \
     rsscript/typeinfo_p.h \
     spelling/spellchecker.h \
     spelling/spellcheckerdlg.h \
+    spelling/spellstringsdlg.h \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
@@ -146,6 +148,7 @@ FORMS += \
     optionsdlg/rsloptionspage.ui \
     optionsdlg/styleoptionspage.ui \
     spelling/spellcheckerdlg.ui \
+    spelling/spellstringsdlg.ui \
     widgets/selectactiondlg.ui \
     widgets/stringlisteditor.ui
 

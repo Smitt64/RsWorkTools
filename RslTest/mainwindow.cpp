@@ -10,6 +10,7 @@
 #include "optionsdlg/jsonsettings.h"
 #include "spelling/spellcheckerdlg.h"
 #include "spelling/spellchecker.h"
+#include "spelling/spellstringsdlg.h"
 #include <optionsdlg/rsloptionspage.h>
 #include "codeeditor/codehighlighter.h"
 #include <QVariant>
@@ -113,8 +114,12 @@ MainWindow::MainWindow(QWidget *parent)
         SpellChecker *checker = nullptr;
         spellGetCheckerForLanguage("ru", &checker);
 
-        SpellCheckerDlg dlg(checker, this);
-        dlg.checkWord("приивет");
+        //SpellCheckerDlg dlg(checker, this);
+        //dlg.checkWord("приивет");
+        SpellStringsDlg dlg(checker, this);
+        dlg.appendString("Привет миир");
+        dlg.appendString("тесст ощибка");
+        dlg.exec();
     });
 
     ui->menu->insertAction(nullptr, exec);

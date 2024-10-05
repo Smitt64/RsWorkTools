@@ -13,8 +13,9 @@ class SpellCheckerDlgPrivate;
 class TOOLSRUNTIME_EXPORT SpellCheckerDlg : public QDialog
 {
     Q_OBJECT
+    Q_PROPERTY(QString replacement READ replacement CONSTANT)
 public:
-    enum
+    enum SpellCheckAction
     {
         AbortCheck = -1,
         AddToDict,
@@ -28,6 +29,7 @@ public:
     ~SpellCheckerDlg();
 
     Q_INVOKABLE int checkWord(const QString &word);
+    QString replacement() const;
 
 private:
     Ui::SpellCheckerDlg *ui;
