@@ -39,6 +39,7 @@ SOURCES += \
     rslmodule/io/iodevice.cpp \
     rslmodule/io/iofile.cpp \
     rslmodule/io/iotextstream.cpp \
+    rslmodule/io/temporaryfile.cpp \
     rslmodule/iostaticmodule.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
@@ -102,6 +103,7 @@ HEADERS += \
     rslmodule/io/iodevice.h \
     rslmodule/io/iofile.h \
     rslmodule/io/iotextstream.h \
+    rslmodule/io/temporaryfile.h \
     rslmodule/iostaticmodule.h \
     rslmodule/regexp/regexp.h \
     rslmodule/regexpmodule.h \

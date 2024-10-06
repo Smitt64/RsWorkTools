@@ -28,6 +28,7 @@ public:
     Q_INVOKABLE bool rename(const QString &newName);
 
 protected:
+    IoFile(QFile *file, QObject *parent = nullptr);
     QFile *file() const;
     QFile *file();
 };

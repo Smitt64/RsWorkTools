@@ -57,8 +57,16 @@ public:
     QIODevice *device();
     QIODevice *device() const;
 
+signals:
+    void aboutToClose();
+    void bytesWritten(qint64 bytes);
+    void channelBytesWritten(int channel, qint64 bytes);
+    void channelReadyRead(int channel);
+    void readChannelFinished();
+    void readyRead();
+
 protected:
-    void setIoDevice(QIODevice *device);
+    virtual void setIoDevice(QIODevice *device);
 
 private:
     QScopedPointer<QIODevice> ioDevice;

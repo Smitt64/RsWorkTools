@@ -8,7 +8,6 @@ IoDevice::IoDevice(QObject *parent)
 
 IoDevice::~IoDevice()
 {
-
 }
 
 bool IoDevice::isOpen() const
@@ -124,6 +123,13 @@ QIODevice *IoDevice::device() const
 void IoDevice::setIoDevice(QIODevice *device)
 {
     ioDevice.reset(device);
+
+    connect(ioDevice.data(), &QIODevice::aboutToClose, this, &IoDevice::aboutToClose);
+    connect(ioDevice.data(), &QIODevice::bytesWritten, this, &IoDevice::bytesWritten);
+    connect(ioDevice.data(), &QIODevice::channelBytesWritten, this, &IoDevice::channelBytesWritten);
+    connect(ioDevice.data(), &QIODevice::channelReadyRead, this, &IoDevice::channelReadyRead);
+    connect(ioDevice.data(), &QIODevice::readChannelFinished, this, &IoDevice::readChannelFinished);
+    connect(ioDevice.data(), &QIODevice::readyRead, this, &IoDevice::readyRead);
 }
 
 QByteArray IoDevice::peek(qint64 maxlen)

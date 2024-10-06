@@ -13,6 +13,12 @@ IoFile::IoFile(const QString &filename, QObject *parent)
     setIoDevice(new QFile(filename));
 }
 
+IoFile::IoFile(QFile *file, QObject *parent)
+    : IoDevice{parent}
+{
+    setIoDevice(file);
+}
+
 QFile *IoFile::file() const
 {
     return dynamic_cast<QFile*>(device());

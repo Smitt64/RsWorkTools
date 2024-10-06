@@ -5,6 +5,7 @@
 #include "rslmodule/io/iofile.h"
 #include "rslmodule/io/iobuffer.h"
 #include "rslmodule/io/iotextstream.h"
+#include "rslmodule/io/temporaryfile.h"
 #include <QIODevice>
 #include <QTextStream>
 
@@ -14,6 +15,7 @@ IoStaticModule::IoStaticModule()
     RegisterObjList::inst()->RegisterRslObject<IoFile>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<IoBuffer>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<IoTextStream>(GenInfoUseParentProps | GenInfoUseParentMeths);
+    RegisterObjList::inst()->RegisterRslObject<TemporaryFile>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
 void IoStaticModule::Init()
@@ -53,6 +55,7 @@ void IoStaticModule::Proc()
     RegisterObjList::inst()->AddObject<IoFile>();
     RegisterObjList::inst()->AddObject<IoBuffer>();
     RegisterObjList::inst()->AddObject<IoTextStream>();
+    RegisterObjList::inst()->AddObject<TemporaryFile>();
     //RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     //RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
 }
