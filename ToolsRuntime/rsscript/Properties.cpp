@@ -240,7 +240,11 @@ int GenObjSetId(TGenObject *obj, long id, VALUE *val)
     if (!property.isWritable())
         return 1;
 
-    QVariant var = SetFromRslValue(val);
+    bool isStringList = false;
+    if (property.type() == QVariant::StringList)
+        isStringList = true;
+
+    QVariant var = SetFromRslValue(val, isStringList);
     if (!var.isValid())
         return -1;
 
@@ -316,7 +320,8 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
         break;
     case QVariant::LongLong:
     case QVariant::ULongLong:
-        result = CHECK_TYPE(V_BIGINT);
+        if (CHECK_TYPE(V_BIGINT) || CHECK_TYPE(V_INTEGER))
+            result = true;
         break;
     case QVariant::Double:
         result = CHECK_TYPE(V_DOUBLE);
@@ -390,7 +395,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     {
     case QVariant::String:
         Setter(V_STRING, codec->fromUnicode(value.toString()).data());
-        //ValueSet(val, V_STRING, codec->fromUnicode(value.toString()).data());
         break;
     case QVariant::Int:
     case QVariant::UInt:
@@ -398,7 +402,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QMetaType::UShort:
     {
         long v = value.toInt();
-        //ValueSet(val, V_INTEGER, &v);
         Setter(V_INTEGER, &v);
     }
         break;
@@ -406,7 +409,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QVariant::ULongLong:
     {
         qint64 v = value.value<qint64>();
-        //ValueSet(val, V_BIGINT, &v);
         Setter(V_BIGINT, &v);
     }
         break;
@@ -414,7 +416,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QVariant::Double:
     {
         qreal v = value.value<qreal>();
-        //ValueSet(val, V_DOUBLE, &v);
         Setter(V_DOUBLE, &v);
     }
         break;
@@ -426,7 +427,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         rsldt.day = dt.day();
         rsldt.mon = dt.month();
         rsldt.year = dt.year();
-        //ValueSet(val, V_DATE, &rsldt);
         Setter(V_DATE, &rsldt);
     }
         break;
@@ -439,9 +439,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         rsldt.hour = dt.hour();
         rsldt.min = dt.minute();
         rsldt.sec = dt.second();
-
-        //ValueInit(val, V_TIME);
-        //ValueSet(val, V_TIME, &rsldt);
         Setter(V_TIME, &rsldt);
     }
         break;
@@ -449,7 +446,6 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     case QVariant::Bool:
     {
         bool b = value.toBool();
-        //ValueSet(val, V_BOOL, &b);
         Setter(V_BOOL, &b);
     }
         break;
@@ -534,8 +530,14 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
 
             if (info)
             {
+                RegisterInfoBase::QObjectRslOwner owner = RegisterInfoBase::CppOwner;
+                QVariant owner_prop = obj->property(OBJECT_PROP_OWNER);
+
+                if (owner_prop.isValid())
+                    owner = (RegisterInfoBase::QObjectRslOwner)owner_prop.toInt();
+
                 TGenObject *Child = nullptr;
-                info->Create((void**)&Child, obj, RegisterInfoBase::CppOwner);
+                info->Create((void**)&Child, obj, owner);
                 Setter(V_GENOBJ, P_GOBJ(Child));
             }
         }

@@ -63,6 +63,7 @@ public:
     Q_INVOKABLE void reset();
 
     Q_INVOKABLE void write(const QString &text);
+    Q_INVOKABLE void writeln(const QString &text);
     Q_INVOKABLE void write(const int &value);
     Q_INVOKABLE void write(const float &value);
     Q_INVOKABLE void write(const double &value);

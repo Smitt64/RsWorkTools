@@ -17,12 +17,14 @@
 #include <codeeditor/codehighlighter.h>
 #include <codeeditor/codeeditor.h>
 #include <functional>
+#include <QProcess>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
 Q_LOGGING_CATEGORY(logSettings, "Settings")
+Q_LOGGING_CATEGORY(logProcess, "Process")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
@@ -34,6 +36,7 @@ static std::map<QString, LoggingCategoryRef> InitCategoryList()
     _map.insert(LoggingCategoryPair("HighlighterStyle", std::cref(logHighlighter())));
     _map.insert(LoggingCategoryPair("Rsl", std::cref(logRsl())));
     _map.insert(LoggingCategoryPair("Sql", std::cref(logSql())));
+    _map.insert(LoggingCategoryPair("Process", std::cref(logProcess())));
     return _map;
 }
 
@@ -381,4 +384,114 @@ int toolHighlighterByName(const QString &name)
 void toolMakeSqlDatabaseObj(QSqlDatabase &db, QObject **obj)
 {
     *obj = new SqlDatabase(db);
+}
+
+QString toolGetProcessErrorText(const QProcess::ProcessError &error)
+{
+    QString errText;
+    switch(error)
+    {
+    case QProcess::FailedToStart:
+        errText = "The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program";
+        break;
+    case QProcess::Crashed:
+        errText = "The process crashed some time after starting successfully";
+        break;
+    case QProcess::Timedout:
+        errText = "The process timedout";
+        break;
+    case QProcess::WriteError:
+        errText = "An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel";
+        break;
+    case QProcess::ReadError:
+        errText = "An error occurred when attempting to read from the process. For example, the process may not be running";
+        break;
+    case QProcess::UnknownError:
+        errText = "An unknown error occurred";
+        break;
+    }
+
+    return errText;
+}
+
+QString toolProcessStateText(qint16 State)
+{
+    QString result;
+    switch(State)
+    {
+    case QProcess::Starting:
+        result = "The process is starting, but the program has not yet been invoked.";
+        break;
+    case QProcess::Running:
+        result = "The process is running and is ready for reading and writing.";
+        break;
+    default:
+        result = "The process is not running.";
+    }
+
+    return result;
+}
+
+QString toolProcessExitStatusText(qint16 State)
+{
+    QString result;
+    switch(State)
+    {
+    case QProcess::CrashExit:
+        result = "The process crashed.";
+        break;
+    default:
+        result = "The process exited normally.";
+    }
+
+    return result;
+}
+
+int toolStartProcess(QProcess *exe, const QString &program,
+                         const QStringList& arguments,
+                         bool waitForFinished,
+                         bool waitForStarted,
+                         int timeout,
+                         bool waitForReadyRead)
+{
+    int stat = 0;
+    qCInfo(logProcess()) << "Process: " << exe;
+    qCInfo(logProcess()) << "Executable path:" << program;
+    qCInfo(logProcess()) << "Working directory:" << exe->workingDirectory();
+    qCInfo(logProcess()) << "Arguments" << arguments;
+
+    QObject::connect(exe, &QProcess::stateChanged, [&exe](QProcess::ProcessState newState)
+                     {
+                         qCInfo(logProcess()) << QString("Process state changed to: %1 (%2)")
+                         .arg(newState).arg(toolProcessStateText(newState));
+                     });
+    QObject::connect(exe, &QProcess::errorOccurred, [&exe,&stat](QProcess::ProcessError error)
+                     {
+                         qCInfo(logProcess()) << QString("Process error occurred: %1 (%2)")
+                         .arg(error).arg(toolGetProcessErrorText(error));
+                         stat = -1;
+                     });
+    exe->start(program, arguments);
+
+    if (waitForStarted)
+        exe->waitForStarted();
+
+    if (waitForReadyRead)
+        exe->waitForReadyRead();
+
+    if (waitForFinished)
+    {
+        exe->waitForFinished(timeout);
+
+        if (!stat)
+        {
+            stat = exe->exitCode();
+            qCInfo(logProcess()) << "Process exit code: " << stat;
+        }
+
+        int status= exe->exitStatus();
+        qCInfo(logProcess()) << QString("Process exit status: %1 (%2)").arg(status).arg(toolProcessExitStatusText(status));
+    }
+
+    return stat;
 }

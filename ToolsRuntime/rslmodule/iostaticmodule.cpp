@@ -6,8 +6,62 @@
 #include "rslmodule/io/iobuffer.h"
 #include "rslmodule/io/iotextstream.h"
 #include "rslmodule/io/temporaryfile.h"
+#include "rslmodule/io/process.h"
+#include "toolsruntime.h"
 #include <QIODevice>
 #include <QTextStream>
+
+static void Rsl_toolStartProcess()
+{
+    enum
+    {
+        prm_exe = 0,
+        prm_program,
+        prm_arguments,
+        prm_waitForFinished,
+        prm_waitForStarted,
+        prm_timeout,
+        prm_waitForReadyRead
+    };
+
+    bool waitForFinished = false;
+    bool waitForStarted = false;
+    bool waitForReadyRead = false;
+    int timeout = 30000;
+
+    Process *proc = GetFuncParam<Process*>(prm_exe);
+    if (!proc)
+        ThrowParamTypeError<Process>(prm_exe);
+
+    if (GetFuncParamType(prm_program) != QVariant::String)
+        ThrowParamTypeError<QString>(prm_program);
+
+    if (GetFuncParamType(prm_arguments) != QVariant::StringList)
+        ThrowParamTypeError<QStringList>(prm_arguments);
+
+    if (GetFuncParamType(prm_waitForFinished) == QVariant::Bool)
+        waitForFinished = GetFuncParam(prm_waitForFinished).toBool();
+
+    if (GetFuncParamType(prm_waitForStarted) == QVariant::Bool)
+        waitForStarted = GetFuncParam(prm_waitForStarted).toBool();
+
+    if (GetFuncParamType(prm_waitForReadyRead) == QVariant::Bool)
+        waitForReadyRead = GetFuncParam(prm_waitForReadyRead).toBool();
+
+    if (GetFuncParamType(prm_timeout) == QVariant::Int)
+        timeout = GetFuncParam(prm_timeout).toBool();
+
+
+    QString pattern = GetFuncParam(0).toString();
+    QString str = GetFuncParam(1).toString();
+    int pos = GetFuncParam(2).toInt();
+
+    QStringList lst = GetFuncParam(prm_arguments, true).toStringList();
+    int result = toolStartProcess(proc->proc(), GetFuncParam(prm_program).toString(),
+        lst, waitForFinished, waitForStarted, timeout, waitForReadyRead);
+
+    SetReturnVal(result);
+}
 
 IoStaticModule::IoStaticModule()
 {
@@ -16,6 +70,10 @@ IoStaticModule::IoStaticModule()
     RegisterObjList::inst()->RegisterRslObject<IoBuffer>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<IoTextStream>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<TemporaryFile>(GenInfoUseParentProps | GenInfoUseParentMeths);
+    RegisterObjList::inst()->RegisterRslObject<Process>(GenInfoUseParentProps | GenInfoUseParentMeths);
+
+    RegisterObjList::inst()->RegisterRslObject<ProcessEnvironment>();
+    RegisterObjList::inst()->RegisterRslObject<TemporaryDir>();
 }
 
 void IoStaticModule::Init()
@@ -35,6 +93,9 @@ void IoStaticModule::Proc()
     addConstant("IoUnbuffered", QIODevice::Unbuffered);
     addConstant("IoNewOnly", QIODevice::NewOnly);
     addConstant("IoExistingOnly", QIODevice::ExistingOnly);
+
+    addConstant("StandardOutput", QProcess::StandardOutput);
+    addConstant("StandardError", QProcess::StandardError);
 
     addConstant("FieldAlignLeft", QTextStream::AlignLeft);
     addConstant("FieldAlignRight", QTextStream::AlignRight);
@@ -56,6 +117,10 @@ void IoStaticModule::Proc()
     RegisterObjList::inst()->AddObject<IoBuffer>();
     RegisterObjList::inst()->AddObject<IoTextStream>();
     RegisterObjList::inst()->AddObject<TemporaryFile>();
+    RegisterObjList::inst()->AddObject<TemporaryDir>();
+    RegisterObjList::inst()->AddObject<ProcessEnvironment>();
+    RegisterObjList::inst()->AddObject<Process>();
     //RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     //RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
+    RegisterObjList::inst()->AddStdProc("toolStartProcess", Rsl_toolStartProcess);
 }

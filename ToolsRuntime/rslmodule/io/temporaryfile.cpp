@@ -1,5 +1,6 @@
 #include "temporaryfile.h"
 #include <QTemporaryFile>
+#include <QTemporaryDir>
 
 TemporaryFile::TemporaryFile(QObject *parent)
     : IoFile{new QTemporaryFile(), parent}
@@ -51,4 +52,58 @@ void TemporaryFile::setAutoRemove(bool b)
 bool TemporaryFile::open()
 {
     return tmpfile()->open();
+}
+
+// -----------------------------------------------------------------
+
+TemporaryDir::TemporaryDir(const QString &templatePath, QObject *parent)
+    : QObject{parent}
+{
+    dir.reset(new QTemporaryDir(templatePath));
+}
+
+TemporaryDir::TemporaryDir(QObject *parent)
+    : QObject{parent}
+{
+    dir.reset(new QTemporaryDir());
+}
+
+TemporaryDir::~TemporaryDir()
+{
+
+}
+
+bool TemporaryDir::autoRemove() const
+{
+    return dir->autoRemove();
+}
+
+void TemporaryDir::setAutoRemove(bool b)
+{
+    dir->setAutoRemove(b);
+}
+
+QString TemporaryDir::path() const
+{
+    return dir->path();
+}
+
+QString TemporaryDir::errorString() const
+{
+    return dir->errorString();
+}
+
+bool TemporaryDir::isValid() const
+{
+    return dir->isValid();
+}
+
+bool TemporaryDir::remove()
+{
+    return dir->remove();
+}
+
+QString TemporaryDir::filePath(const QString &fileName) const
+{
+    return dir->filePath(fileName);
 }

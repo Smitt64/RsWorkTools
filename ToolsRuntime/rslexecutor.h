@@ -65,6 +65,7 @@ QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id, bool isStringListProp =
 bool TOOLSRUNTIME_EXPORT IsFuncParamQtObject(const int &id);
 int TOOLSRUNTIME_EXPORT GetFuncParamObjOwner(const int &id);
 void TOOLSRUNTIME_EXPORT SetFuncParamObjOwner(const int &id, const int &owner);
+void TOOLSRUNTIME_EXPORT SetObjectOwnerProp(QObject *obj, const int &owner);
 
 int TOOLSRUNTIME_EXPORT GetFuncParamCount();
 void TOOLSRUNTIME_EXPORT SetFuncParam(const int &id, const QVariant &value);

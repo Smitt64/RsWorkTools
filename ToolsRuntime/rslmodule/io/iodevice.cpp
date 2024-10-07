@@ -1,5 +1,6 @@
 #include "iodevice.h"
 #include <QIODevice>
+#include <QDebug>
 
 IoDevice::IoDevice(QObject *parent)
     : QObject{parent}
@@ -139,6 +140,7 @@ QByteArray IoDevice::peek(qint64 maxlen)
 
 QByteArray IoDevice::read(qint64 maxlen)
 {
+    qDebug() << "IoDevice::read: " << maxlen;
     return ioDevice->read(maxlen);
 }
 

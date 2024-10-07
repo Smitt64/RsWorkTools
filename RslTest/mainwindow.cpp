@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     pOutput->setReadOnly(true);
     pEditor->setPlainText(toolReadTextFileContent(macro, "IBM 866"));
 
-    QTabWidget *pContainer = new QTabWidget(this);
+    pContainer = new QTabWidget(this);
     pContainer->addTab(pEditor, tr("Макрос"));
     pContainer->addTab(pOutput, tr("Вывод"));
     pContainer->setDocumentMode(true);
@@ -171,6 +171,7 @@ void MainWindow::on_pushButton_clicked()
         //qDebug() << result;
     };*/
 
+    pContainer->setCurrentIndex(1);
     pOutput->clear();
     connect(&exec, &RslExecutor::WriteOut, [=](const QString &str)
     {

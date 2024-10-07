@@ -9,12 +9,14 @@
 
 class QSqlQuery;
 class QSqlDatabase;
+class QProcess;
 
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logRsl);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logSql)
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logSettings)
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logProcess)
 
 TOOLSRUNTIME_EXPORT void toolMakeSqlDatabaseObj(QSqlDatabase &db, QObject **obj);
 
@@ -38,5 +40,13 @@ TOOLSRUNTIME_EXPORT int toolExecuteQuery(QSqlQuery *query, QString *err = Q_NULL
 TOOLSRUNTIME_EXPORT int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code);
 
 TOOLSRUNTIME_EXPORT int toolHighlighterByName(const QString &name);
+
+
+TOOLSRUNTIME_EXPORT int toolStartProcess(QProcess *exe, const QString &program,
+                                             const QStringList& arguments,
+                                             bool waitForFinished = false,
+                                             bool waitForStarted = false,
+                                             int timeout = 30000,
+                                             bool waitForReadyRead = false);
 
 #endif // TOOLSRUNTIME_H

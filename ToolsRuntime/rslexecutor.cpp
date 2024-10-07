@@ -212,13 +212,17 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         break;
 
     case IM_BEGIN_PARSE:
-        UserData->hrsl = RslGetCurrentInst();
-        rslInstanceExecutors->insert(UserData->hrsl, UserData->m_pExecutor);
-        qInfo(logRsl()) << "IM_BEGIN_PARSE: HRSLINST =" << UserData->hrsl;
+        if (UserData->m_pExecutor)
+        {
+            UserData->hrsl = RslGetCurrentInst();
+            rslInstanceExecutors->insert(UserData->hrsl, UserData->m_pExecutor);
+            qInfo(logRsl()) << "IM_BEGIN_PARSE: HRSLINST =" << UserData->hrsl;
+        }
         break;
 
     case IM_DONE_INSTANCE:
-        (void)rslInstanceExecutors->take(UserData->hrsl);
+        if (UserData->m_pExecutor)
+            (void)rslInstanceExecutors->take(UserData->hrsl);
         break;
 
     case IM_DYNAMIC_MODULE:
@@ -247,15 +251,19 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         break;
     case IM_ERROR:
     {
-        ERRINFO *error = (ERRINFO*)ptr;
-        QString mes = FormatErrorMsg(error);
-        UserData->m_pExecutor->onError(error->code, {mes});
+        if (UserData->m_pExecutor)
+        {
+            ERRINFO *error = (ERRINFO*)ptr;
+            QString mes = FormatErrorMsg(error);
+            UserData->m_pExecutor->onError(error->code, {mes});
+        }
     }
         break;
     case IM_MSGBOX:
         break;
     case IM_BEGIN_EXEC:
-        UserData->m_pExecutor->onBeginExec((char*)ptr);
+        if (UserData->m_pExecutor)
+            UserData->m_pExecutor->onBeginExec((char*)ptr);
         break;
     case IM_MODULE_OPEN:
         RslOnlyDeclMode();
@@ -430,6 +438,11 @@ int GetFuncParamObjOwner(const int &id)
     return obj->owner;
 }
 
+void SetObjectOwnerProp(QObject *obj, const int &owner)
+{
+    obj->setProperty(OBJECT_PROP_OWNER, owner);
+}
+
 void SetFuncParamObjOwner(const int &id, const int &owner)
 {
     if (!IsFuncParamQtObject(id))
@@ -499,7 +512,7 @@ RslExecutor *rslExecutorForRslInstance(Qt::HANDLE hrslinst)
 bool IsMacroExistsFunction(const QString &filename, const QString &name)
 {
     bool result = false;
-    STD_USERDATA user;
+    TMacroUserData user;
     memset(&user, 0, sizeof(STD_USERDATA));
 
     QScopedPointer<QTemporaryFile> report(new QTemporaryFile());

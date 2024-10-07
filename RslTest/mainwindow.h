@@ -122,6 +122,7 @@ private:
     TestObject *obj;
     QSignalSpy *spy;
     CodeEditor *pEditor, *pOutput;
+    QTabWidget *pContainer;
     QStringListModel m_Errors;
 };
 #endif // MAINWINDOW_H

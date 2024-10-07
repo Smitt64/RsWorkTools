@@ -29,6 +29,7 @@
 #include <QToolBar>
 #include <QWizardPage>
 #include <QPushButton>
+#include <QPlainTextEdit>
 
 #include <QFileInfo>
 #include <QDir>
@@ -118,6 +119,87 @@ static void Rsl_uiFindChild()
     SetReturnVal(QVariant::fromValue<QObject*>(widget));
 }
 
+static void Rsl_uiGetDialogButton()
+{
+    enum
+    {
+        prm_buttonbox = 0,
+        prm_button
+    };
+
+    QDialogButtonBox *box = GetFuncParam<QDialogButtonBox*>(prm_buttonbox);
+
+    if (!box)
+        ThrowParamTypeError<QDialogButtonBox>(prm_buttonbox);
+
+    if (GetFuncParamType(prm_button) != QVariant::Int)
+        ThrowParamTypeError(prm_button);
+
+    QPushButton *btn = box->button((QDialogButtonBox::StandardButton)GetFuncParam(prm_button).toInt());
+
+    if (btn)
+        SetReturnVal(QVariant::fromValue<QObject*>(btn));
+}
+
+static void Rsl_uiDialogButtonAdd()
+{
+    enum
+    {
+        prm_buttonbox = 0,
+        prm_buttontext,
+        prm_buttonrole
+    };
+
+    QDialogButtonBox *box = GetFuncParam<QDialogButtonBox*>(prm_buttonbox);
+
+    if (!box)
+        ThrowParamTypeError<QDialogButtonBox>(prm_buttonbox);
+
+    if (GetFuncParamType(prm_buttontext) != QVariant::String)
+        ThrowParamTypeError(prm_buttontext);
+
+    if (GetFuncParamType(prm_buttonrole) != QVariant::Int)
+        ThrowParamTypeError(prm_buttonrole);
+
+    int role = GetFuncParam(prm_buttonrole).toInt();
+    QPushButton *btn = box->addButton(GetFuncParam(prm_buttontext).toString(), (QDialogButtonBox::ButtonRole)role);
+    SetReturnVal(QVariant::fromValue<QObject*>(btn));
+}
+
+static void Rsl_uiTextEditAppend()
+{
+    enum
+    {
+        prm_editor = 0,
+        prm_text,
+    };
+
+    if (GetFuncParamType(prm_text) != QVariant::String)
+        ThrowParamTypeError(prm_text);
+
+    QPlainTextEdit *plainText = GetFuncParam<QPlainTextEdit*>(prm_editor);
+
+    if (plainText)
+    {
+        plainText->moveCursor (QTextCursor::End);
+        plainText->insertPlainText(GetFuncParam(prm_text).toString());
+        plainText->moveCursor (QTextCursor::End);
+    }
+    else
+    {
+        QTextEdit *edit = GetFuncParam<QTextEdit*>(prm_editor);
+
+        if (edit)
+        {
+            plainText->moveCursor (QTextCursor::End);
+            plainText->insertPlainText(GetFuncParam(prm_text).toString());
+            plainText->moveCursor (QTextCursor::End);
+        }
+        else
+            ThrowParamTypeError(prm_editor);
+    }
+}
+
 UiStaticModule::UiStaticModule() :
     RslStaticModule()
 {
@@ -148,6 +230,7 @@ UiStaticModule::UiStaticModule() :
     RegisterObjList::inst()->RegisterRslObject<QTabWidget>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<QToolBar>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<QWizardPage>(GenInfoUseParentProps | GenInfoUseParentMeths);
+    RegisterObjList::inst()->RegisterRslObject<QPlainTextEdit>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
 void UiStaticModule::Init()
@@ -157,8 +240,22 @@ void UiStaticModule::Init()
 
 void UiStaticModule::Proc()
 {
+    addConstant("ButtonInvalidRole", QDialogButtonBox::InvalidRole);
+    addConstant("ButtonAcceptRole", QDialogButtonBox::AcceptRole);
+    addConstant("ButtonRejectRole", QDialogButtonBox::RejectRole);
+    addConstant("ButtonDestructiveRole", QDialogButtonBox::DestructiveRole);
+    addConstant("ButtonActionRole", QDialogButtonBox::ActionRole);
+    addConstant("ButtonHelpRole", QDialogButtonBox::HelpRole);
+    addConstant("ButtonYesRole", QDialogButtonBox::YesRole);
+    addConstant("ButtonNoRole", QDialogButtonBox::NoRole);
+    addConstant("ButtonResetRole", QDialogButtonBox::ResetRole);
+    addConstant("ButtonApplyRole", QDialogButtonBox::ApplyRole);
+
     RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
+    RegisterObjList::inst()->AddStdProc("uiGetDialogButton", Rsl_uiGetDialogButton);
+    RegisterObjList::inst()->AddStdProc("uiDialogButtonAdd", Rsl_uiDialogButtonAdd);
+    RegisterObjList::inst()->AddStdProc("uiTextEditAppend", Rsl_uiTextEditAppend);
 
     RegisterObjList::inst()->AddObject<QPushButton>(false);
     RegisterObjList::inst()->AddObject<QAbstractButton>(false);
@@ -187,9 +284,5 @@ void UiStaticModule::Proc()
     RegisterObjList::inst()->AddObject<QTabWidget>(false);
     RegisterObjList::inst()->AddObject<QToolBar>(false);
     RegisterObjList::inst()->AddObject<QWizardPage>(false);
-
-    /*RegisterObjList::inst()->AddObject<SqlQuery>();
-    RegisterObjList::inst()->AddObject<SqlDatabase>();
-
-    RegisterObjList::inst()->AddStdProc("toolExecuteQuery", Rsl_toolExecuteQuery);*/
+    RegisterObjList::inst()->AddObject<QPlainTextEdit>(false);
 }

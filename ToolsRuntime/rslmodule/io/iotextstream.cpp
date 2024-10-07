@@ -155,6 +155,11 @@ void IoTextStream::write(const QString &text)
     (*stream) << text;
 }
 
+void IoTextStream::writeln(const QString &text)
+{
+    (*stream) << text << Qt::endl;
+}
+
 void IoTextStream::write(const int &value)
 {
     (*stream) << value;

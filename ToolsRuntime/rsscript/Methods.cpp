@@ -192,7 +192,11 @@ void *CallMethod(const QMetaObject *meta,
             if (!CnvType(&NewVal, V_BIGINT) && !CnvType(&NewVal, V_INTEGER))
                 iError(IER_RUNTIME, "Param type missmatch, required integer");
 
-            (*reinterpret_cast<int*>(*param)) = NewVal.value.intval;
+            if (NewVal.v_type == V_BIGINT)
+                (*reinterpret_cast<qint64*>(*param)) = NewVal.value.bigint;
+
+            if (NewVal.v_type == V_INTEGER)
+                (*reinterpret_cast<qint64*>(*param)) = NewVal.value.intval;
         }
         else if (Type == QMetaType::Double)
         {

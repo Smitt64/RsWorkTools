@@ -8,6 +8,8 @@
 #include "rslstaticmodule.h"
 #include "ToolsRuntime_global.h"
 
+#define OBJECT_PROP_OWNER "RSL_OWNER"
+
 typedef void (*RslFuncProc)(void);
 
 class RslStaticModule;
