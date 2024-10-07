@@ -1,4 +1,4 @@
-import os
+import os, glob
 from shutil import copyfile
 from datetime import date
 from config.configobj import ConfigObj
@@ -6,7 +6,8 @@ from installer.installer import InstallerPackageInfoBase
 
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
-        self.__filesToCopy = ['ToolsRuntimeProj/ToolsRuntime/{}/ToolsRuntime.dll']
+        self.__filesToCopy = ['ToolsRuntimeProj/ToolsRuntime/{}/ToolsRuntime.dll',
+                              'ToolsRuntimeProj/ToolsRuntime/hunspell/lib/{}/libhunspell.dll']
         
         self.__styles = ['ToolsRuntimeProj/WindowsModernStyle/{}/WindowsModernStyle.dll']
         self.__syntaxhighlighter = []
@@ -29,6 +30,7 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
         fmtdir = ConfigObj.inst().getWorkLbrSourceDir()
         syntaxhighlighterdir = os.path.join(self.DataPath, 'syntaxhighlighter')
         stylesdir = os.path.join(self.DataPath, 'styles')
+        dictionariesdir = os.path.join(self.DataPath, 'dictionaries')
 
         for cpfiletemplate in self.__filesToCopy:
             filetocopy = cpfiletemplate.format(ConfigObj.inst().getBinaryType())
@@ -46,6 +48,11 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
         except OSError as exc:
             pass
 
+        try:
+            os.mkdir(dictionariesdir)
+        except OSError as exc:
+            pass
+
         for style in self.__styles:
             filetocopy = style.format(ConfigObj.inst().getBinaryType())
             srcexefile = os.path.join(fmtdir, filetocopy)
@@ -55,6 +62,12 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
         for syntaxhighlighter in self.__syntaxhighlighter:
             srcfile = os.path.join(fmtdir, syntaxhighlighter)
             dstfile = os.path.join(syntaxhighlighterdir, os.path.basename(syntaxhighlighter))
+            copyfile(srcfile, dstfile)
+
+        src_dictionaries = os.path.join(fmtdir, 'ToolsRuntimeProj/ToolsRuntime/hunspell/dictionaries/*.*')
+        for spell in glob.glob(src_dictionaries):
+            srcfile = os.path.join(fmtdir, spell)
+            dstfile = os.path.join(dictionariesdir, os.path.basename(spell))
             copyfile(srcfile, dstfile)
 
     def getVersion(self):

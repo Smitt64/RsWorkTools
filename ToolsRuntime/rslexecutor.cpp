@@ -513,7 +513,7 @@ bool IsMacroExistsFunction(const QString &filename, const QString &name)
 {
     bool result = false;
     TMacroUserData user;
-    memset(&user, 0, sizeof(STD_USERDATA));
+    memset(&user, 0, sizeof(TMacroUserData));
 
     QScopedPointer<QTemporaryFile> report(new QTemporaryFile());
     report->open();
