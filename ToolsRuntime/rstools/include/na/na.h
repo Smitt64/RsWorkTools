@@ -169,6 +169,7 @@ enum
    {
     eRR_ToExcel = 0,  // Excel (MS Office)
     eRR_ToSCalc,      // SCalc (OpenOffice)
+    eRR_ToR7Office,
     // -------------------------------------------
     eRR_End           // Терминатор. Следующие идентификаторы добавлять только перед ним !
    };

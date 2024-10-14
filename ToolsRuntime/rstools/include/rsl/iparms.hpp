@@ -354,7 +354,7 @@ class TRSLValRef
     if(getType() == V_STRING)
       return m_val->value.string;
 
-    char  *retVal = (char*)"";
+    char  *retVal = { '\0' };
 
 
     if(cvtBuff)

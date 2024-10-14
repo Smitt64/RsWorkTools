@@ -163,7 +163,8 @@ RESOURCES += \
     res/res.qrc
 
 release: LIBS += -L./rstools/lib/release -L./hunspell/lib/release
-debug: LIBS += -L./rstools/lib/debug -L./hunspell/lib/debug
+debug: LIBS += -L./rstools/lib/release -L./hunspell/lib/debug
+#debug: LIBS += -L./rstools/lib/debug -L./hunspell/lib/debug
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/release/ -lrsl_toolsruntime
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lrsl_toolsruntimed

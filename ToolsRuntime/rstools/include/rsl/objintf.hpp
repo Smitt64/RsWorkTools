@@ -659,7 +659,9 @@ class TInstPtr : public TRSLInterface
     TInterpreterIntf  *rsl      = GetInterpreterInterface();
     TRSLMsgHandler    *pHandler = TMsgHandler::CreateNameSpace(initData);
 
+
     TRSLInterface::m_hInst = rsl->CreateRSLInstanceEx(nameSpace, host, pHandler, hCom);
+
 
     if(TRSLInterface::m_hInst)
       return true;

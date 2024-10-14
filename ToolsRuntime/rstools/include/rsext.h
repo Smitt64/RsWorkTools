@@ -58,6 +58,7 @@ enum
     CMD_EXISTDIR,                 // 111
     CMD_PROPERTY,                 // 112
     CMD_GET_DATETIME,             // 113
+    CMD_TEMP_PATH,                // 114
 
     CMD_EXEC_PROGRAM = 200,
     CMD_EDIT_MANAGER,             // 201
@@ -348,6 +349,7 @@ typedef int (*TFileCopyProgress)(int code, size_t fileSize, size_t curSz, void *
 #define  PGM_WAIT          2
 #define  PGM_ACTIVATE      3
 #define  PGM_OPENRESOURCE  4
+#define  PGM_SHELLEXECUTE  5
 
 // -----------------------------------------------
 typedef struct
@@ -594,6 +596,19 @@ typedef struct
        db_int32  p3;        // День/секунды
        db_int32  p4;        // День недели/Сотые доли секунды
       } TGetDateTime;
+
+// -----------------------------------------------
+typedef struct
+      {
+       db_int16       oper;
+      } TPutTempPath;
+
+// -----------------------------------------------
+typedef struct
+      {
+       db_int32       status;
+       db_uint32      size;
+      } TGetTempPath;
 
 #include <packpop.h>
 
