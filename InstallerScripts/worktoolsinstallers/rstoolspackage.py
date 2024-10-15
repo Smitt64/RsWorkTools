@@ -8,7 +8,7 @@ class RsToolsPackage(RsComponentBase):
     def __init__(self):
         super(RsToolsPackage, self).__init__()
         self.__RsDllDir = os.path.join(
-            self.FmtDir, 'qrsd/tools/lib/{}'.format(ConfigObj.inst().getBinaryType()))
+            self.FmtDir, 'qrsd/tools/lib/release'.format(ConfigObj.inst().getBinaryType()))
 
         self.__ToolsToCopy = [
             'rsrtlwm.dll',
