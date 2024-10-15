@@ -1,6 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "optionsdlg.h"
+#include "optionsdlg/updateoptionspage.h"
 #include "ui_optionsdlg.h"
 #include "styleoptionspage.h"
 #include "codeeditoroptionspage.h"
@@ -150,6 +151,13 @@ void OptionsDlg::addLogPage(const QString &prefix)
     LogOptionsPage *page = new LogOptionsPage();
     page->setPrefix(prefix);
     addPage(tr("Логирование"), QIcon(":/icons/fxscover.exe_14_108-2.png"), page);
+}
+
+void OptionsDlg::addUpdatePage()
+{
+    UpdateOptionsPage *page = new UpdateOptionsPage();
+    page->setWindowIcon(QIcon(":/icons/inetcpl.cpl_14_4487-3.png"));
+    addPage(tr("Обновления"), QIcon(":/icons/inetcpl.cpl_14_4487-3.png"), page);
 }
 
 void OptionsDlg::setDefaultStyle(const QString &style)

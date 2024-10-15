@@ -1,6 +1,7 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "updatecheckermessagebox.h"
+#include "updatechecker.h"
 #include <QStandardItemModel>
 #include <QTreeView>
 #include <QLayout>
@@ -27,25 +28,8 @@ void UpdateCheckerMessageBox::setList(const CheckDataList &lst)
     view->setMinimumWidth(320);
     view->setMinimumHeight(240);
 
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setHorizontalHeaderLabels({tr("Наименование"),
-                                      tr("Версия"),
-                                      tr("Размер")});
-
-    for(const CheckUpdateData &item : lst)
-    {
-        QStandardItem *name = new QStandardItem();
-        name->setText(item.name);
-
-        QStandardItem *version = new QStandardItem();
-        version->setText(item.version);
-
-        QStandardItem *size = new QStandardItem();
-        size->setText(item.sizeString);
-
-        model->appendRow({name, version, size});
-    }
-
+    QStandardItemModel *model = nullptr;
+    UpdateChecker::MakeUpdateModel(&model, lst, this);
     view->setModel(model);
 
     QGridLayout *main = (QGridLayout*)layout();

@@ -33,6 +33,7 @@ SOURCES += \
     optionsdlg/optionsdlg.cpp \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
+    optionsdlg/updateoptionspage.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
     optionsdlg/optionsdlg.h \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
+    optionsdlg/updateoptionspage.h \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \
@@ -151,6 +153,7 @@ FORMS += \
     optionsdlg/optionsdlg.ui \
     optionsdlg/rsloptionspage.ui \
     optionsdlg/styleoptionspage.ui \
+    optionsdlg/updateoptionspage.ui \
     spelling/spellcheckerdlg.ui \
     spelling/spellstringsdlg.ui \
     widgets/selectactiondlg.ui \

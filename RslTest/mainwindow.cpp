@@ -106,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.addRslPage();
         dlg.addCommandsPage();
         dlg.addLogPage("RslTest");
+        dlg.addUpdatePage();
         dlg.exec();
     });
 

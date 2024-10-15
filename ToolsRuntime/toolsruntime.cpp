@@ -25,6 +25,7 @@ Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
 Q_LOGGING_CATEGORY(logSettings, "Settings")
 Q_LOGGING_CATEGORY(logProcess, "Process")
+Q_LOGGING_CATEGORY(logUpdate, "Update")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
 
@@ -37,6 +38,7 @@ static std::map<QString, LoggingCategoryRef> InitCategoryList()
     _map.insert(LoggingCategoryPair("Rsl", std::cref(logRsl())));
     _map.insert(LoggingCategoryPair("Sql", std::cref(logSql())));
     _map.insert(LoggingCategoryPair("Process", std::cref(logProcess())));
+    _map.insert(LoggingCategoryPair("Update", std::cref(logUpdate())));
     return _map;
 }
 

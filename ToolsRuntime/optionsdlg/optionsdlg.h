@@ -28,6 +28,7 @@ public:
     void addCommandsPage(CommandsOptions *page);
     void addLogPage(const QString &prefix);
     void setDefaultStyle(const QString &style);
+    void addUpdatePage();
     const QString &defaultStyle() const;
 
     QSettings *settings();
