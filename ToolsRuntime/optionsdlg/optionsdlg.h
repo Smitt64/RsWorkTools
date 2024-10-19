@@ -33,11 +33,22 @@ public:
 
     QSettings *settings();
     OptionsPage *page(const int &index);
+    int count();
     int pageIndex(OptionsPage *page);
 
     template<class T>OptionsPage *findPage()
     {
-        return findPage(&T::staticMetaObject);
+        int size = count();
+
+        for (int i = 0; i < size; i++)
+        {
+            OptionsPage *pPage = page(i);
+
+            if (qobject_cast<T>(pPage))
+                return pPage;
+        }
+
+        return nullptr;
     }
 
 public slots:
@@ -50,7 +61,6 @@ protected:
     virtual void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
     virtual void showEvent(QShowEvent *event) Q_DECL_OVERRIDE;
     virtual void done(int r) Q_DECL_OVERRIDE;
-    OptionsPage *findPage(const QMetaObject *obj);
 
 private:
     Ui::OptionsDlg *ui;

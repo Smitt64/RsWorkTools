@@ -270,14 +270,8 @@ int OptionsDlg::pageIndex(OptionsPage *page)
     return d->m_Pages.indexOf(page);
 }
 
-OptionsPage *OptionsDlg::findPage(const QMetaObject *obj)
+int OptionsDlg::count()
 {
     Q_D(OptionsDlg);
-    for (int i = 0; i < d->m_Pages.size(); i++)
-    {
-        if (obj == &d->m_Pages[i]->staticMetaObject)
-            return d->m_Pages[i];
-    }
-
-    return nullptr;
+    return d->m_Pages.size();
 }
