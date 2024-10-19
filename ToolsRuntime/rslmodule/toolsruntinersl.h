@@ -59,6 +59,14 @@ public:
 
     Q_INVOKABLE QStringList split(const QString &str, const QString &sep);
     Q_INVOKABLE QString join(const QStringList &lst, const QString &separator);
+
+    Q_INVOKABLE QString number(int n, int base = 10);
+    Q_INVOKABLE QString number(qint64 n, int base = 10);
+    Q_INVOKABLE QString number(double n, char format = 'g', int precision = 6);
+
+    Q_INVOKABLE QString replace(QString str, const int &pos, const int &len, const QString &replace);
+    Q_INVOKABLE QString replace(QString str, const QString &before, const QString &after, const bool &CaseSensitive = true);
+    Q_INVOKABLE QString simplified(QString str);
 };
 
 #endif // TOOLSRUNTINERSL_H

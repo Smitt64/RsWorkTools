@@ -58,3 +58,33 @@ QString ToolsRuntime::join(const QStringList &lst, const QString &separator)
 {
     return lst.join(separator);
 }
+
+QString ToolsRuntime::number(int n, int base)
+{
+     return QString::number(n, base);
+}
+
+QString ToolsRuntime::number(qint64 n, int base)
+{
+     return QString::number(n, base);
+}
+
+QString ToolsRuntime::number(double n, char format, int precision)
+{
+     return QString::number(n, format, precision);
+}
+
+QString ToolsRuntime::replace(QString str, const int &pos, const int &len, const QString &replace)
+{
+     return str.replace(pos, len, replace);
+}
+
+QString ToolsRuntime::replace(QString str, const QString &before, const QString &after, const bool &CaseSensitive)
+{
+     return str.replace(before, after, CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+}
+
+QString ToolsRuntime::simplified(QString str)
+{
+    return str.simplified();
+}

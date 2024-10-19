@@ -7,9 +7,12 @@
 #include "rslmodule/io/iotextstream.h"
 #include "rslmodule/io/temporaryfile.h"
 #include "rslmodule/io/process.h"
+#include "rslmodule/io/ionamespace.h"
 #include "toolsruntime.h"
 #include <QIODevice>
 #include <QTextStream>
+
+Q_GLOBAL_STATIC(IoNamespace, pIoNamespace)
 
 static void Rsl_toolStartProcess()
 {
@@ -74,6 +77,8 @@ IoStaticModule::IoStaticModule()
 
     RegisterObjList::inst()->RegisterRslObject<ProcessEnvironment>();
     RegisterObjList::inst()->RegisterRslObject<TemporaryDir>();
+
+    RegisterObjList::inst()->RegisterRslObject<IoNamespace>();
 }
 
 void IoStaticModule::Init()
@@ -112,7 +117,56 @@ void IoStaticModule::Proc()
     addConstant("RealNumberFixedNotation", QTextStream::FixedNotation);
     addConstant("RealNumberSmartNotation", QTextStream::SmartNotation);
 
+    addConstant("FailedToStart", QProcess::FailedToStart);
+    addConstant("Crashed", QProcess::Crashed);
+    addConstant("Timedout", QProcess::Timedout);
+    addConstant("WriteError", QProcess::WriteError);
+    addConstant("ReadError", QProcess::ReadError);
+    addConstant("UnknownError", QProcess::UnknownError);
+
+    addConstant("NormalExit", QProcess::NormalExit);
+    addConstant("CrashExit", QProcess::CrashExit);
+
+    addConstant("ManagedInputChannel", QProcess::ManagedInputChannel);
+    addConstant("ForwardedInputChannel", QProcess::ForwardedInputChannel);
+
+    addConstant("SeparateChannels", QProcess::SeparateChannels);
+    addConstant("MergedChannels", QProcess::MergedChannels);
+    addConstant("ForwardedChannels", QProcess::ForwardedChannels);
+    addConstant("ForwardedErrorChannel", QProcess::ForwardedErrorChannel);
+    addConstant("ForwardedOutputChannel", QProcess::ForwardedOutputChannel);
+
+    addConstant("DirFilterDirs", QDir::Dirs);
+    addConstant("DirFilterAllDirs", QDir::AllDirs);
+    addConstant("DirFilterFiles", QDir::Files);
+    addConstant("DirFilterDrives", QDir::Drives);
+    addConstant("DirFilterNoSymLinks", QDir::NoSymLinks);
+    addConstant("DirFilterNoDotAndDotDot", QDir::NoDotAndDotDot);
+    addConstant("DirFilterNoDot", QDir::NoDot);
+    addConstant("DirFilterNoDotDot", QDir::NoDotDot);
+    addConstant("DirFilterAllEntries", QDir::AllEntries);
+    addConstant("DirFilterReadable", QDir::Readable);
+    addConstant("DirFilterWritable", QDir::Writable);
+    addConstant("DirFilterExecutable", QDir::Executable);
+    addConstant("DirFilterModified", QDir::Modified);
+    addConstant("DirFilterHidden", QDir::Hidden);
+    addConstant("DirFilterSystem", QDir::System);
+    addConstant("DirFilterCaseSensitive", QDir::CaseSensitive);
+
+    addConstant("SortName", QDir::Name);
+    addConstant("SortTime", QDir::Time);
+    addConstant("SortSize", QDir::Size);
+    addConstant("SortType", QDir::Type);
+    addConstant("SortUnsorted", QDir::Unsorted);
+    addConstant("SortNoSort", QDir::NoSort);
+    addConstant("SortDirsFirst", QDir::DirsFirst);
+    addConstant("SortDirsLast", QDir::DirsLast);
+    addConstant("SortReversed", QDir::Reversed);
+    addConstant("SortIgnoreCase", QDir::IgnoreCase);
+    addConstant("SortLocaleAware", QDir::LocaleAware);
+
     RegisterObjList::inst()->AddObject<IoDevice>(false);
+    RegisterObjList::inst()->AddObject<IoNamespace>(false);
     RegisterObjList::inst()->AddObject<IoFile>();
     RegisterObjList::inst()->AddObject<IoBuffer>();
     RegisterObjList::inst()->AddObject<IoTextStream>();
@@ -123,4 +177,6 @@ void IoStaticModule::Proc()
     //RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     //RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
     RegisterObjList::inst()->AddStdProc("toolStartProcess", Rsl_toolStartProcess);
+
+    addConstant("Io", QVariant::fromValue((QObject*)pIoNamespace));
 }
