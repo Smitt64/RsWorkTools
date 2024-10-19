@@ -93,71 +93,74 @@ OptionsDlg::~OptionsDlg()
     delete d_ptr;
 }
 
-void OptionsDlg::addStylePage(const QString &group, const QString &key)
+int OptionsDlg::addStylePage(const QString &group, const QString &key)
 {
     Q_D(OptionsDlg);
 
     if (d->m_CurrentStyle.isEmpty())
-        return;
+        return -1;
 
     StyleOptionsPage *stylepage = new StyleOptionsPage();
     stylepage->setSettingsKey(group, key);
-    addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), stylepage);
+    return addPage(tr("Оформление"), QIcon(":/icons/themeui.dll_14_701-0.png"), stylepage);
 }
 
-void OptionsDlg::addCodeEditorPage(const QString &group, const QString &key)
+int OptionsDlg::addCodeEditorPage(const QString &group, const QString &key)
 {
     Q_D(OptionsDlg);
 
     CodeEditorOptionsPage *page = new CodeEditorOptionsPage();
     page->setSettingsKey(group, key);
-    addPage(tr("Текстовый редактор"), QIcon(":/icons/wordpad.exe_14_128-5.png"), page);
+    return addPage(tr("Текстовый редактор"), QIcon(":/icons/wordpad.exe_14_128-5.png"), page);
 }
 
-void OptionsDlg::addRslPage()
+int OptionsDlg::addRslPage()
 {
     Q_D(OptionsDlg);
 
     RslOptionsPage *page = new RslOptionsPage();
-    addPage(tr("Rsl интерпретатор"), QIcon(":/icons/shell32.dll_14_151-3.png"), page);
+    return addPage(tr("Rsl интерпретатор"), QIcon(":/icons/shell32.dll_14_151-3.png"), page);
 }
 
-void OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *page)
+int OptionsDlg::addPage(const QString &title, const QIcon &icon, OptionsPage *page)
 {
     Q_D(OptionsDlg);
 
+    int pos = d->m_Pages.size();
     QListWidgetItem *pageitem = new QListWidgetItem(title);
     pageitem->setIcon(icon);
     ui->listWidget->addItem(pageitem);
 
     page->setOptionsDlg(this);
     d->m_Pages.append(page);
+
+    return pos;
 }
 
-void OptionsDlg::addCommandsPage(bool UseRslCommands)
+int OptionsDlg::addCommandsPage(bool UseRslCommands)
 {
     CommandsOptions *page = new CommandsOptions();
     page->setUseRslcommands(UseRslCommands);
-    addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
+    return addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
 }
 
-void OptionsDlg::addCommandsPage(CommandsOptions *page)
+int OptionsDlg::addCommandsPage(CommandsOptions *page)
 {
-    addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
+    return addPage(tr("Команды"), QIcon(":/icons/osk.exe_14_APP_OSK-2.png"), page);
 }
 
-void OptionsDlg::addLogPage(const QString &prefix)
+int OptionsDlg::addLogPage(const QString &prefix)
 {
     LogOptionsPage *page = new LogOptionsPage();
     page->setPrefix(prefix);
-    addPage(tr("Логирование"), QIcon(":/icons/fxscover.exe_14_108-2.png"), page);
+    return addPage(tr("Логирование"), QIcon(":/icons/fxscover.exe_14_108-2.png"), page);
 }
 
-void OptionsDlg::addUpdatePage()
+int OptionsDlg::addUpdatePage()
 {
     UpdateOptionsPage *page = new UpdateOptionsPage();
     page->setWindowIcon(QIcon(":/icons/inetcpl.cpl_14_4487-3.png"));
-    addPage(tr("Обновления"), QIcon(":/icons/inetcpl.cpl_14_4487-3.png"), page);
+    return addPage(tr("Обновления"), QIcon(":/icons/inetcpl.cpl_14_4487-3.png"), page);
 }
 
 void OptionsDlg::setDefaultStyle(const QString &style)
@@ -201,8 +204,13 @@ void OptionsDlg::showEvent(QShowEvent *event)
     if (!ui->listWidget->count())
         return;
 
-    ui->listWidget->setCurrentItem(0);
-    d->itemClicked(ui->listWidget->item(0), 0);
+    if (ui->listWidget->currentRow() == -1)
+    {
+        ui->listWidget->setCurrentItem(0);
+        d->itemClicked(ui->listWidget->item(0), 0);
+    }
+    else
+        d->itemClicked(ui->listWidget->item(ui->listWidget->currentRow()), ui->listWidget->currentRow());
 }
 
 QSettings *OptionsDlg::settings()
@@ -235,4 +243,35 @@ int OptionsDlg::exec()
     d->restoreAppStyle();
 
     return result;
+}
+
+int OptionsDlg::execPage(const int index)
+{
+    Q_D(OptionsDlg);
+    if (index < 0 || index >= d->m_Pages.size())
+        return -1;
+
+    ui->listWidget->setCurrentRow(index);
+    return exec();
+}
+
+OptionsPage *OptionsDlg::page(const int &index)
+{
+    Q_D(OptionsDlg);
+    if (index < 0 || index >= d->m_Pages.size())
+        return nullptr;
+
+    return d->m_Pages[index];
+}
+
+OptionsPage *OptionsDlg::findPage(QMetaObject *obj)
+{
+    Q_D(OptionsDlg);
+    for (int i = 0; i < d->m_Pages.size(); i++)
+    {
+        if (obj == &d->m_Pages[i]->staticMetaObject)
+            return d->m_Pages[i];
+    }
+
+    return nullptr;
 }
