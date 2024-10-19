@@ -264,6 +264,12 @@ OptionsPage *OptionsDlg::page(const int &index)
     return d->m_Pages[index];
 }
 
+int OptionsDlg::pageIndex(OptionsPage *page)
+{
+    Q_D(OptionsDlg);
+    return d->m_Pages.indexOf(page);
+}
+
 OptionsPage *OptionsDlg::findPage(QMetaObject *obj)
 {
     Q_D(OptionsDlg);

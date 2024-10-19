@@ -33,6 +33,7 @@ public:
 
     QSettings *settings();
     OptionsPage *page(const int &index);
+    int pageIndex(OptionsPage *page);
 
     template<class T>OptionsPage *findPage()
     {
