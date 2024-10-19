@@ -50,7 +50,7 @@ protected:
     virtual void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
     virtual void showEvent(QShowEvent *event) Q_DECL_OVERRIDE;
     virtual void done(int r) Q_DECL_OVERRIDE;
-    OptionsPage *findPage(QMetaObject *obj);
+    OptionsPage *findPage(const QMetaObject *obj);
 
 private:
     Ui::OptionsDlg *ui;
