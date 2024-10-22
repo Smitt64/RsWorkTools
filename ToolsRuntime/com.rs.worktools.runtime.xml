@@ -1,9 +1,9 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
-    <version ver="0.0.0.4">
+    <version ver="1.0.0.1">
         <add>Добавлена поддержка RSL;</add>
         <add>Добавлена поддержка проверки орфографии;</add>
-        <add>Добавлен механизм настроект;</add>
+        <add>Добавлен механизм настроек;</add>
         <fix>Испраление ошибок в механизме обновления;</fix>
     </version>
     <version ver="0.0.0.3">
