@@ -125,6 +125,7 @@ public:
                 TPropMethTable prop = {property.key(j), OBJ_RSL_ENUM_OFFSET + j};
                 prop.flags = RSL_KIND_RUN;
                 EnumValue.insert(OBJ_RSL_ENUM_OFFSET + j, property.value(j));
+
                 ArrProp.append(prop);
             }
         }
@@ -393,7 +394,7 @@ Qt::HANDLE RegisterInfoBase::object(Qt::HANDLE GenObject)
     return ((QObjectRsl*)obj)->object;
 }
 
-const int &RegisterInfoBase::enumValue(int id) const
+int RegisterInfoBase::enumValue(int id) const
 {
     Q_D(const RegisterInfoBase);
     return d->EnumValue[id];

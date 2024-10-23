@@ -48,7 +48,7 @@ public:
     int findMember(const char *name, long *id);
     void importObject(const bool &canCreate = true);
 
-    const int &enumValue(int id) const;
+    int enumValue(int id) const;
 
     Qt::HANDLE rslID() const;
     Qt::HANDLE object(Qt::HANDLE GenObject);
