@@ -48,8 +48,8 @@ class InstallerPackageInfoBase:
         try:
             shutil.copyfile(fromf, tof)
             print('Ok')
-        except IOError:
-            print('Fail. Target directory must be writable.')
+        except IOError as e:
+            print('Fail: ' + repr(e))
         except Exception as e:
             print('Fail: ' + str(e))
 

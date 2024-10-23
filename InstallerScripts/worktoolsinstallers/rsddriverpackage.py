@@ -7,8 +7,7 @@ from worktoolsinstallers.rscomponentbase import RsComponentBase
 class RsdDriverPackage(RsComponentBase):
     def __init__(self):
         super(RsdDriverPackage, self).__init__()
-        self.__RsdDllDir = os.path.join(
-            self.FmtDir, 'qrsd/rsd/lib/{}'.format(ConfigObj.inst().getBinaryType()))
+        self.__RsdDllDir = os.path.join(self.FmtDir, 'qrsd/rsd/lib/release')
         self.__releasfile = os.path.join(
             self.FmtDir, 'qrsd/{}/qrsd.dll'.format(ConfigObj.inst().getBinaryType()))
         
@@ -34,12 +33,14 @@ class RsdDriverPackage(RsComponentBase):
             'icuuc57.dll', 
             'icuuc58.dll', 
             'QTSysLog.dll', 
+            'rddrvo.dll', 
             'rddrvou.dll', 
             'rdrset.dll', 
             'RsBtr.dll', 
             'rsdc.dll', 
             'rsdutl.dll', 
             'SqlConverter.dll', 
+            'SqlConverterDebugConfig.json', 
             'dbinit.exe', 
             'fmtxml.exe',
             'fmtxml.xsd'
