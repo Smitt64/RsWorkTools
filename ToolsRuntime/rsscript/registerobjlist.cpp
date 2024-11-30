@@ -53,6 +53,7 @@ RegisterObjList::RegisterObjList():
     qRegisterMetaType<R2M>("R2M");
 }
 
+typedef const char (*qt_plugin_query_metadata_t)();
 void RegisterObjList::loadStaticPlugins()
 {
     Q_D(RegisterObjList);
@@ -72,8 +73,18 @@ void RegisterObjList::loadStaticPlugins()
     QStringList loaded;
     auto AddDll = [&loaded, &d](const QString &dll)
     {
+        QLibrary lib(dll);
+        if (!lib.load())
+            return;
+
+        qt_plugin_query_metadata_t func = (qt_plugin_query_metadata_t)lib.resolve("qt_plugin_query_metadata");
+        if (!func)
+            return;
+
         QPluginLoader *plugin = new QPluginLoader(dll);
         qInfo(logRsl()) << "Check dll as plugin:" << dll;
+        qInfo(logRsl()) << dll << "metadata:" << func();
+
         if (!plugin->isLoaded() && !loaded.contains(QFileInfo(dll).fileName()) && plugin->load())
         {
             RslStaticModuleInterface *plugininterface = dynamic_cast<RslStaticModuleInterface*>(plugin->instance());
