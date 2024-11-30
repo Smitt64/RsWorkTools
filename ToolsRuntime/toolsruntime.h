@@ -50,4 +50,7 @@ TOOLSRUNTIME_EXPORT int toolStartProcess(QProcess *exe, const QString &program,
                                              int timeout = 30000,
                                              bool waitForReadyRead = false);
 
+typedef std::tuple<QString, QString> UserDomainTuple;
+TOOLSRUNTIME_EXPORT UserDomainTuple toolGetCurrentUserAndDomain();
+
 #endif // TOOLSRUNTIME_H

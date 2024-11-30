@@ -497,3 +497,67 @@ int toolStartProcess(QProcess *exe, const QString &program,
 
     return stat;
 }
+
+// ---------------------------------------------------------------------
+BOOL GetCurrentUserAndDomain(PTSTR szUser, PDWORD pcchUser, PTSTR szDomain, PDWORD pcchDomain)
+{
+    BOOL         fSuccess = FALSE;
+    HANDLE       hToken   = NULL;
+    PTOKEN_USER  ptiUser  = NULL;
+    DWORD        cbti     = 0;
+    SID_NAME_USE snu;
+
+    __try
+    {
+        if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE,&hToken))
+        {
+            if (GetLastError() != ERROR_NO_TOKEN)
+                __leave;
+
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+                __leave;
+        }
+        if (GetTokenInformation(hToken, TokenUser, NULL, 0, &cbti))
+            __leave;
+        else
+        {
+            if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+                __leave;
+        }
+
+        ptiUser = (PTOKEN_USER) HeapAlloc(GetProcessHeap(), 0, cbti);
+        if (!ptiUser)
+            __leave;
+
+        if (!GetTokenInformation(hToken, TokenUser, ptiUser, cbti, &cbti))
+            __leave;
+
+        if (!LookupAccountSid(NULL, ptiUser->User.Sid, szUser, pcchUser, szDomain, pcchDomain, &snu))
+            __leave;
+
+        fSuccess = TRUE;
+
+    } __finally
+    {
+        if (hToken)
+            CloseHandle(hToken);
+
+        if (ptiUser)
+            HeapFree(GetProcessHeap(), 0, ptiUser);
+    }
+
+    return fSuccess;
+}
+
+UserDomainTuple toolGetCurrentUserAndDomain()
+{
+    UserDomainTuple result;
+
+    TCHAR user[1024], domain[1024];
+    DWORD chUser = sizeof(user), chDomain = sizeof(domain);
+
+    if (GetCurrentUserAndDomain(user, &chUser, domain, &chDomain))
+        result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));
+
+    return result;
+}

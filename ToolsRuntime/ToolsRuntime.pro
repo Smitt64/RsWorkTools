@@ -175,7 +175,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStati
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/debug/ -lrsl_toolsruntimed
 else:unix: LIBS += -L$$OUT_PWD/../RslToolRuntimeStatic/ -lrsl_toolsruntime
 
-LIBS += -lRSScript -lrsrtlwm -lrsldlmms -llibhunspell
+LIBS += -lRSScript -lrsrtlwm -lrsldlmms -llibhunspell -lAdvapi32
 #LIBS += -lrsldlmms
 INCLUDEPATH += $$PWD/rstools/include $$PWD/rstools/include/panel $$PWD/rstools/include/bedit
 INCLUDEPATH += $$PWD/hunspell/include

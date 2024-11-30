@@ -137,6 +137,10 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef _DEBUG
     windowActionsRegistry()->printActions();
 #endif
+
+    UserDomainTuple userdomain = toolGetCurrentUserAndDomain();
+
+    qDebug() << std::get<0>(userdomain) << std::get<1>(userdomain);
 }
 
 MainWindow::~MainWindow()
