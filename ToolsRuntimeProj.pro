@@ -4,7 +4,9 @@ SUBDIRS += \
 	RslTest \
     RslToolRuntimeStatic \
     ToolsRuntime \
-    WindowsModernStyle
+    WindowsModernStyle \
+    loki \
+    rsldbg
 
 
 RslTest.depends = ToolsRuntime

@@ -99,3 +99,7 @@ InstallerScripts/installerResources/
 InstallerScripts/repository_/
 
 InstallerScripts/testInstaller_old/
+
+rsldbg/debug/
+
+loki/debug/

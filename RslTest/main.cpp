@@ -5,6 +5,7 @@
 #include <QStyleFactory>
 #include <QDebug>
 #include <QStyle>
+#include <QEventLoop>
 
 #include <objbase.h>
 
@@ -15,9 +16,11 @@ int main(int argc, char *argv[])
 
     qDebug() << qApp->style();
     QStyle *style = QStyleFactory::create(DefaultStyleName);
-    a.setStyle(style);
+    //a.setStyle(style);
 
     MainWindow w;
     w.show();
+    //QEventLoop loop;
+    //loop.exec();
     return a.exec();
 }
