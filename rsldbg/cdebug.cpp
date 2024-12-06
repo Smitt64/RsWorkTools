@@ -1,7 +1,11 @@
 #include "cdebug.h"
+#include "cqsurvey.h"
+#include "csurvey.h"
 
 CDebug::CDebug(HRD inst, TDbgIntf *dbgftable, QObject *parent)
-    : CDebugRoot{parent}
+    : CDebugRoot{parent},
+    m_survey(new CSurvey(this)),
+    m_qsurvey(new CQSurvey(this))
 {
 
 }
@@ -108,5 +112,5 @@ CStackInfo* CDebug::GetStackInfo (void)
 
 CSurvey* CDebug::GetSurvey(void)
 {
-    return &m_survey;
+    return m_survey.data();
 }

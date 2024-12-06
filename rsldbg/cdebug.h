@@ -2,8 +2,6 @@
 #define CDEBUG_H
 
 #include "cdebugroot.h"
-#include "cqsurvey.h"
-#include "csurvey.h"
 #include "lf/bp_data.h"
 #include "lf/types.h"
 
@@ -54,6 +52,8 @@ std::istream& operator>> (std::istream& ic, ExpInfo& inf);
 
 // ------------------------------------------------------------------
 
+class CSurvey;
+class CQSurvey;
 class CDebug : public CDebugRoot
 {
     Q_OBJECT
@@ -79,8 +79,8 @@ public:
 
 private:
     CStackInfo m_stackinfo;
-    CSurvey m_survey;
-    CQSurvey m_qsurvey;
+    QScopedPointer<CSurvey> m_survey;
+    QScopedPointer<CQSurvey> m_qsurvey;
     int m_index;
     CBPData m_bpdata;
     unsigned long bpKey;

@@ -1,5 +1,6 @@
 #include "remexpressions.h"
 #include "appcfgdata.hpp"
+#include "csurvey.h"
 #include "lf/bp_data.h"
 #include "lf/types.h"
 #include "displayvar.h"
