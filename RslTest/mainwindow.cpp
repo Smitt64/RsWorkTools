@@ -27,6 +27,7 @@
 #include <QStateMachine>
 #include "windowactionsregistry.h"
 #include <QSignalSpy>
+#include "netapi/apiuser.h"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -140,7 +141,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     UserDomainTuple userdomain = toolGetCurrentUserAndDomain();
 
-    qDebug() << std::get<0>(userdomain) << std::get<1>(userdomain);
+    //qDebug() << std::get<0>(userdomain) << std::get<1>(userdomain);
+
+    ApiUser *user = toolGetCurrentUser();
+    //qDebug() << user;
+    qDebug() << "ApiUser" << user->userName() << user->domain() << user->email() << user->createDate();
 }
 
 MainWindow::~MainWindow()
@@ -207,4 +212,9 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::testSlot()
 {
     qDebug() << spy->signal() << spy->takeFirst();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    //toolDestroyApiManager();
 }

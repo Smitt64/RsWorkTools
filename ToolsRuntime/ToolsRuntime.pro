@@ -24,6 +24,7 @@ SOURCES += \
     errordlg.cpp \
     errorsmodel.cpp \
     iconlibdlg.cpp \
+    netapi/apiuser.cpp \
     optionsdlg/OptionsPage.cpp \
     optionsdlg/codeeditoroptionspage.cpp \
     optionsdlg/commandsoptions.cpp \
@@ -92,6 +93,7 @@ HEADERS += \
     errorfiltermodel_p.h \
     errorsmodel.h \
     iconlibdlg.h \
+    netapi/apiuser.h \
     optionsdlg/OptionsPage.h \
     optionsdlg/codeeditoroptionspage.h \
     optionsdlg/commandsoptions.h \

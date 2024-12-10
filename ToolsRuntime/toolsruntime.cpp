@@ -18,6 +18,8 @@
 #include <codeeditor/codeeditor.h>
 #include <functional>
 #include <QProcess>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -26,8 +28,10 @@ Q_LOGGING_CATEGORY(logSql, "Sql")
 Q_LOGGING_CATEGORY(logSettings, "Settings")
 Q_LOGGING_CATEGORY(logProcess, "Process")
 Q_LOGGING_CATEGORY(logUpdate, "Update")
+Q_LOGGING_CATEGORY(logNetApi, "logNetApi")
 
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
+Q_GLOBAL_STATIC(QString, ApiBaseUrl)
 
 typedef std::reference_wrapper<const QLoggingCategory> LoggingCategoryRef;
 typedef std::pair<QString, LoggingCategoryRef> LoggingCategoryPair;
@@ -560,4 +564,59 @@ UserDomainTuple toolGetCurrentUserAndDomain()
         result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));
 
     return result;
+}
+
+QString toolGetApiUrl(const QString &method)
+{
+    if (!ApiBaseUrl->isEmpty())
+        return QString("%1%2").arg(*ApiBaseUrl, method);
+
+    QString hosts = toolFullFileNameFromDir("host.api");
+    if (!hosts.isEmpty() && QFile::exists(hosts))
+    {
+        QFile f(hosts);
+        if (f.open(QIODevice::ReadOnly))
+        {
+            QString host = f.readLine();
+
+            if (!host.isEmpty())
+                *ApiBaseUrl = host;
+            else
+                *ApiBaseUrl = API_URL_BASE;
+
+            f.close();
+        }
+    }
+    else
+        *ApiBaseUrl = API_URL_BASE;
+
+    return QString("%1%2").arg(*ApiBaseUrl, method);
+}
+
+QNetworkReply *toolGetApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager, bool wait)
+{
+    QNetworkReply *Reply = ApiManager->get(*request);
+
+    if (wait)
+    {
+        QEventLoop loop;
+        QObject::connect(Reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
+    return Reply;
+}
+
+QNetworkReply *toolPostApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager, const QByteArray &data, bool wait)
+{
+    QNetworkReply *Reply = ApiManager->post(*request, data);
+
+    if (wait)
+    {
+        QEventLoop loop;
+        QObject::connect(Reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
+    return Reply;
 }
