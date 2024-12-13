@@ -1,4 +1,5 @@
 #include "cwatchv.h"
+#include "cdebug.h"
 #include "lf/dbgexception.h"
 #include <QMessageBox>
 #include <QApplication>

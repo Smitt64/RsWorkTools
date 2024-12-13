@@ -14,6 +14,7 @@ CONFIG += c++11
 SOURCES += \
     cdebug.cpp \
     cdebugroot.cpp \
+    clocals.cpp \
     convert.cpp \
     cqsurvey.cpp \
     csurvey.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 HEADERS += \
     cdebug.h \
     cdebugroot.h \
+    clocals.h \
     convert.h \
     cqsurvey.h \
     csurvey.h \

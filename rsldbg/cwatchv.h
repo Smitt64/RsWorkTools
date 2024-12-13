@@ -1,7 +1,7 @@
 #ifndef CWATCHV_H
 #define CWATCHV_H
 
-#include "cdebug.h"
+//#include "cdebug.h"
 #include "displayvar.h"
 #include <loki/SmartPtr.h>
 #include <vector>
@@ -9,6 +9,7 @@
 typedef Loki::SmartPtr<DisplayVar, Loki::RefLinked> SpVarPtrType;
 #define SpIter std::vector<SpVarPtrType>::iterator
 
+class CDebug;
 class CWatchV : private std::vector<SpVarPtrType>
 {
     friend class CWatch;

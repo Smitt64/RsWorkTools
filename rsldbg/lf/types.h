@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include "bp_data.h"
 #include "rsl/dbgintf.h"
-
+#include <loki/SmartPtr.h>
 #include <vector>
 //#include <string>
 #include <memory>
@@ -18,8 +18,7 @@ typedef struct tagTStackInfo
     RSLMODULE	mod;
     char		procname[100];
     char		modname[100];
-    int			offs,
-        len;
+    int			offs, len;
 } TStackInfo;
 
 typedef struct tagTModuleInfo
@@ -29,10 +28,10 @@ typedef struct tagTModuleInfo
     RSLMODULE	hmod;
 } TModuleInfo;
 
-typedef	QSharedPointer<TBpData> elem_bpdata;
-typedef QSharedPointer<TStackInfo> elem_stackinfo;
-typedef QSharedPointer<TModuleInfo> elem_moduleinfo;
-//typedef std::auto_ptr < TTraceMsg > elem_tracemsg;
+typedef	Loki::SmartPtr<TBpData, Loki::RefLinked> elem_bpdata;
+typedef Loki::SmartPtr<TStackInfo, Loki::RefLinked> elem_stackinfo;
+typedef Loki::SmartPtr<TModuleInfo, Loki::RefLinked> elem_moduleinfo;
+//typedef SmartPtr<TTraceMsg, RefLinked> elem_tracemsg;
 
 typedef	QString elem_qwatch;
 
@@ -41,8 +40,8 @@ typedef	std::vector<elem_stackinfo> CStackInfo;
 //typedef std::vector<elem_tracemsg> CTraceMsg;
 
 //typedef CTraceMsg::iterator     iter_tracemsg;
-typedef	CBPData::iterator        iter_bpdata;
-typedef CStackInfo::iterator      iter_stackinfo;
+typedef	CBPData::iterator iter_bpdata;
+typedef CStackInfo::iterator iter_stackinfo;
 
 typedef std::vector<elem_moduleinfo> CModuleInfo;
 typedef CModuleInfo::iterator iter_moduleinfo;

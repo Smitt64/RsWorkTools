@@ -4,6 +4,7 @@
 #include "cdebugroot.h"
 #include "lf/bp_data.h"
 #include "lf/types.h"
+#include "cwatchv.h"
 
 enum SaverCommands
 {
@@ -54,6 +55,8 @@ std::istream& operator>> (std::istream& ic, ExpInfo& inf);
 
 class CSurvey;
 class CQSurvey;
+class DisplayVar;
+class CLocals;
 class CDebug : public CDebugRoot
 {
     Q_OBJECT
@@ -62,28 +65,88 @@ public:
     virtual ~CDebug();
 
     void GetRemoteVersion();
+    bool GetDebugState();
+    void SetDebugState(bool state);
 
     int m_nVerHi;
     short int m_nVerLo;
+    static const QString na;
+    static const QString expanding;
 
-    iter_bpdata FindBP (TBpData*);
+    iter_bpdata FindBP(TBpData*);
+    TBpData* FindBPbyKey (unsigned long key);
     bool AddBp(TBpData*);
     bool DelBp(TBpData*);
     bool DisBp(TBpData*);
     CBPData* GetBP();
 
     RSLPROC GetCurProc(int index = -1);
-    RSLSTACK GetCurStack (int index = -1);
-    CStackInfo* GetStackInfo (void);
+    RSLSTACK GetCurStack(int index = -1);
+    CStackInfo* GetStackInfo(void);
+    int GetStackSize();
     CSurvey* GetSurvey(void);
+    CLocals* GetLocals();
+    CQSurvey* GetQSurvey();
+
+    int FindStackIndex(RSLSTACK st);
+    int GetStackCount();
+
+    iter_watch FindSWatch(const QString &str, RSLSTACK st, RSLPROC proc);
+    iter_watch FindQWatch (const QString &str, RSLSTACK st, RSLPROC proc);
+    iter_watch FindLocal(const QString &str, RSLSTACK st, RSLPROC proc);
+    DisplayVar* FindRootItem(DisplayVar* var, BOOL surv);
+    RSLMODULE GetCurModule(int index = -1);
+    RSLSTMT GetCurStatement(int* offs, int* len, int index = -1);
+
+    int GetWatchVarPos(DisplayVar* var);
+    int GetLocalVarPos(DisplayVar* var);
+    QString GetProcName (RSLSTACK st);
+    QString GetCurModuleName(int index = -1);
+    RSLSTACK GetStackAt(int index);
+    int GetIndex();
+    void SetIndex (int index = 0);
+    void UpdateDbgInfo();
+    void UpdateVariables();
+    void UpdateSurvey();
+    void UpdateQSurvey();
+    void ClearSurvey();
+    void EraseQSurvey();
+    void ClearQSurvey();
+
+    void SetCurModule(RSLMODULE mod);
+    RSLMODULE GetActiveModule(void);
+
+    bool AddSWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule, bool isLvalue);
+    bool DelSwatch(DisplayVar *var);
+    bool AddQWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule);
+    bool DelQWatch(QString);
+
+    BP_TYPE GetBPType(int index);
+    int GetBPOffs(int index);
+    int GetBPLen(int index);
+    int GetBPCount();
+    TBpData* GetBP(int i);
+    iter_bpdata GetBPEnd();
+
+    void SetInst(HRD inst);
+    TDbgIntf* GetDbgFTable();
+    HRD GetInst();
+    QString GetError();
+    int GetStatementLine(int offs, int len, RSLMODULE mod);
+    //int GetRealIndex(int _virtual, WNDENUM wnd);
 
 private:
     CStackInfo m_stackinfo;
     QScopedPointer<CSurvey> m_survey;
     QScopedPointer<CQSurvey> m_qsurvey;
+    QScopedPointer<CLocals> m_locals;
     int m_index;
     CBPData m_bpdata;
     unsigned long bpKey;
+
+    RSLMODULE m_curmod;
+    RSLMODULE m_actmod; //active module, which is being debugged
+    bool m_isDebugging;
 };
 
 #endif // CDEBUG_H

@@ -1,4 +1,5 @@
 #include "csurvey.h"
+#include "cdebug.h"
 
 CSurvey::CSurvey(CDebug *pParent) :
     CWatchV(pParent)
