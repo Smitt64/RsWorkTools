@@ -103,3 +103,5 @@ InstallerScripts/testInstaller_old/
 rsldbg/debug/
 
 loki/debug/
+
+bin/

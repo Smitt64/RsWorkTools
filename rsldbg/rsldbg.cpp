@@ -32,12 +32,17 @@ Rsldbg::Rsldbg() :
         strcpy(argv[i], element.toStdString().c_str());
     }
 
-    m_pApp.reset(new QApplication(argc, argv));
+    if (qApp)
+        m_pApp = qApp;
+    else
+        m_pApp = new QApplication(argc, argv);
+    //m_pApp.reset();
 }
 
 Rsldbg::~Rsldbg()
 {
-    m_pApp.reset();
+    if (m_pApp)
+        delete m_pApp;
 
     for (int i = 0; i < m_pApp->arguments().count(); i++)
         delete[] argv[i];
@@ -139,6 +144,8 @@ int Rsldbg::DbgBreak(HDBG hDBG, uint32 data)
         if (bp && bp->bp_type == BP_DISABLED)
             return FALSE;
     }
+
+    return process(hDBG, bp);
 }
 
 int Rsldbg::process(HDBG hDBG, TBpData *data)
@@ -215,6 +222,7 @@ bool Rsldbg::init_ui()
     m_ActiveBeforeDbg = GetForegroundWindow();
 
     m_pWndMain.reset(new MainWindow());
+    m_pWndMain->setWindowModality(Qt::ApplicationModal);
     QObject::connect(m_pWndMain.data(), &MainWindow::closed, &m_EventLoop, &QEventLoop::quit);
 
     return true;

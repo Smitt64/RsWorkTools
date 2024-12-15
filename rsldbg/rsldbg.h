@@ -33,7 +33,7 @@ public:
 
 private:
     int process(HDBG hDBG, TBpData *data);
-    QScopedPointer<QApplication> m_pApp;
+    QApplication *m_pApp;
     char **argv;
 
     bool is_inited, is_ui;

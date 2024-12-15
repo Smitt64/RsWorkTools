@@ -54,10 +54,8 @@ HEADERS += \
     ui/mainwindow.h
 
 # Default rules for deployment.
-unix {
-    target.path = /usr/lib
-}
-!isEmpty(target.path): INSTALLS += target
+target.path = $$PWD/../RslTest/debug
+INSTALLS += target
 
 release: LIBS += -L../ToolsRuntime/rstools/lib/release
 debug: LIBS += -L../ToolsRuntime/rstools/lib/release
