@@ -5,24 +5,12 @@
 #include "lf/bp_data.h"
 #include "lf/types.h"
 #include "cwatchv.h"
+#include <QEvent>
 
-enum SaverCommands
-{
-    CMD_MODULE_LOAD,
-    CMD_MODULE_UNLOAD
-};
-
-class SaverBase
-{
-public:
-    virtual ~SaverBase()
-    {
-
-    };
-    virtual void Save() = 0;
-    virtual void Restore() = 0;
-    virtual void Command (SaverCommands command, void* params) = 0;
-};
+#define	MSG_BREAKPOINT (QEvent::User + 1)
+#define MSG_FINISH     (QEvent::User + 2)
+#define MSG_TRACE      (QEvent::User + 3)
+#define MSG_EDITWATCH  (QEvent::User + 4)
 
 typedef struct
 {
@@ -57,6 +45,7 @@ class CSurvey;
 class CQSurvey;
 class DisplayVar;
 class CLocals;
+class Saver;
 class CDebug : public CDebugRoot
 {
     Q_OBJECT
@@ -87,6 +76,7 @@ public:
     CSurvey* GetSurvey(void);
     CLocals* GetLocals();
     CQSurvey* GetQSurvey();
+    Saver *GetSaver();
 
     int FindStackIndex(RSLSTACK st);
     int GetStackCount();
@@ -140,6 +130,7 @@ private:
     QScopedPointer<CSurvey> m_survey;
     QScopedPointer<CQSurvey> m_qsurvey;
     QScopedPointer<CLocals> m_locals;
+    QScopedPointer<Saver> m_dataSaver;
     int m_index;
     CBPData m_bpdata;
     unsigned long bpKey;

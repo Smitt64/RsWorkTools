@@ -2,6 +2,7 @@
 #define REMBREAKPOINTS_H
 
 #include "cdebug.h"
+#include "saver.h"
 
 class RemBreakPoints : public SaverBase
 {

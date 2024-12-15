@@ -3,6 +3,7 @@
 #include "csurvey.h"
 #include "clocals.h"
 #include "cwatchv.h"
+#include "saver.h"
 
 const QString CDebug::expanding = "Expanding...\0";
 const QString CDebug::na        = "n/a...\0";
@@ -12,6 +13,7 @@ CDebug::CDebug(HRD inst, TDbgIntf *dbgftable, QObject *parent)
     m_survey(new CSurvey(this)),
     m_qsurvey(new CQSurvey(this)),
     m_locals(new CLocals(this)),
+    m_dataSaver(new Saver(this)),
     m_isDebugging(false)
 {
 
@@ -417,6 +419,11 @@ CLocals* CDebug::GetLocals()
 CQSurvey* CDebug::GetQSurvey()
 {
     return m_qsurvey.data();
+}
+
+Saver *CDebug::GetSaver()
+{
+    return m_dataSaver.data();
 }
 
 void CDebug::UpdateVariables()
