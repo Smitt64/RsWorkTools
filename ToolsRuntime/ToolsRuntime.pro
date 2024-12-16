@@ -13,14 +13,6 @@ include(../../configtools.pri)
 
 SOURCES += \
     aboutdlg.cpp \
-    codeeditor/codeeditor.cpp \
-    codeeditor/codehighlighter.cpp \
-    codeeditor/cppcodehighlighter.cpp \
-    codeeditor/highlighteditmodel.cpp \
-    codeeditor/highlighterstyle.cpp \
-    codeeditor/rslcodehighlighter.cpp \
-    codeeditor/sqlcodehighlighter.cpp \
-    codeeditor/xmlcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
     iconlibdlg.cpp \
@@ -80,14 +72,6 @@ SOURCES += \
 HEADERS += \
     ToolsRuntime_global.h \
     aboutdlg.h \
-    codeeditor/codeeditor.h \
-    codeeditor/codehighlighter.h \
-    codeeditor/cppcodehighlighter.h \
-    codeeditor/highlighteditmodel.h \
-    codeeditor/highlighterstyle.h \
-    codeeditor/rslcodehighlighter.h \
-    codeeditor/sqlcodehighlighter.h \
-    codeeditor/xmlcodehighlighter.h \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
@@ -164,6 +148,7 @@ FORMS += \
 LIBS += -lVersion -lGdi32 -lUser32
 
 RESOURCES += \
+    ../CodeEditorStatic/codeeditor.qrc \
     res/iconlib.qrc \
     res/res.qrc
 
@@ -182,3 +167,16 @@ INCLUDEPATH += $$PWD/hunspell/include
 
 #DEFINES += BUILD_DLM
 #INCLUDEPATH += D:/Build/Complect.19/Build/rstools/tools/h d:/Build/PgSQL_Main/tools/Build/panel/h d:/Build/PgSQL_Main/tools/Build/bedit/h
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/release/ -lCodeEditorStatic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/debug/ -lCodeEditorStatic
+else:unix: LIBS += -L$$OUT_PWD/../CodeEditorStatic/ -lCodeEditorStatic
+
+INCLUDEPATH += $$PWD/../CodeEditorStatic
+DEPENDPATH += $$PWD/../CodeEditorStatic
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/release/libCodeEditorStatic.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/debug/libCodeEditorStatic.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/release/CodeEditorStatic.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/debug/CodeEditorStatic.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/libCodeEditorStatic.a

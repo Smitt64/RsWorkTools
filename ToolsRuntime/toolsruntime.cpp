@@ -20,11 +20,11 @@
 #include <QLoggingCategory>
 #include <codeeditor/codehighlighter.h>
 #include <codeeditor/codeeditor.h>
+#include <codeeditor/highlighterstyle.h>
 #include <functional>
 #include <QProcess>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
-Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
 Q_LOGGING_CATEGORY(logSettings, "Settings")

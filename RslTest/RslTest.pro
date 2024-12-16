@@ -29,5 +29,5 @@ else:unix: LIBS += -L$$OUT_PWD/../ToolsRuntime/ -lToolsRuntime
 
 LIBS += -lOle32
 
-INCLUDEPATH += $$PWD/../ToolsRuntime
+INCLUDEPATH += $$PWD/../ToolsRuntime $$PWD/../CodeEditorStatic
 DEPENDPATH += $$PWD/../ToolsRuntime

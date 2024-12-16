@@ -5,6 +5,7 @@
 
 #include "ToolsRuntime_global.h"
 #include <QTextCharFormat>
+#include <QLoggingCategory>
 
 #define FormatKeyword "keyword"
 #define FormatKeyword2 "keyword2"
@@ -18,6 +19,7 @@
 #define FormatElemType "type"
 
 #define SYNTAXHIGHLIGHTER_FOLDER "syntaxhighlighter"
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
 
 class QColor;
 class HighlighterStylePrivate;

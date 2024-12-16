@@ -13,6 +13,7 @@
 #include <QApplication>
 #include <QMapIterator>
 
+Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
 HighlighterStyle *HighlighterStyle::m_Inst = nullptr;
 
 #define NO_ELEMENT_TEMPLATE QString("Element \"%1\" not exists")

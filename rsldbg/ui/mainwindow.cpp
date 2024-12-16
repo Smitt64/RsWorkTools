@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <codeeditor/codeeditor.h>
+#include <codeeditor/cppcodehighlighter.h>
 #include <QDebug>
 #include <QMessageBox>
 
@@ -24,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_pCodeEditor = new CodeEditor(this);
     setCentralWidget(m_pCodeEditor);
     m_tracemsg = new CTraceMsg();
+
+    ToolApplyHighlighter(m_pCodeEditor, HighlighterRsl);
 }
 
 MainWindow::~MainWindow()
@@ -192,6 +195,7 @@ void MainWindow::UpdateText(int index)
 
         QString content = ReadTextFileContent(filename, "IBM 866");
         m_pCodeEditor->setPlainText(content);
+
         //toolReadTextFileContent(filename, "IBM 866");
         //bool rv = m_curdbg->do_OpenSrc (mod, &hsrc, &encode);
         //m_curdbg->do_CloseSrc(hsrc);

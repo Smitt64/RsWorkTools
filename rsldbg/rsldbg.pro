@@ -12,16 +12,6 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ../ToolsRuntime/codeeditor/codeeditor.cpp \
-    ../ToolsRuntime/codeeditor/codeeditor.cpp \
-    ../ToolsRuntime/codeeditor/codehighlighter.cpp \
-    ../ToolsRuntime/codeeditor/cppcodehighlighter.cpp \
-    ../ToolsRuntime/codeeditor/highlighteditmodel.cpp \
-    ../ToolsRuntime/codeeditor/highlighterstyle.cpp \
-    ../ToolsRuntime/codeeditor/rslcodehighlighter.cpp \
-    ../ToolsRuntime/codeeditor/sqlcodehighlighter.cpp \
-    ../ToolsRuntime/codeeditor/xmlcodehighlighter.cpp \
-    ../ToolsRuntime/toolsruntime.cpp \
     cdebug.cpp \
     cdebugroot.cpp \
     clocals.cpp \
@@ -41,16 +31,6 @@ SOURCES += \
     ui/mainwindow.cpp
 
 HEADERS += \
-    ../ToolsRuntime/codeeditor/codeeditor.h \
-    ../ToolsRuntime/codeeditor/codeeditor.h \
-    ../ToolsRuntime/codeeditor/codehighlighter.h \
-    ../ToolsRuntime/codeeditor/cppcodehighlighter.h \
-    ../ToolsRuntime/codeeditor/highlighteditmodel.h \
-    ../ToolsRuntime/codeeditor/highlighterstyle.h \
-    ../ToolsRuntime/codeeditor/rslcodehighlighter.h \
-    ../ToolsRuntime/codeeditor/sqlcodehighlighter.h \
-    ../ToolsRuntime/codeeditor/xmlcodehighlighter.h \
-    ../ToolsRuntime/toolsruntime.h \
     cdebug.h \
     cdebugroot.h \
     clocals.h \
@@ -103,3 +83,23 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../loki/libloki.a
 
 FORMS += \
     ui/mainwindow.ui
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/release/ -lCodeEditorStatic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/debug/ -lCodeEditorStatic
+else:unix: LIBS += -L$$OUT_PWD/../CodeEditorStatic/ -lCodeEditorStatic
+
+INCLUDEPATH += $$PWD/../CodeEditorStatic
+DEPENDPATH += $$PWD/../CodeEditorStatic
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/release/libCodeEditorStatic.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/debug/libCodeEditorStatic.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/release/CodeEditorStatic.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/debug/CodeEditorStatic.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/libCodeEditorStatic.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/release/ -lCodeEditorStatic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CodeEditorStatic/debug/ -lCodeEditorStatic
+else:unix: LIBS += -L$$OUT_PWD/../CodeEditorStatic/ -lCodeEditorStatic
+
+INCLUDEPATH += $$PWD/../CodeEditorStatic
+DEPENDPATH += $$PWD/../CodeEditorStatic

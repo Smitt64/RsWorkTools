@@ -6,14 +6,7 @@
         <file>about/index_template.html</file>
         <file>icons/themeui.dll_14_701-0.png</file>
         <file>ui/StyleTest.ui</file>
-        <file alias="DefaultHighlighterStyle">../codeeditor/Default.json</file>
-        <file>highlighter/cpp_rsdefines.txt</file>
-        <file>highlighter/cpp_rsenums.txt</file>
-        <file>highlighter/cpp_rstypes.txt</file>
-        <file>highlighter/rsl_keywords.txt</file>
         <file>icons/wordpad.exe_14_128-5.png</file>
-        <file alias="VisualStudioDark">../syntaxhighlighter/Visual Studio (Dark).json</file>
-        <file alias="VisualStudioLight">../syntaxhighlighter/Visual Studio (Light).json</file>
         <file>codeeditoroptions/example.cpp</file>
         <file>codeeditoroptions/ListParams.json</file>
         <file>img/Erase.png</file>
@@ -21,7 +14,6 @@
         <file>icons/shell32.dll_14_22-8.png</file>
         <file>icons/shell32.dll_14_154-6.png</file>
         <file>icons/shell32.dll_14_274-0.png</file>
-        <file>highlighter/sql_keys.txt</file>
         <file>icons/msgr3en.dll_14_128_0-4.png</file>
         <file>icons/shell32.dll_14_151-3.png</file>
         <file>img/new.png</file>

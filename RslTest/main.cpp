@@ -12,9 +12,9 @@
 int main(int argc, char *argv[])
 {
     CoInitialize(NULL);
+    //Q_INIT_RESOURCE(codeeditor);
     QApplication a(argc, argv);
 
-    qDebug() << qApp->style();
     QStyle *style = QStyleFactory::create(DefaultStyleName);
     //a.setStyle(style);
 
