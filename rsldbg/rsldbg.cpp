@@ -1,18 +1,26 @@
-#include "cdebug.h"
-#include "rsldbg.h"
-#include "rsl/dbgintf.h"
-#include "saver.h"
 #include "ui/events/dbgbreakpointevent.h"
 #include "ui/events/dbgtraceevent.h"
 #include "ui/mainwindow.h"
+#include "cdebug.h"
+#include "rsl/dbgintf.h"
+#include "saver.h"
 #include "cqsurvey.h"
 #include "csurvey.h"
 #include "clocals.h"
 #include "cwatchv.h"
 #include <windows.h>
 #include <QApplication>
+#include <QLibrary>
+#include "rsldbg.h"
 
 Q_GLOBAL_STATIC(Rsldbg, rsldbg)
+
+Qt::HANDLE ActiveBeforeDbg()
+{
+    return rsldbg->activeBeforeDbg();
+}
+
+// ------------------------------------------------------------------------------
 
 Rsldbg::Rsldbg() :
     m_pApp(nullptr),
@@ -32,6 +40,12 @@ Rsldbg::Rsldbg() :
         strcpy(argv[i], element.toStdString().c_str());
     }
 
+    m_RsLeng.reset(new QLibrary("rsscript.dll"));
+    if (m_RsLeng->load())
+    {
+        RslGetModuleFile = (tRslGetModuleFile)m_RsLeng->resolve("RslGetModuleFile");
+    }
+
     if (qApp)
         m_pApp = qApp;
     else
@@ -48,6 +62,11 @@ Rsldbg::~Rsldbg()
         delete[] argv[i];
 
     delete[] argv;
+}
+
+Qt::HANDLE Rsldbg::activeBeforeDbg()
+{
+    return m_ActiveBeforeDbg;
 }
 
 int Rsldbg::size()
@@ -288,6 +307,13 @@ static void RSDBG DbgSetMode(HDBG hInst, int mode)
 
     if(0!=mode)
         pDebug->SetExternalMode(FALSE);
+}
+
+// ------------------------------------------------------------------------------
+
+char *RslGetModuleFile(Qt::HANDLE mod, int *isBtrStream)
+{
+    return rsldbg->RslGetModuleFile(mod, isBtrStream);
 }
 
 // ------------------------------------------------------------------------------

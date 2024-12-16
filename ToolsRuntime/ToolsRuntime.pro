@@ -1,7 +1,7 @@
 QT += gui widgets webengine webenginewidgets xml uitools sql testlib
 
 TEMPLATE = lib
-DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
+DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN TOOLSRUNTIME_IMPORT_PLUGIN
 
 CONFIG += c++17
 RC_FILE = res/winfmt.rc

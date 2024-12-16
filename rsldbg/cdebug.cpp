@@ -10,13 +10,22 @@ const QString CDebug::na        = "n/a...\0";
 
 CDebug::CDebug(HRD inst, TDbgIntf *dbgftable, QObject *parent)
     : CDebugRoot{parent},
+    inInteractiveExp(false),
     m_survey(new CSurvey(this)),
     m_qsurvey(new CQSurvey(this)),
     m_locals(new CLocals(this)),
     m_dataSaver(new Saver(this)),
     m_isDebugging(false)
 {
+    m_inst            = inst;
+    m_dbgftable       = dbgftable;
+    m_dbgintfMajorVer = m_dbgftable->GetVersion (inst, 0);
+    m_index           = 0;
 
+    m_nVerHi = 0;
+    m_nVerLo = 0;
+
+    bpKey = 0;
 }
 
 CDebug::~CDebug()

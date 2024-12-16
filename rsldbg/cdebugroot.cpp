@@ -367,7 +367,7 @@ bool CDebugRoot::do_SetNewInfo(RSLVINFO hinfo,RSLSTACK st, const char *txt, bool
     return true;
 }
 
-bool CDebugRoot::do_OpenSrc(RSLMODULE hmod, RSLSRC* rv,int* encode)
+bool CDebugRoot::do_OpenSrc(RSLMODULE hmod, RSLSRC* rv, int* encode)
 {
     CHECK_FTABLE(OpenSrc);
 

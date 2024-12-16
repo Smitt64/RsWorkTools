@@ -8,8 +8,12 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QTextStream>
+
+#ifdef QT_SQL_LIB
 #include <QSqlQuery>
 #include <QSqlError>
+#endif
+
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QSyntaxHighlighter>
@@ -27,7 +31,9 @@ Q_LOGGING_CATEGORY(logSettings, "Settings")
 Q_LOGGING_CATEGORY(logProcess, "Process")
 Q_LOGGING_CATEGORY(logUpdate, "Update")
 
+#ifdef TOOLSRUNTIME_IMPORT_PLUGIN
 Q_IMPORT_PLUGIN(RslToolsRuntimeModule)
+#endif
 
 typedef std::reference_wrapper<const QLoggingCategory> LoggingCategoryRef;
 typedef std::pair<QString, LoggingCategoryRef> LoggingCategoryPair;
@@ -309,6 +315,7 @@ QString toolGetRuntimeVersion()
     return versionNumberString;
 }
 
+#ifdef QT_SQL_LIB
 int toolExecuteQuery(QSqlQuery *query, QString *err)
 {
     int stat = 0;
@@ -335,6 +342,7 @@ int toolExecuteQuery(QSqlQuery *query, QString *err)
 
     return stat;
 }
+#endif
 
 int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code)
 {
@@ -383,10 +391,12 @@ int toolHighlighterByName(const QString &name)
     return HighlighterPlain;
 }
 
+#ifdef QT_SQL_LIB
 void toolMakeSqlDatabaseObj(QSqlDatabase &db, QObject **obj)
 {
     *obj = new SqlDatabase(db);
 }
+#endif
 
 QString toolGetProcessErrorText(const QProcess::ProcessError &error)
 {

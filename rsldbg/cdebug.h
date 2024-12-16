@@ -61,6 +61,7 @@ public:
     short int m_nVerLo;
     static const QString na;
     static const QString expanding;
+    bool inInteractiveExp;
 
     iter_bpdata FindBP(TBpData*);
     TBpData* FindBPbyKey (unsigned long key);

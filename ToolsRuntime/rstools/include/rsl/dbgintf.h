@@ -47,8 +47,8 @@
 
 #ifndef _INC_WINDOWS
     //RSL_MAKE_HANDLE(HWND);
-    typedef void * HWND;
-    typedef unsigned long  DWORD;
+    //typedef void * HWND;
+    //typedef unsigned long  DWORD;
 #endif
 
 #ifndef __RSDBHD_HPP
