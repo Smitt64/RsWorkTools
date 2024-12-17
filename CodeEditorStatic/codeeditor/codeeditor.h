@@ -8,6 +8,7 @@
 
 class CodeHighlighter;
 class CodeEditorPrivate;
+class CodeEditorLineWidgetProvider;
 class TOOLSRUNTIME_EXPORT CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -28,12 +29,18 @@ public:
     void setStyle(const QString &style);
     void rehighlight();
 
+    void setCodeEditorLineWidgetProvider(CodeEditorLineWidgetProvider *provider);
+    CodeEditorLineWidgetProvider *codeEditorLineWidgetProvider();
+
+    void setAutoHighlightCurrentLine(const bool &v);
+
 protected:
     void setCodeHighlighter(CodeHighlighter *highlighter);
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
 signals:
     void currentLineChanged(const int &last, const int &cur);
+    void lineNumberClicked(const int &line);
 
 private:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -41,6 +48,17 @@ private:
 
     CodeEditorPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(CodeEditor);
+};
+
+class CodeEditorLineWidgetProvider
+{
+public:
+    virtual void addItemId(const int &id, const int &line) {};
+    virtual void removeItemId(const int &id, const int &line) {};
+
+    virtual int width() const = 0;
+    virtual void paint(QPainter *painter, const int &line, const QRect &rc) = 0;
+    virtual void lineClick(const int &line, const Qt::MouseButton &button) {};
 };
 
 #endif // CODEEDITOR_H

@@ -13,6 +13,7 @@ class MainWindow;
 class CDebug;
 class CodeEditor;
 class DbgBreakpointEvent;
+class DbgEditorLineWidgetProvider;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -34,6 +35,7 @@ protected:
     bool event(QEvent *event) Q_DECL_OVERRIDE;
 
 private:
+    void InitMainToolBar();
     void UpdateStack();
     void UpdateText(RSLMODULE mod, bool notActivModule);
     void UpdateText(int index);
@@ -47,7 +49,10 @@ private:
     RSLSTMT m_lastStmt;
 
     CodeEditor *m_pCodeEditor;
+    DbgEditorLineWidgetProvider *m_pCodeEditorProvider;
     Qt::HANDLE m_tracemsg;
+
+    QAction *m_pRunAction;
 };
 
 #endif // MAINWINDOW_H

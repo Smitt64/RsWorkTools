@@ -1,3 +1,4 @@
+#include "qdebug.h"
 #include "ui/events/dbgbreakpointevent.h"
 #include "ui/events/dbgtraceevent.h"
 #include "ui/mainwindow.h"
@@ -28,6 +29,7 @@ Rsldbg::Rsldbg() :
     is_inited(false),
     is_ui(false)
 {
+    QIcon::setThemeName("winxp-theme");
     QStringList arguments = QApplication::arguments();
 
     int argc = arguments.count();
@@ -232,7 +234,6 @@ void Rsldbg::remModule(HDBG hinst, RSLMODULE hmod)
 void Rsldbg::done_ui()
 {
     //if  (!m_pWndMain.empty())
-
 }
 
 bool Rsldbg::init_ui()

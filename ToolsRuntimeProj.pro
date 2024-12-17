@@ -9,7 +9,7 @@ SUBDIRS += \
     loki \
     rsldbg
 
-rsldbg.depends = loki
+rsldbg.depends = CodeEditorStatic loki
 RslTest.depends = CodeEditorStatic
 RslTest.depends = ToolsRuntime
 ToolsRuntime.depends = CodeEditorStatic RslToolRuntimeStatic

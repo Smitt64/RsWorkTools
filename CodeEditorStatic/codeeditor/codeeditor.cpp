@@ -14,25 +14,62 @@
 class LineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(CodeEditor *editor) : QWidget(editor) {
+    LineNumberArea(CodeEditor *editor) : QWidget(editor)
+    {
         codeEditor = editor;
     }
+
     ~LineNumberArea()
     {
         codeEditor = NULL;
     }
 
-    QSize sizeHint() const Q_DECL_OVERRIDE {
+    QSize sizeHint() const Q_DECL_OVERRIDE
+    {
         return QSize(codeEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE {
+    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE
+    {
         codeEditor->lineNumberAreaPaintEvent(event);
+    }
+
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    {
+        m_MousePressPoint = event->pos();
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    {
+        CodeEditorLineWidgetProvider *provider = codeEditor->codeEditorLineWidgetProvider();
+        QTextBlock block = codeEditor->firstVisibleBlock();
+        int blockNumber = block.blockNumber();
+
+        while (block.isValid() )
+        {
+            QRectF rect = codeEditor->blockBoundingGeometry(block).translated(codeEditor->contentOffset());
+            QPointF translated(rect.left() + 1, m_MousePressPoint.y());
+
+            if (rect.contains(translated))
+            {
+                if (provider)
+                {
+                    provider->lineClick(blockNumber + 1, event->button());
+                    update();
+                    emit codeEditor->lineNumberClicked(blockNumber + 1);
+                }
+            }
+                //qDebug() << "Line number" << blockNumber + 1;
+
+            block = block.next();
+            blockNumber ++;
+        }
     }
 
 private:
     CodeEditor *codeEditor;
+    QPoint m_MousePressPoint;
 };
 
 class CodeEditorPrivate
@@ -42,12 +79,14 @@ public:
     CodeEditorPrivate(CodeEditor *obj)
     {
         q_ptr = obj;
+        m_AutoHighlightCurrentLine = true;
         m_CurrentWordColor = QColor("#9BFF9B");
 
         m_CurrentLineColor = QColor(Qt::yellow).lighter(160);
         lineNumberArea = new LineNumberArea(obj);
 
         m_pCodeHighlighter = nullptr;
+        m_pIconProvider = nullptr;
     }
 
     void lineNumberAreaPaintEvent(QPaintEvent *event)
@@ -59,10 +98,12 @@ public:
         opt.init(lineNumberArea);
         opt.rect = event->rect();
         QStyle *s = qApp->style();
+        int line_offset = 0;
         QPalette palette = s->standardPalette();
-        //m_pCodeHighlighter
         QColor linenumbersBackground = palette.color(QPalette::Normal, QPalette::Window);
         QColor linenumbersForeground = palette.color(QPalette::Normal, QPalette::Text);
+        QColor editorBackground = palette.color(QPalette::Normal, QPalette::Light);
+        QColor editorCurrentLine = palette.color(QPalette::Normal, QPalette::Light);
 
         if (m_pCodeHighlighter && m_pCodeHighlighter->style())
         {
@@ -71,9 +112,33 @@ public:
 
             if (m_pCodeHighlighter->style()->linenumbersForeground().isValid())
                 linenumbersForeground = m_pCodeHighlighter->style()->linenumbersForeground();
+
+            if (m_pCodeHighlighter->style()->editorBackground().isValid())
+                editorBackground = m_pCodeHighlighter->style()->editorBackground();
+
+            if (m_pCodeHighlighter->style()->editorCurrentLine().isValid())
+                editorCurrentLine = m_pCodeHighlighter->style()->editorCurrentLine();
         }
 
-        painter.fillRect(event->rect(), linenumbersBackground);
+        painter.fillRect(event->rect(), editorBackground);
+
+        if (m_pIconProvider)
+        {
+            line_offset = m_pIconProvider->width();
+
+            QRect rc = event->rect();
+            rc.setWidth(line_offset);
+
+            painter.save();
+            painter.fillRect(rc, linenumbersBackground);
+            painter.restore();
+        }
+
+        QLine l(QPoint(opt.rect.width() - 1, opt.rect.top()), QPoint(opt.rect.width() - 1, opt.rect.bottom()));
+        painter.save();
+        painter.setPen(editorCurrentLine);
+        painter.drawLine(l);
+        painter.restore();
 
         QTextBlock block = q->firstVisibleBlock();
         int blockNumber = block.blockNumber();
@@ -84,6 +149,7 @@ public:
         {
             if (block.isVisible() && bottom >= event->rect().top())
             {
+                painter.save();
                 QFont f = painter.font();
                 f.setBold(false);
                 QString number = QString::number(blockNumber + 1);
@@ -96,8 +162,16 @@ public:
                 }
 
                 painter.setFont(f);
-                painter.drawText(0, top, lineNumberArea->width() - 4, q->fontMetrics().height(),
+                painter.drawText(line_offset, top, lineNumberArea->width() - 4 - line_offset, q->fontMetrics().height(),
                                  Qt::AlignRight, number);
+                painter.restore();
+
+                if (m_pIconProvider)
+                {
+                    painter.save();
+                    m_pIconProvider->paint(&painter, blockNumber + 1, QRect(0, top, line_offset, q->blockBoundingGeometry(q->firstVisibleBlock()).height()));
+                    painter.restore();
+                }
             }
 
             block = block.next();
@@ -136,7 +210,8 @@ public:
             QBrush backBrush(m_CurrentWordColor);//"#9BFF9B"
 
             QTextCursor highlightCursor(q->document());
-            while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+            while (!highlightCursor.isNull() && !highlightCursor.atEnd())
+            {
                 highlightCursor = q->document()->find(searchString, highlightCursor, QTextDocument::FindWholeWords);
 
                 if (!highlightCursor.isNull())
@@ -159,7 +234,14 @@ public:
         if (dy)
             lineNumberArea->scroll(0, dy);
         else
-            lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+        {
+            int w = lineNumberArea->width();
+
+            if (m_pIconProvider)
+                w += m_pIconProvider->width() + 2;
+
+            lineNumberArea->update(0, rect.y(), w, rect.height());
+        }
 
         if (rect.contains(q->viewport()->rect()))
             q->setViewportMargins(q->lineNumberAreaWidth(), 0, 0, 0);
@@ -173,7 +255,9 @@ public:
 
     QColor m_CurrentLineColor, m_CurrentWordColor;
 
+    bool m_AutoHighlightCurrentLine;
     CodeHighlighter *m_pCodeHighlighter;
+    CodeEditorLineWidgetProvider *m_pIconProvider;
     CodeEditor *q_ptr;
 };
 
@@ -197,10 +281,13 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     connect(this, &CodeEditor::cursorPositionChanged, [=]()
     {
-        d->selectionCurrentLine.format.setBackground(d->m_CurrentLineColor);
-        d->selectionCurrentLine.format.setProperty(QTextFormat::FullWidthSelection, true);
-        d->selectionCurrentLine.cursor = textCursor();
-        d->selectionCurrentLine.cursor.clearSelection();
+        if (d->m_AutoHighlightCurrentLine)
+        {
+            d->selectionCurrentLine.format.setBackground(d->m_CurrentLineColor);
+            d->selectionCurrentLine.format.setProperty(QTextFormat::FullWidthSelection, true);
+            d->selectionCurrentLine.cursor = textCursor();
+            d->selectionCurrentLine.cursor.clearSelection();
+        }
 
         d->ApplyExtraSelections();
     });
@@ -228,6 +315,12 @@ CodeEditor::~CodeEditor()
     delete d_ptr;
 }
 
+void CodeEditor::setAutoHighlightCurrentLine(const bool &v)
+{
+    Q_D(CodeEditor);
+    d->m_AutoHighlightCurrentLine = v;
+}
+
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     Q_D(CodeEditor);
@@ -236,6 +329,8 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 
 int CodeEditor::lineNumberAreaWidth()
 {
+    Q_D(CodeEditor);
+
     int digits = 1;
     int max = qMax(4, blockCount());
     while (max >= 10) {
@@ -244,6 +339,10 @@ int CodeEditor::lineNumberAreaWidth()
     }
 
     int space = 1 + fontMetrics().width(QLatin1Char('9')) * /*digits*/5;
+
+    if (d->m_pIconProvider)
+        space += 2 + d->m_pIconProvider->width();
+
     return space;
 }
 
@@ -278,6 +377,20 @@ void CodeEditor::setCodeHighlighter(CodeHighlighter *highlighter)
 {
     Q_D(CodeEditor);
     d->m_pCodeHighlighter = highlighter;
+}
+
+void CodeEditor::setCodeEditorLineWidgetProvider(CodeEditorLineWidgetProvider *provider)
+{
+    Q_D(CodeEditor);
+    d->m_pIconProvider = provider;
+    d->lineNumberArea->update();
+    update();
+}
+
+CodeEditorLineWidgetProvider *CodeEditor::codeEditorLineWidgetProvider()
+{
+    Q_D(CodeEditor);
+    return d->m_pIconProvider;
 }
 
 void CodeEditor::rehighlight()

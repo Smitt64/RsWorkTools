@@ -1,6 +1,7 @@
 #include "cdebug.h"
 #include "saver.h"
 #include "mainwindow.h"
+#include "ui/dbgeditorlinewidgetprovider.h"
 #include "ui_mainwindow.h"
 #include "rsl/dbgintf.h"
 #include "rsldbg.h"
@@ -21,11 +22,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    InitMainToolBar();
 
     m_pCodeEditor = new CodeEditor(this);
     m_pCodeEditor->setReadOnly(true);
+    m_pCodeEditor->setAutoHighlightCurrentLine(false);
     setCentralWidget(m_pCodeEditor);
     m_tracemsg = new CTraceMsg();
+
+    m_pCodeEditorProvider = new DbgEditorLineWidgetProvider();
+    m_pCodeEditor->setCodeEditorLineWidgetProvider(m_pCodeEditorProvider);
 
     ToolApplyHighlighter(m_pCodeEditor, HighlighterRsl);
 }
@@ -33,6 +39,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::InitMainToolBar()
+{
+    m_pRunAction = ui->toolBar->addAction(QIcon::fromTheme("Run"), tr("Run"));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

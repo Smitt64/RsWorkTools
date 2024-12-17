@@ -26,6 +26,7 @@ SOURCES += \
     remexpressions.cpp \
     rsldbg.cpp \
     saver.cpp \
+    ui/dbgeditorlinewidgetprovider.cpp \
     ui/events/dbgbreakpointevent.cpp \
     ui/events/dbgtraceevent.cpp \
     ui/mainwindow.cpp
@@ -49,6 +50,7 @@ HEADERS += \
     rsldbg.h \
     saver.h \
     tracemsg.h \
+    ui/dbgeditorlinewidgetprovider.h \
     ui/events/dbgbreakpointevent.h \
     ui/events/dbgtraceevent.h \
     ui/mainwindow.h
@@ -103,3 +105,6 @@ else:unix: LIBS += -L$$OUT_PWD/../CodeEditorStatic/ -lCodeEditorStatic
 
 INCLUDEPATH += $$PWD/../CodeEditorStatic
 DEPENDPATH += $$PWD/../CodeEditorStatic
+
+RESOURCES += \
+    dbgres.qrc
