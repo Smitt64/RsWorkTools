@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     m_pCodeEditor = new CodeEditor(this);
+    m_pCodeEditor->setReadOnly(true);
     setCentralWidget(m_pCodeEditor);
     m_tracemsg = new CTraceMsg();
 
@@ -159,8 +160,8 @@ void MainWindow::ProcessBreakPoint(DbgBreakpointEvent *ev)
     int offs, len;
     if (ev->dbg() && ev->data() && cur_bpdata->bp_type == BP_INVISIBLE)
     {
-        m_curdbg->do_ClrBreakPoint (m_curdbg->GetCurStatement (&offs, &len));
-        m_curdbg->DelBp (cur_bpdata);
+        m_curdbg->do_ClrBreakPoint(m_curdbg->GetCurStatement (&offs, &len));
+        m_curdbg->DelBp(cur_bpdata);
     }
 
     m_curdbg->SetIndex(0);
@@ -196,10 +197,8 @@ void MainWindow::UpdateText(int index)
         QString content = ReadTextFileContent(filename, "IBM 866");
         m_pCodeEditor->setPlainText(content);
 
-        //toolReadTextFileContent(filename, "IBM 866");
         //bool rv = m_curdbg->do_OpenSrc (mod, &hsrc, &encode);
         //m_curdbg->do_CloseSrc(hsrc);
-        //char filename = RslGetModuleFile(mod, isBtrStream);
         /*if (hsrc <= 0)
         {
             TRACE("do_OpenSrc returned bad value\n");
