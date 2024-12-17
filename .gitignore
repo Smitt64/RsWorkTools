@@ -105,3 +105,5 @@ rsldbg/debug/
 loki/debug/
 
 bin/
+
+CodeEditorStatic/debug/
