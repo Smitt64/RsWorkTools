@@ -10,6 +10,9 @@
 class QSqlQuery;
 class QSqlDatabase;
 class QProcess;
+class QNetworkAccessManager;
+class QNetworkRequest;
+class QNetworkReply;
 
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
@@ -18,6 +21,7 @@ TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logSql)
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logSettings)
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logProcess)
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUpdate)
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logNetApi)
 
 TOOLSRUNTIME_EXPORT void toolMakeSqlDatabaseObj(QSqlDatabase &db, QObject **obj);
 
@@ -49,5 +53,13 @@ TOOLSRUNTIME_EXPORT int toolStartProcess(QProcess *exe, const QString &program,
                                              bool waitForStarted = false,
                                              int timeout = 30000,
                                              bool waitForReadyRead = false);
+
+typedef std::tuple<QString, QString> UserDomainTuple;
+TOOLSRUNTIME_EXPORT UserDomainTuple toolGetCurrentUserAndDomain();
+TOOLSRUNTIME_EXPORT QString toolGetApiUrl(const QString &method);
+TOOLSRUNTIME_EXPORT QNetworkReply *toolGetApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager, bool wait = false);
+TOOLSRUNTIME_EXPORT QNetworkReply *toolPostApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager,
+                                                    const QByteArray &data,
+                                                    bool wait = false);
 
 #endif // TOOLSRUNTIME_H
