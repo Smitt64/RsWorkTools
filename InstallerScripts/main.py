@@ -12,7 +12,7 @@ print(fqdn)
 
 ConfigObj.inst().setInstallerPath(OutputPath)
 
-if (fqdn == 'SerpkovN.bryansk.softlab.ru'):
+if (fqdn == 'PC-32099.softlab.ru'):
       ConfigObj.inst().setQtComplect('d:\\Qt5\\5.15.2\msvc2019\\')
       ConfigObj.inst().setQtInstallerFramework('d:\\Qt5\\Tools\\QtInstallerFramework\\4.6\\')
 else:
@@ -38,5 +38,5 @@ print(ConfigObj.inst().getQtComplect().getReleaseDate())
 
 InstallerObj = worktoolsinstaller.WorkToolsInstaller()
 InstallerObj.addRepository('file:///{}'.format(RepoPath), 'Local')
-InstallerObj.addRepository('file://SERPKOVN.BRYANSK.SOFTLAB.RU/WorkToolsRepo', 'Remote')
+InstallerObj.addRepository('file://PC-32099.softlab.ru/WorkToolsRepo', 'Remote')
 InstallerObj.make(ConfigObj.inst().getInstallerPath())
