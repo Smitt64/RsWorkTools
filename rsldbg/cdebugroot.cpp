@@ -451,7 +451,7 @@ bool CDebugRoot::do_Interrupt()
     return true;
 }
 
-bool CDebugRoot::do_ExecContinue( int traceFlag)
+bool CDebugRoot::do_ExecContinue(int traceFlag)
 {
     CHECK_FTABLE(ExecContinue);
 

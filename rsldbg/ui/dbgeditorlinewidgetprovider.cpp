@@ -31,6 +31,13 @@ void DbgEditorLineWidgetProvider::paint(QPainter *painter, const int &line, cons
         QRect rc(rect.topLeft(), QSize(rect.height(), rect.height()));
         painter->drawPixmap(rc, breakpoint.pixmap(rect.height()));
     }
+
+    if (flags & IconCurrentLine)
+    {
+        QIcon breakpoint = QIcon::fromTheme("CurrentLine");
+        QRect rc(rect.topLeft(), QSize(rect.height(), rect.height()));
+        painter->drawPixmap(rc, breakpoint.pixmap(rect.height()));
+    }
 }
 
 void DbgEditorLineWidgetProvider::lineClick(const int &line, const Qt::MouseButton &button)
@@ -46,7 +53,19 @@ void DbgEditorLineWidgetProvider::lineClick(const int &line, const Qt::MouseButt
 
 void DbgEditorLineWidgetProvider::addItemId(const int &id, const int &line)
 {
-     m_IconInfo[line] = m_IconInfo[line] | id;
+    if (id == IconCurrentLine)
+    {
+        QMapIterator<int, quint32> iter(m_IconInfo);
+
+        while (iter.hasNext())
+        {
+            iter.next();
+            removeItemId(IconCurrentLine, iter.key());
+        }
+
+    }
+
+    m_IconInfo[line] = m_IconInfo[line] | id;
 }
 
 void DbgEditorLineWidgetProvider::removeItemId(const int &id, const int &line)

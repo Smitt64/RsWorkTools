@@ -33,6 +33,11 @@ public:
     CodeEditorLineWidgetProvider *codeEditorLineWidgetProvider();
 
     void setAutoHighlightCurrentLine(const bool &v);
+    bool autoHighlightCurrentLine() const;
+
+    void setCurrentHighlightLine(const int &line);
+    void appendUserSelection(const QTextCursor &cursor, const QTextCharFormat &format);
+    void clearUserSelection();
 
 protected:
     void setCodeHighlighter(CodeHighlighter *highlighter);

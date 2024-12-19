@@ -46,10 +46,12 @@ protected:
         QTextBlock block = codeEditor->firstVisibleBlock();
         int blockNumber = block.blockNumber();
 
-        while (block.isValid() )
+        while (block.isValid())
         {
             QRectF rect = codeEditor->blockBoundingGeometry(block).translated(codeEditor->contentOffset());
-            QPointF translated(rect.left() + 1, m_MousePressPoint.y());
+            rect.setX(0);
+            rect.setWidth(provider->width());
+            QPointF translated(m_MousePressPoint.x(), m_MousePressPoint.y());
 
             if (rect.contains(translated))
             {
@@ -60,7 +62,6 @@ protected:
                     emit codeEditor->lineNumberClicked(blockNumber + 1);
                 }
             }
-                //qDebug() << "Line number" << blockNumber + 1;
 
             block = block.next();
             blockNumber ++;
@@ -79,6 +80,7 @@ public:
     CodeEditorPrivate(CodeEditor *obj)
     {
         q_ptr = obj;
+        currentHighlightLine = 0;
         m_AutoHighlightCurrentLine = true;
         m_CurrentWordColor = QColor("#9BFF9B");
 
@@ -155,7 +157,8 @@ public:
                 QString number = QString::number(blockNumber + 1);
                 painter.setPen(linenumbersForeground);
 
-                if (block == q->textCursor().block())
+                if ((block == q->textCursor().block() && m_AutoHighlightCurrentLine) ||
+                    (!m_AutoHighlightCurrentLine && block.blockNumber() + 1 == currentHighlightLine))
                 {
                     painter.setPen(linenumbersForeground);
                     f.setBold(true);
@@ -187,6 +190,7 @@ public:
         QList<QTextEdit::ExtraSelection> selections;
         selections.append(selectionCurrentLine);
         selections.append(Selections);
+        selections.append(userSelections);
         q->setExtraSelections(selections);
     }
 
@@ -249,9 +253,9 @@ public:
 
     QWidget *lineNumberArea;
     QTextEdit::ExtraSelection selectionCurrentLine;
-    QList<QTextEdit::ExtraSelection> Selections, applyExtraSelections;
+    QList<QTextEdit::ExtraSelection> Selections, applyExtraSelections, userSelections;
 
-    int tabStop, lastLine;
+    int tabStop, lastLine, currentHighlightLine;
 
     QColor m_CurrentLineColor, m_CurrentWordColor;
 
@@ -319,6 +323,53 @@ void CodeEditor::setAutoHighlightCurrentLine(const bool &v)
 {
     Q_D(CodeEditor);
     d->m_AutoHighlightCurrentLine = v;
+}
+
+bool CodeEditor::autoHighlightCurrentLine() const
+{
+    Q_D(const CodeEditor);
+    return d->m_AutoHighlightCurrentLine;
+}
+
+void CodeEditor::setCurrentHighlightLine(const int &line)
+{
+    Q_D(CodeEditor);
+    d->currentHighlightLine = line;
+
+    if (line > 0)
+    {
+        QTextDocument *doc = document();
+        QTextBlock block = doc->findBlockByLineNumber(d->currentHighlightLine - 1);
+
+        if (block.isValid())
+        {
+            d->selectionCurrentLine.format.setBackground(d->m_CurrentLineColor);
+            d->selectionCurrentLine.format.setProperty(QTextFormat::FullWidthSelection, true);
+            d->selectionCurrentLine.cursor = QTextCursor(block);
+            d->selectionCurrentLine.cursor.clearSelection();
+        }
+    }
+
+    d->ApplyExtraSelections();
+}
+
+void CodeEditor::appendUserSelection(const QTextCursor &cursor, const QTextCharFormat &format)
+{
+    Q_D(CodeEditor);
+
+    QTextEdit::ExtraSelection element;
+    element.cursor = cursor;
+    element.format = format;
+
+    d->userSelections.append(element);
+    d->ApplyExtraSelections();
+}
+
+void CodeEditor::clearUserSelection()
+{
+    Q_D(CodeEditor);
+    d->userSelections.clear();
+    d->ApplyExtraSelections();
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)

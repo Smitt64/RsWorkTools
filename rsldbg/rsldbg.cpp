@@ -21,6 +21,11 @@ Qt::HANDLE ActiveBeforeDbg()
     return rsldbg->activeBeforeDbg();
 }
 
+Rsldbg *rslDbgObj()
+{
+    return rsldbg;
+}
+
 // ------------------------------------------------------------------------------
 
 Rsldbg::Rsldbg() :
@@ -46,12 +51,20 @@ Rsldbg::Rsldbg() :
     if (m_RsLeng->load())
     {
         RslGetModuleFile = (tRslGetModuleFile)m_RsLeng->resolve("RslGetModuleFile");
+        RslGetModuleFromStack = (tRslGetModuleFromStack)m_RsLeng->resolve("RslGetModule");
+        RslGetProcNameFromStack = (tRslGetProcNameFromStack)m_RsLeng->resolve("RslGetProcName");
+        RslGetStatementFromStack = (tRslGetStatementFromStack)m_RsLeng->resolve("RslGetStatement");
+        RslGetStatementPos = (tRslGetStatementPos)m_RsLeng->resolve("RslGetStatementPos");
+        RslModuleForStatement = (tRslModuleForStatement)m_RsLeng->resolve("RslModuleForStatement");
+        //RslGetStatementPosEx = (tRslGetStatementPosEx)m_RsLeng->resolve("RslGetStatementPosEx");
     }
 
     if (qApp)
         m_pApp = qApp;
     else
         m_pApp = new QApplication(argc, argv);
+
+    m_Thread.reset(new QThread());
     //m_pApp.reset();
 }
 
@@ -188,6 +201,16 @@ void Rsldbg::trace(HDBG hinst,const char *str)
     m_pWndMain->AddTraceMsg(str, MSGLEVEL_NORMAL);
 }
 
+CDebug *Rsldbg::currentDebug()
+{
+    return m_pWndMain->m_curdbg;
+}
+
+void Rsldbg::stoploop()
+{
+    m_EventLoop.quit();
+}
+
 void Rsldbg::remModule(HDBG hinst, RSLMODULE hmod)
 {
     CDebug* pDebug = (CDebug* )hinst;
@@ -242,6 +265,7 @@ bool Rsldbg::init_ui()
     m_ActiveBeforeDbg = GetForegroundWindow();
 
     m_pWndMain.reset(new MainWindow());
+    m_pWndMain->moveToThread(m_Thread.data());
     m_pWndMain->setWindowModality(Qt::ApplicationModal);
     QObject::connect(m_pWndMain.data(), &MainWindow::closed, &m_EventLoop, &QEventLoop::quit);
 
@@ -315,6 +339,42 @@ static void RSDBG DbgSetMode(HDBG hInst, int mode)
 char *RslGetModuleFile(Qt::HANDLE mod, int *isBtrStream)
 {
     return rsldbg->RslGetModuleFile(mod, isBtrStream);
+}
+
+Qt::HANDLE RslGetModuleFromStack(Qt::HANDLE stack)
+{
+    return rsldbg->RslGetModuleFromStack(stack);
+}
+
+char *RslGetProcNameFromStack(Qt::HANDLE stack)
+{
+    return rsldbg->RslGetProcNameFromStack(stack);
+}
+
+Qt::HANDLE RslGetStatementFromStack(Qt::HANDLE stack)
+{
+    return rsldbg->RslGetStatementFromStack(stack);
+}
+
+Qt::HANDLE RslModuleForStatement(Qt::HANDLE hst)
+{
+    return rsldbg->RslModuleForStatement(hst);
+}
+
+void RslGetStatementPos(Qt::HANDLE hst, int *offs, int *len)
+{
+    rsldbg->RslGetStatementPos(hst, offs, len);
+}
+
+int RslGetModuleLine(Qt::HANDLE module, int offs, int len)
+{
+    int      line = -1;
+    int      realoffs, reallen;
+    RSLSTMT  stmt;
+    //RslGetStatementPos(hst, offs, len);
+    rsldbg->currentDebug()->do_GetStatementOfPos((RSLMODULE)module, offs, len, &realoffs, &reallen, &stmt, &line);
+
+    return line;
 }
 
 // ------------------------------------------------------------------------------

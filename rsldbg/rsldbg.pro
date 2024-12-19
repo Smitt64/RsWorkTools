@@ -22,10 +22,12 @@ SOURCES += \
     displayvar.cpp \
     lf/appcfgdata2.cpp \
     lf/dbgexception.cpp \
+    models/callstackmodel.cpp \
     rembreakpoints.cpp \
     remexpressions.cpp \
     rsldbg.cpp \
     saver.cpp \
+    ui/callstackdockwidget.cpp \
     ui/dbgeditorlinewidgetprovider.cpp \
     ui/events/dbgbreakpointevent.cpp \
     ui/events/dbgtraceevent.cpp \
@@ -44,12 +46,14 @@ HEADERS += \
     lf/bp_data.h \
     lf/dbgexception.h \
     lf/types.h \
+    models/callstackmodel.h \
     rembreakpoints.h \
     remexpressions.h \
     rsldbg_global.h \
     rsldbg.h \
     saver.h \
     tracemsg.h \
+    ui/callstackdockwidget.h \
     ui/dbgeditorlinewidgetprovider.h \
     ui/events/dbgbreakpointevent.h \
     ui/events/dbgtraceevent.h \
