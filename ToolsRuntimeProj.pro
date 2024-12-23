@@ -7,7 +7,8 @@ SUBDIRS += \
     ToolsRuntime \
     WindowsModernStyle \
     loki \
-    rsldbg
+    rsldbg \
+    rsldbgclnt
 
 rsldbg.depends = CodeEditorStatic loki
 RslTest.depends = CodeEditorStatic

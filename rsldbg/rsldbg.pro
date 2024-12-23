@@ -1,4 +1,4 @@
-QT += core gui
+QT += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,6 +19,7 @@ SOURCES += \
     cqsurvey.cpp \
     csurvey.cpp \
     cwatchv.cpp \
+    dbgserver.cpp \
     displayvar.cpp \
     lf/appcfgdata2.cpp \
     lf/dbgexception.cpp \
@@ -42,11 +43,15 @@ HEADERS += \
     csurvey.h \
     cwatchv.h \
     dbg.h \
+    dbgserver.h \
+    dbgserverproto.h \
     displayvar.h \
     lf/bp_data.h \
     lf/dbgexception.h \
     lf/types.h \
     models/callstackmodel.h \
+    packpop.h \
+    pshpack1.h \
     rembreakpoints.h \
     remexpressions.h \
     rsldbg_global.h \
@@ -79,7 +84,7 @@ else:unix: LIBS += -L$$OUT_PWD/../loki/ -lloki
 INCLUDEPATH += $$PWD/../loki
 DEPENDPATH += $$PWD/../loki
 
-LIBS += -lVersion -lGdi32 -lUser32 -lAdvapi32
+LIBS += -lVersion -lGdi32 -lUser32 -lAdvapi32 -lWs2_32
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../loki/release/libloki.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../loki/debug/libloki.a

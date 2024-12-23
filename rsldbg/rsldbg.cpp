@@ -1,3 +1,4 @@
+#include "dbgserver.h"
 #include "qdebug.h"
 #include "ui/events/dbgbreakpointevent.h"
 #include "ui/events/dbgtraceevent.h"
@@ -13,6 +14,7 @@
 #include <QApplication>
 #include <QLibrary>
 #include "rsldbg.h"
+#include <QThreadPool>
 
 Q_GLOBAL_STATIC(Rsldbg, rsldbg)
 
@@ -70,8 +72,8 @@ Rsldbg::Rsldbg() :
 
 Rsldbg::~Rsldbg()
 {
-    if (m_pApp)
-        delete m_pApp;
+    //if (m_pApp)
+        //delete m_pApp;
 
     for (int i = 0; i < m_pApp->arguments().count(); i++)
         delete[] argv[i];
@@ -184,21 +186,22 @@ int Rsldbg::DbgBreak(HDBG hDBG, uint32 data)
 
 int Rsldbg::process(HDBG hDBG, TBpData *data)
 {
-    m_pWndMain->showMaximized();
+    //m_pWndMain->showMaximized();
 
-    DbgBreakpointEvent event((CDebug*)hDBG, data);
-    QApplication::sendEvent(m_pWndMain.data(), &event);
+    //DbgBreakpointEvent event((CDebug*)hDBG, data);
+    //QApplication::sendEvent(m_pWndMain.data(), &event);
 
-    return m_EventLoop.exec();
+    //return m_EventLoop.exec();
+    return 1;
 }
 
 void Rsldbg::trace(HDBG hinst,const char *str)
 {
     CDebug* pDebug = (CDebug* )hinst;
 
-    DbgTraceEvent event(pDebug);
-    QApplication::sendEvent(m_pWndMain.data(), &event);
-    m_pWndMain->AddTraceMsg(str, MSGLEVEL_NORMAL);
+    //DbgTraceEvent event(pDebug);
+    //QApplication::sendEvent(m_pWndMain.data(), &event);
+    //m_pWndMain->AddTraceMsg(str, MSGLEVEL_NORMAL);
 }
 
 CDebug *Rsldbg::currentDebug()
@@ -208,7 +211,7 @@ CDebug *Rsldbg::currentDebug()
 
 void Rsldbg::stoploop()
 {
-    m_EventLoop.quit();
+    //m_EventLoop.quit();
 }
 
 void Rsldbg::remModule(HDBG hinst, RSLMODULE hmod)
@@ -264,10 +267,13 @@ bool Rsldbg::init_ui()
     done_ui();
     m_ActiveBeforeDbg = GetForegroundWindow();
 
-    m_pWndMain.reset(new MainWindow());
-    m_pWndMain->moveToThread(m_Thread.data());
-    m_pWndMain->setWindowModality(Qt::ApplicationModal);
-    QObject::connect(m_pWndMain.data(), &MainWindow::closed, &m_EventLoop, &QEventLoop::quit);
+    //m_pWndMain.reset(new MainWindow());
+    //m_pWndMain->moveToThread(m_Thread.data());
+    //m_pWndMain->setWindowModality(Qt::ApplicationModal);
+    //QObject::connect(m_pWndMain.data(), &MainWindow::closed, &m_EventLoop, &QEventLoop::quit);
+
+    DbgServer *srv = new DbgServer();
+    QThreadPool::globalInstance()->start(srv);
 
     return true;
 }
