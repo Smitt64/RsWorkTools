@@ -112,6 +112,13 @@ HDBG Rsldbg::init(HRD inst,TDbgIntf * _dbg_ftable)
     SpDebugPtrType new_dbg_aptr (new_dbg);
     m_Dbg.push_back (new_dbg_aptr);
 
+    DbgServer *srv = new DbgServer();
+    m_Servers[new_dbg] = srv;
+    srv->m_curdbg = new_dbg;
+
+    srv->moveToThread(m_Thread.data());
+    QThreadPool::globalInstance()->start(srv);
+
     return (HDBG)new_dbg;
 }
 
@@ -173,7 +180,7 @@ int Rsldbg::DbgBreak(HDBG hDBG, uint32 data)
 {
     CDebug* aDBG = (CDebug* )hDBG;
 
-    TBpData *bp = NULL;
+    TBpData *bp = nullptr;
     if (data)
     {
         bp = aDBG->FindBPbyKey (data);
@@ -189,10 +196,24 @@ int Rsldbg::process(HDBG hDBG, TBpData *data)
     //m_pWndMain->showMaximized();
 
     //DbgBreakpointEvent event((CDebug*)hDBG, data);
-    //QApplication::sendEvent(m_pWndMain.data(), &event);
+    CDebug* pDebug = (CDebug* )hDBG;
 
-    //return m_EventLoop.exec();
-    return 1;
+    int result = 1;
+    DbgServer *srv = m_Servers[pDebug];
+    QEventLoop loop;
+    QObject::connect(srv, &DbgServer::finished, &loop, &QEventLoop::quit);
+    QObject::connect(srv, &DbgServer::started, &loop, &QEventLoop::quit);
+
+    QObject::connect(srv, &DbgServer::finished, [&result]
+    {
+        result = 0;
+    });
+    loop.exec();
+
+    srv->UpdateDbgInfo(data);
+    srv->sendEventBreakPoint(data);
+
+    return result;
 }
 
 void Rsldbg::trace(HDBG hinst,const char *str)
@@ -271,9 +292,6 @@ bool Rsldbg::init_ui()
     //m_pWndMain->moveToThread(m_Thread.data());
     //m_pWndMain->setWindowModality(Qt::ApplicationModal);
     //QObject::connect(m_pWndMain.data(), &MainWindow::closed, &m_EventLoop, &QEventLoop::quit);
-
-    DbgServer *srv = new DbgServer();
-    QThreadPool::globalInstance()->start(srv);
 
     return true;
 }

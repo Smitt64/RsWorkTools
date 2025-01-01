@@ -1,11 +1,13 @@
-#include "dbgserver.h"
-#include "dbgserverproto.h"
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include "dbgserver.h"
+#include "dbgserverproto.h"
 #include <QThread>
 #include <QProcess>
 #include <QNetworkInterface>
 #include <QHostInfo>
+#include <QApplication>
+#include "cdebug.h"
 
 #define DEFAULT_PORT 1491
 static int max_port = DEFAULT_PORT;
@@ -39,6 +41,7 @@ void DbgServer::run()
     {
         m_LastError = QString("WSAStartup failed with error: %1").arg(iResult);
         qCritical(dbgServer()) << m_LastError;
+        emit finished();
         return;
     }
 
@@ -52,7 +55,6 @@ void DbgServer::run()
     char port[_MAX_PATH] = {'\0'};
     sprintf(port, "%d", ++max_port);
     iResult = getaddrinfo(NULL, port, &hints, &result);
-    qDebug() << "port" << port;
 
     if ( iResult != 0 )
     {
@@ -60,6 +62,7 @@ void DbgServer::run()
         qCritical(dbgServer()) << m_LastError;
 
         WSACleanup();
+        emit finished();
         return;
     }
 
@@ -71,6 +74,7 @@ void DbgServer::run()
 
         freeaddrinfo(result);
         WSACleanup();
+        emit finished();
         return;
     }
 
@@ -87,6 +91,7 @@ void DbgServer::run()
         freeaddrinfo(result);
         closesocket(ListenSocket);
         WSACleanup();
+        emit finished();
         return;
     }
     else
@@ -102,10 +107,20 @@ void DbgServer::run()
 
         closesocket(ListenSocket);
         WSACleanup();
+        emit finished();
         return;
     }
 
-    startapp();
+    if (!startapp())
+    {
+        m_LastError = QString("Can't start debug app");
+        qCritical(dbgServer()) << m_LastError;
+
+        closesocket(ListenSocket);
+        WSACleanup();
+        emit finished();
+        return;
+    }
 
     ClientSocket = accept(ListenSocket, NULL, NULL);
     /*int WaitCount = 0;
@@ -126,6 +141,7 @@ void DbgServer::run()
 
         closesocket(ListenSocket);
         WSACleanup();
+        emit finished();
         return;
     }
 
@@ -134,21 +150,25 @@ void DbgServer::run()
     DBGHEADER handshake;
     DbgMakeHeader(&handshake, 0, DBG_REQUEST_HANDSHAKE);
     int iSendResult = send(ClientSocket, (char*)&handshake, sizeof(DBGHEADER), 0);
+    emit started();
 
     do {
         QThread::usleep(100);
         qint16 action = 0;
         QByteArray data;
         iResult = read(data, &action);
-        qDebug() << "read" << iResult << WSAGetLastError();
+        //qDebug() << "read" << iResult << WSAGetLastError();
 
         if (iResult)
+        {
             process(data, action);
+        }
     } while (iResult > 0);
 
     iResult = shutdown(ClientSocket, SD_SEND);
     closesocket(ClientSocket);
     WSACleanup();
+    emit finished();
 }
 
 QString toolProcessStateText(qint16 State)
@@ -214,14 +234,6 @@ QString toolGetProcessErrorText(const QProcess::ProcessError &error)
 
 bool DbgServer::startapp()
 {
-    /*QList<QHostAddress> list = QHostInfo::fromName(QHostInfo::localHostName()).addresses();
-
-    if (list.empty())
-        return false;
-
-    for (const QHostAddress &adr : list)
-        qDebug() << adr.toString();*/
-
     QNetworkAddressEntry adress;
     foreach(const QNetworkInterface &qNetInterface, QNetworkInterface::allInterfaces())
     {
@@ -264,6 +276,11 @@ bool DbgServer::startapp()
     m_pProc->start();
     m_pProc->waitForStarted();
 
+    if (m_pProc->state() == QProcess::NotRunning)
+        hr = false;
+
+    //qDebug() << m_pProc->state() << m_pProc->exitStatus() << m_pProc->exitCode() << m_pProc->error();
+
     return hr;
 }
 
@@ -289,4 +306,68 @@ int DbgServer::read(QByteArray &data, qint16 *action)
 void DbgServer::process(const QByteArray &data, const qint16 &action)
 {
 
+}
+
+void DbgServer::write(DBGHEADER *hdr, void *data, int len)
+{
+    //DBGHEADER handshake;
+    //DbgMakeHeader(&handshake, 0, DBG_REQUEST_HANDSHAKE);
+    int iSendResult = send(ClientSocket, (char*)hdr, sizeof(DBGHEADER), 0);
+
+    if(iSendResult)
+        iSendResult = send(ClientSocket, (char*)data, len, 0);
+}
+
+void DbgServer::fillBpData(DBGBPDATA *body, Qt::HANDLE BpData)
+{
+    TBpData *data = (TBpData*)BpData;
+    body->bp_type = data->bp_type;
+    body->offs = data->offs;
+    body->len = data->len;
+    body->line = data->line;
+    body->key = data->key;
+    body->mod = reinterpret_cast<qint64>(data->mod);
+    body->stmt = reinterpret_cast<qint64>(data->stmt);
+    qstrcpy(body->modname, data->modname.toLocal8Bit().data());
+}
+
+void DbgServer::sendEventBreakPoint(Qt::HANDLE BpData)
+{
+    TBpData *data = (TBpData*)BpData;
+
+    DBGBPEVENT event;
+    event.event.event = MSG_BREAKPOINT;
+
+    if (data)
+    {
+        event.BpSetted = 1;
+        fillBpData(&event.bp, data);
+    }
+    else
+    {
+        event.BpSetted = 0;
+        memset(&event.bp, 0, sizeof(DBGBPDATA));
+    }
+
+    DBGHEADER handshake;
+    DbgMakeHeader(&handshake, 0, DBG_REQUEST_EVENT);
+
+    write(&handshake, &event, sizeof(DBGBPEVENT));
+}
+
+void DbgServer::UpdateDbgInfo(TBpData *data)
+{
+    m_curdbg->UpdateDbgInfo();
+    m_curdbg->SetDebugState(true);
+    m_curdbg->SetCurModule((RSLMODULE)-1);
+
+    int offs, len;
+    if (data && data->bp_type == BP_INVISIBLE)
+    {
+        m_curdbg->do_ClrBreakPoint (m_curdbg->GetCurStatement (&offs, &len));
+        m_curdbg->DelBp(data);
+    }
+
+    m_curdbg->SetIndex (0);
+    //UpdateDbgInfo (0);
 }

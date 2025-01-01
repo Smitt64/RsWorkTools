@@ -9,11 +9,19 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dbgeditorlinewidgetprovider.cpp \
+    logdockwidget.cpp \
+    logevent.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    models/logeventmodel.cpp
 
 HEADERS += \
-    mainwindow.h
+    dbgeditorlinewidgetprovider.h \
+    logdockwidget.h \
+    logevent.h \
+    mainwindow.h \
+    models/logeventmodel.h
 
 FORMS += \
     mainwindow.ui
@@ -39,3 +47,6 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../Code
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/release/CodeEditorStatic.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/debug/CodeEditorStatic.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/libCodeEditorStatic.a
+
+RESOURCES += \
+    dbgres.qrc

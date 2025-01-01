@@ -2,6 +2,7 @@
 #define BP_DATA_H
 
 #include <QObject>
+#include <qt_windows.h>
 #include "rsl/dbgintf.h"
 
 enum BP_TYPE

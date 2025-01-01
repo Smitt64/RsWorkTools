@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "logevent.h"
 #include <QCommandLineParser>
 #include <QApplication>
 #include <QMessageBox>
@@ -7,10 +8,12 @@
 #include <QDir>
 
 static QScopedPointer<QFile> m_logFile;
+static QScopedPointer<MainWindow> pMainWindow;
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QTextStream out(m_logFile.data());
-    out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
+    QDateTime time = QDateTime::currentDateTime();
+    out << time.toString("yyyy-MM-dd hh:mm:ss.zzz ");
 
     switch (type)
     {
@@ -25,6 +28,9 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
         << msg << Qt::endl;
 
     out.flush();
+
+    LogEvent event(time, type, context.category, msg);
+    qApp->sendEvent(pMainWindow.data(), &event);
 }
 
 bool InitLogging(const QString &prefix, const QString &rules)
@@ -62,7 +68,11 @@ bool InitLogging(const QString &prefix, const QString &rules)
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(codeeditor);
+
     QApplication a(argc, argv);
+    pMainWindow.reset(new MainWindow());
+
     InitLogging("rsldbg", "rsldbg.*=true");
 
     QCommandLineParser parser;
@@ -78,8 +88,8 @@ int main(int argc, char *argv[])
 
     parser.addOption(hostOption);
     parser.addOption(portOption);
-
     parser.process(a);
+    //qCritical(dbg()) << "test";
 
     if (!parser.isSet(hostOption) || !parser.isSet(portOption))
     {
@@ -89,15 +99,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    MainWindow w;
-    if (!w.connectToHost(parser.value(hostOption), parser.value(portOption).toShort()))
+    if (!pMainWindow->connectToHost(parser.value(hostOption), parser.value(portOption).toShort()))
     {
         QMessageBox::critical(nullptr, QCoreApplication::translate("main", "Error"),
-                              w.lastError());
+                              pMainWindow->lastError());
         a.quit();
     }
 
-    w.show();
+    pMainWindow->show();
 
     return a.exec();
 }

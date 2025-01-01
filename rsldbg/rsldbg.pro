@@ -114,6 +114,3 @@ else:unix: LIBS += -L$$OUT_PWD/../CodeEditorStatic/ -lCodeEditorStatic
 
 INCLUDEPATH += $$PWD/../CodeEditorStatic
 DEPENDPATH += $$PWD/../CodeEditorStatic
-
-RESOURCES += \
-    dbgres.qrc

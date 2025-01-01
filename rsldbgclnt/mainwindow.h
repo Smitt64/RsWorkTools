@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QLoggingCategory>
+//#define IGNORE_INCLUDE
+#include "dbgserverproto.h"
 
 Q_DECLARE_LOGGING_CATEGORY(dbg)
 
@@ -13,11 +15,21 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+class CodeEditor;
+class LogEventModel;
+class LogDockWidget;
+class DbgEditorLineWidgetProvider;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    enum DBG_EVENTS
+    {
+        //EventBreakPoint = MSG_BREAKPOINT,
+    };
+    Q_ENUM(DBG_EVENTS);
+
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
@@ -27,10 +39,19 @@ public:
 public slots:
     void dbgConnected();
     void dbgDisconnected();
+    void readyRead();
+
+protected:
+    virtual void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+    virtual bool event(QEvent *event) Q_DECL_OVERRIDE;
 
 private:
     Ui::MainWindow *ui;
     QString m_LastError;
     QScopedPointer<QTcpSocket> m_pSocket;
+    QScopedPointer<LogEventModel> m_LogModel;
+    QScopedPointer<LogDockWidget> m_LogDockWidget;
+    CodeEditor *m_pCodeEditor;
+    DbgEditorLineWidgetProvider *m_pCodeEditorProvider;
 };
 #endif // MAINWINDOW_H

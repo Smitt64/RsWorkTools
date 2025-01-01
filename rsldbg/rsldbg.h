@@ -10,6 +10,7 @@
 #include <QStack>
 #include <QEventLoop>
 #include <QThread>
+#include <QMap>
 
 class CDebug;
 typedef Loki::SmartPtr<CDebug, Loki::RefLinked> SpDebugPtrType;
@@ -25,6 +26,8 @@ typedef void (*tRslGetStatementPos)(Qt::HANDLE, int *offs, int *len);
 class MainWindow;
 class QApplication;
 class QLibrary;
+class CDebug;
+class DbgServer;
 class RSLDBG_EXPORT Rsldbg
 {
 public:
@@ -63,6 +66,7 @@ private:
     bool is_inited, is_ui;
     Qt::HANDLE m_ActiveBeforeDbg;
     QVector<SpDebugPtrType> m_Dbg;
+    QMap<CDebug*, DbgServer*> m_Servers;
 
     QEventLoop m_EventLoop;
 
