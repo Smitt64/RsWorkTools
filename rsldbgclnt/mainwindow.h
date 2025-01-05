@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QLoggingCategory>
+#include <QStack>
 //#define IGNORE_INCLUDE
 #include "dbgserverproto.h"
 
@@ -17,7 +18,8 @@ QT_END_NAMESPACE
 
 class CodeEditor;
 class LogEventModel;
-class LogDockWidget;
+class StdViewDockWidget;
+class CallStackModel;
 class DbgEditorLineWidgetProvider;
 class MainWindow : public QMainWindow
 {
@@ -46,12 +48,22 @@ protected:
     virtual bool event(QEvent *event) Q_DECL_OVERRIDE;
 
 private:
+    void InitDebugToolBar();
+    void exec_continue(int trace_log);
+    void applyCurrentStatement(const int &offs, const int &len, const int &line);
+
     Ui::MainWindow *ui;
     QString m_LastError;
     QScopedPointer<QTcpSocket> m_pSocket;
     QScopedPointer<LogEventModel> m_LogModel;
-    QScopedPointer<LogDockWidget> m_LogDockWidget;
+    QScopedPointer<CallStackModel> m_CallStackModel;
+
+    QScopedPointer<StdViewDockWidget> m_LogDockWidget;
+    QScopedPointer<StdViewDockWidget> m_StackDockWidget;
+
     CodeEditor *m_pCodeEditor;
     DbgEditorLineWidgetProvider *m_pCodeEditorProvider;
+
+    QStack<DBGHEADER> m_LastHeader;
 };
 #endif // MAINWINDOW_H

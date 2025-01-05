@@ -188,6 +188,8 @@ int Rsldbg::DbgBreak(HDBG hDBG, uint32 data)
             return FALSE;
     }
 
+    qDebug() << "DbgBreak";
+
     return process(hDBG, bp);
 }
 
@@ -200,15 +202,20 @@ int Rsldbg::process(HDBG hDBG, TBpData *data)
 
     int result = 1;
     DbgServer *srv = m_Servers[pDebug];
-    QEventLoop loop;
-    QObject::connect(srv, &DbgServer::finished, &loop, &QEventLoop::quit);
-    QObject::connect(srv, &DbgServer::started, &loop, &QEventLoop::quit);
 
-    QObject::connect(srv, &DbgServer::finished, [&result]
+    if (!srv->isConnected())
     {
-        result = 0;
-    });
-    loop.exec();
+        QEventLoop loop;
+        QObject::connect(srv, &DbgServer::finished, &loop, &QEventLoop::quit);
+        QObject::connect(srv, &DbgServer::started, &loop, &QEventLoop::quit);
+
+        QObject::connect(srv, &DbgServer::finished, [&result]
+        {
+            result = 0;
+        });
+
+        loop.exec();
+    }
 
     srv->UpdateDbgInfo(data);
     srv->sendEventBreakPoint(data);
@@ -311,6 +318,7 @@ static HDBG RSDBG DbgInit(HRD inst, TDbgIntf *_dbg_ftable)
 static void RSDBG DbgDone(HDBG hDBG)
 {
     rsldbg->done(hDBG);
+    qDebug() << "DbgDone";
 }
 
 static int RSDBG DbgBreak (HDBG hDBG, uint32 data)
@@ -390,7 +398,7 @@ void RslGetStatementPos(Qt::HANDLE hst, int *offs, int *len)
     rsldbg->RslGetStatementPos(hst, offs, len);
 }
 
-int RslGetModuleLine(Qt::HANDLE module, int offs, int len)
+/*int RslGetModuleLine(Qt::HANDLE module, int offs, int len)
 {
     int      line = -1;
     int      realoffs, reallen;
@@ -399,7 +407,7 @@ int RslGetModuleLine(Qt::HANDLE module, int offs, int len)
     rsldbg->currentDebug()->do_GetStatementOfPos((RSLMODULE)module, offs, len, &realoffs, &reallen, &stmt, &line);
 
     return line;
-}
+}*/
 
 // ------------------------------------------------------------------------------
 

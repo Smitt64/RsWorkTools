@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     pMainWindow.reset(new MainWindow());
 
     InitLogging("rsldbg", "rsldbg.*=true");
+    QIcon::setThemeName("winxp-theme");
 
     QCommandLineParser parser;
     parser.addHelpOption();

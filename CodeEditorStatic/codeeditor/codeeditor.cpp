@@ -347,6 +347,8 @@ void CodeEditor::setCurrentHighlightLine(const int &line)
             d->selectionCurrentLine.format.setProperty(QTextFormat::FullWidthSelection, true);
             d->selectionCurrentLine.cursor = QTextCursor(block);
             d->selectionCurrentLine.cursor.clearSelection();
+
+            setTextCursor(d->selectionCurrentLine.cursor);
         }
     }
 

@@ -9,5 +9,6 @@
         <file>icons/winxp-theme/actions/StepInto.png</file>
         <file>icons/winxp-theme/actions/StepOver.png</file>
         <file>icons/winxp-theme/actions/StepOut.png</file>
+        <file>icons/winxp-theme/actions/Resume.png</file>
     </qresource>
 </RCC>

@@ -8,6 +8,10 @@
 #include <QHostInfo>
 #include <QApplication>
 #include "cdebug.h"
+#include <QEvent>
+#include <QFile>
+#include <QDataStream>
+#include "rsldbg.h"
 
 #define DEFAULT_PORT 1491
 static int max_port = DEFAULT_PORT;
@@ -24,6 +28,11 @@ DbgServer::~DbgServer()
 {
     //closesocket(ClientSocket);
     qDebug() << "~DbgServer()";
+}
+
+bool DbgServer::isConnected()
+{
+    return ClientSocket != INVALID_SOCKET;
 }
 
 void DbgServer::run()
@@ -171,6 +180,27 @@ void DbgServer::run()
     emit finished();
 }
 
+QString DbgServer::ReadTextFileContent(const QString &filename, const QString &encode)
+{
+    QString content;
+    QFile f(filename);
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (encode.isEmpty())
+            content = f.readAll();
+        else
+        {
+            QTextStream stream(&f);
+            stream.setCodec(encode.toLocal8Bit().data());
+
+            content = stream.readAll();
+        }
+
+        f.close();
+    }
+    return content;
+}
+
 QString toolProcessStateText(qint16 State)
 {
     QString result;
@@ -305,17 +335,35 @@ int DbgServer::read(QByteArray &data, qint16 *action)
 
 void DbgServer::process(const QByteArray &data, const qint16 &action)
 {
-
+    if (action == DBG_REQUEST_EXECCONTNUE)
+    {
+        DBG_EXECCONTNUE *exec = (DBG_EXECCONTNUE*)data.data();
+        m_curdbg->SetDebugState(false);
+        m_curdbg->do_ExecContinue(exec->trace_log);
+        qDebug() << "DBG_REQUEST_EXECCONTNUE" << exec->trace_log;
+    }
 }
 
-void DbgServer::write(DBGHEADER *hdr, void *data, int len)
+void DbgServer::write(DBGHEADER *hdr, void *data, int len, const QByteArray &adddata)
 {
-    //DBGHEADER handshake;
-    //DbgMakeHeader(&handshake, 0, DBG_REQUEST_HANDSHAKE);
-    int iSendResult = send(ClientSocket, (char*)hdr, sizeof(DBGHEADER), 0);
+    QByteArray tmp;
+    QDataStream stream(&tmp, QIODevice::ReadWrite);
 
-    if(iSendResult)
-        iSendResult = send(ClientSocket, (char*)data, len, 0);
+    stream.writeRawData((char*)hdr, sizeof(DBGHEADER));
+
+    if (data)
+        stream.writeRawData((char*)data, len);
+
+    if(!adddata.isEmpty())
+        stream.writeRawData(adddata.data(), adddata.size());
+
+    DBGHEADER tmphdr;
+    memcpy(&tmphdr, hdr, sizeof(DBGHEADER));
+
+    tmphdr.size = tmp.size();
+    memcpy(tmp.data(), &tmphdr, sizeof(DBGHEADER));
+
+    send(ClientSocket, (char*)tmp.data(), tmp.size(), 0);
 }
 
 void DbgServer::fillBpData(DBGBPDATA *body, Qt::HANDLE BpData)
@@ -335,24 +383,23 @@ void DbgServer::sendEventBreakPoint(Qt::HANDLE BpData)
 {
     TBpData *data = (TBpData*)BpData;
 
-    DBGBPEVENT event;
-    event.event.event = MSG_BREAKPOINT;
+    DBGEVENT event;
+    event.event = MSG_BREAKPOINT;
 
     if (data)
     {
-        event.BpSetted = 1;
-        fillBpData(&event.bp, data);
+        event.data.bp_event.BpSetted = 1;
+        fillBpData(&event.data.bp_event, data);
     }
     else
     {
-        event.BpSetted = 0;
-        memset(&event.bp, 0, sizeof(DBGBPDATA));
+        event.data.bp_event.BpSetted = 0;
+        memset(&event.data.bp_event, 0, sizeof(DBGBPDATA));
     }
 
     DBGHEADER handshake;
     DbgMakeHeader(&handshake, 0, DBG_REQUEST_EVENT);
-
-    write(&handshake, &event, sizeof(DBGBPEVENT));
+    write(&handshake, &event, sizeof(DBGEVENT));
 }
 
 void DbgServer::UpdateDbgInfo(TBpData *data)
@@ -369,5 +416,132 @@ void DbgServer::UpdateDbgInfo(TBpData *data)
     }
 
     m_curdbg->SetIndex (0);
-    //UpdateDbgInfo (0);
+    UpdateDbgInfo(0);
+}
+
+void DbgServer::UpdateDbgInfo(const int &index)
+{
+    UpdateText(index);
+    UpdateStack();
+}
+
+void DbgServer::UpdateStack()
+{
+    QVector<DBG_UPDATSTACK> packet;
+    int rv = m_curdbg->GetStackCount();
+    for (int i = 0; i < rv; i++)
+    {
+        DBG_UPDATSTACK item;
+        Qt::HANDLE stack = m_curdbg->GetStackAt(i);
+        Qt::HANDLE module = RslGetModuleFromStack(stack);
+        Qt::HANDLE hst = RslGetStatementFromStack(stack);
+
+        int isBtrStream = 0;
+        QString fullfilename = RslGetModuleFile(module, &isBtrStream);
+        QString func = RslGetProcNameFromStack(stack);
+
+        RslGetStatementPos(hst, &item.offs, &item.len);
+        item.line = RslGetModuleLine(module, item.offs, item.len);
+
+        qstrcpy(item.fullfilename, fullfilename.toLocal8Bit().data());
+        qstrcpy(item.func, func.toLocal8Bit().data());
+        //qDebug() << func << item.line << item.func;
+
+        packet.append(item);
+    }
+
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream.writeRawData((char*)&packet[0], sizeof(DBG_UPDATSTACK) * packet.size());
+
+    DBGHEADER hdr;
+    DbgMakeHeader(&hdr, sizeof(DBG_UPDATEBP), DBG_REQUEST_UPDATESTACK);
+    write(&hdr, nullptr, 0, data);
+}
+
+void DbgServer::UpdateText(const int &index)
+{
+    RSLMODULE mod = m_curdbg->GetCurModule(index);
+
+    int offs = 0;
+    int len = 0;
+    int line = 0;
+
+    RSLSTMT statement = m_curdbg->GetCurStatement(&offs, &len, index);
+    line = m_curdbg->GetStatementLine(offs, len, mod);
+
+    DBGHEADER hdr;
+    DBG_UPDATETEXT updtext;
+    memset(&updtext, 0, sizeof(DBG_UPDATETEXT));
+
+    updtext.offs = offs;
+    updtext.len = len;
+    updtext.line = line;
+
+    if (m_curModuleInView == mod)
+    {
+
+    }
+    else
+    {
+        int isBtrStream = 0;
+        char *filename = RslGetModuleFile((Qt::HANDLE)mod, &isBtrStream);
+
+        QString content = ReadTextFileContent(filename, "IBM 866");
+        QByteArray text = content.toLocal8Bit();
+
+        qstrncpy(updtext.filename, filename, sizeof(updtext.filename));
+        updtext.size = text.size();
+
+        DbgMakeHeader(&hdr, sizeof(DBG_UPDATETEXT) + updtext.size, DBG_REQUEST_UPDATETEXT);
+        write(&hdr, &updtext, sizeof(DBG_UPDATETEXT), text);
+    }
+
+    TBpData* bp;
+    QVector<DBGBPDATA> tmpbp;
+
+    int nBP = m_curdbg->GetBPCount();
+    for (int i = 0; i < nBP; ++i)
+    {
+        bp = m_curdbg->GetBP(i);
+        if (mod == bp->mod)
+        {
+            DBGBPDATA dbgbp;
+            fillBpData(&dbgbp, bp);
+            tmpbp.push_back(dbgbp);
+            /*if (bp->bp_type == BP_DISABLED)
+                color = RGB (0, 0, 255);
+            else if (bp->bp_type == BP_ENABLED)
+                color = RGB(0, 255, 0);
+            else
+                color = GetSysColor (COLOR_WINDOW);
+
+            SetTextColor (bp->offs, bp->len, color, bp->line);*/
+        }
+    }
+
+    if (!tmpbp.empty())
+    {
+        QByteArray bpdata;
+        QDataStream stream(&bpdata, QIODevice::WriteOnly);
+        stream.writeRawData((char*)&tmpbp[0], sizeof(DBGBPDATA) * tmpbp.size());
+
+        DBG_UPDATEBP upd;
+        upd.count = tmpbp.size();
+
+        DBGHEADER hdr;
+        DbgMakeHeader(&hdr, sizeof(DBG_UPDATEBP), DBG_REQUEST_UPDATEBP);
+        write(&hdr, &upd, sizeof(DBG_UPDATETEXT), bpdata);
+    }
+}
+
+int DbgServer::RslGetModuleLine(Qt::HANDLE module, int offs, int len)
+{
+    int      line = -1;
+    int      realoffs, reallen;
+    RSLSTMT  stmt;
+    //RslGetStatementPos(hst, offs, len);
+    m_curdbg->do_GetStatementOfPos((RSLMODULE)module, offs, len, &realoffs, &reallen, &stmt, &line);
+
+    return line;
 }

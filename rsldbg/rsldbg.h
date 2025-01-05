@@ -84,6 +84,6 @@ char *RslGetProcNameFromStack(Qt::HANDLE stack);
 Qt::HANDLE RslGetStatementFromStack(Qt::HANDLE stack);
 void RslGetStatementPos(Qt::HANDLE hst, int *offs, int *len);
 Qt::HANDLE RslModuleForStatement(Qt::HANDLE hst);
-int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
+//int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
 
 #endif // RSLDBG_H

@@ -23,6 +23,8 @@ public:
 
     void UpdateDbgInfo(TBpData *data);
 
+    bool isConnected();
+
 public slots:
     void sendEventBreakPoint(Qt::HANDLE BpData);
 
@@ -31,14 +33,22 @@ signals:
     void started();
 
 private:
+    int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
+
     bool startapp();
     void process(const QByteArray &data, const qint16 &action);
     int read(QByteArray &data, qint16 *action);
-    void write(DBGHEADER *hdr, void *data, int len);
+    void write(DBGHEADER *hdr, void *data, int len, const QByteArray &adddata = QByteArray());
     void fillBpData(DBGBPDATA *body, Qt::HANDLE BpData);
+
+    QString ReadTextFileContent(const QString &filename, const QString &encode);
+    void UpdateText(const int &index);
+    void UpdateStack();
+    void UpdateDbgInfo(const int &index);
     QString m_LastError;
 
     unsigned int ClientSocket;
+    Qt::HANDLE m_curModuleInView;
 
     QScopedPointer<QProcess> m_pProc;
 };

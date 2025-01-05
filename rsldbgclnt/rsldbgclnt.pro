@@ -10,18 +10,20 @@ CONFIG += c++17
 
 SOURCES += \
     dbgeditorlinewidgetprovider.cpp \
-    logdockwidget.cpp \
     logevent.cpp \
     main.cpp \
     mainwindow.cpp \
-    models/logeventmodel.cpp
+    models/callstackmodel.cpp \
+    models/logeventmodel.cpp \
+    stdviewdockwidget.cpp
 
 HEADERS += \
     dbgeditorlinewidgetprovider.h \
-    logdockwidget.h \
     logevent.h \
     mainwindow.h \
-    models/logeventmodel.h
+    models/callstackmodel.h \
+    models/logeventmodel.h \
+    stdviewdockwidget.h
 
 FORMS += \
     mainwindow.ui
@@ -49,4 +51,5 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/libCodeEditorStatic.a
 
 RESOURCES += \
-    dbgres.qrc
+    dbgres.qrc \
+    res.qrc

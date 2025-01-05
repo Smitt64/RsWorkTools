@@ -1,7 +1,5 @@
-#include "cdebug.h"
 #include "callstackmodel.h"
-#include "rsl/dbgintf.h"
-#include "rsldbg.h"
+#include <dbgserverproto.h>
 #include <QFileInfo>
 #include <QIcon>
 
@@ -39,15 +37,19 @@ QVariant CallStackModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole)
     {
-        if (index.column() == ColumnItem)
-        {
-            return tr("%1!%2. Line: %3")
-                .arg(m_Items[index.row()].file, m_Items[index.row()].func)
-                .arg(m_Items[index.row()].line);
-        }
+        if (index.column() == ColumnLevel)
+            return index.row() + 1;
+        if (index.column() == ColumnFunction)
+            return m_Items[index.row()].func;
+        if (index.column() == ColumnFile)
+            return m_Items[index.row()].file;
+        if (index.column() == ColumnLine)
+            return m_Items[index.row()].line;
     }
-    else if (role == Qt::DecorationRole && index.row() == 0)
+    else if (role == Qt::DecorationRole && index.row() == 0 && index.column() == ColumnLevel)
         return QIcon::fromTheme("CurrentLine");
+    else if (role == Qt::TextAlignmentRole && (index.column() == ColumnLevel || index.column() == ColumnLine))
+        return (int)(Qt::AlignRight | Qt::AlignVCenter);
 
     return QVariant();
 }
@@ -56,16 +58,15 @@ void CallStackModel::append(Qt::HANDLE stack)
 {
     beginInsertRows(QModelIndex(), m_Items.size(), m_Items.size());
 
-    int isBtrStream = 0;
-    Qt::HANDLE module = RslGetModuleFromStack(stack);
-    Qt::HANDLE hst = RslGetStatementFromStack(stack);
+    DBG_UPDATSTACK *upd = (DBG_UPDATSTACK*)stack;
 
     StackItem item;
-    item.fullfilename = RslGetModuleFile(module, &isBtrStream);
-    item.func = RslGetProcNameFromStack(stack);
+    item.fullfilename = upd->fullfilename;
+    item.func = upd->func;
 
-    RslGetStatementPos(hst, &item.offs, &item.len);
-    //item.line = RslGetModuleLine(module, item.offs, item.len);
+    item.len = upd->len;
+    item.line = upd->line;
+    item.offs = upd->line;
 
     QFileInfo fi(item.fullfilename);
     item.file = fi.fileName();
@@ -77,8 +78,10 @@ void CallStackModel::append(Qt::HANDLE stack)
 QVariant CallStackModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     static QVector<QString> Headers = {
-        //"",
-        tr("Name")
+        tr("Level"),
+        tr("Function"),
+        tr("File"),
+        tr("Line")
     };
 
     if (orientation == Qt::Horizontal)
