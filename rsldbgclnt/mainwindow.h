@@ -48,6 +48,8 @@ protected:
     virtual bool event(QEvent *event) Q_DECL_OVERRIDE;
 
 private:
+    QTextCodec *oem866;
+
     void InitDebugToolBar();
     void exec_continue(int trace_log);
     void applyCurrentStatement(const int &offs, const int &len, const int &line);

@@ -406,12 +406,10 @@ void CDebug::UpdateDbgInfo()
             stack_info->len  = len;
             stack_info->mod  = mod;
 
-            memcpy(stack_info->procname, procname, 100);
-            memcpy(stack_info->modname,  modname,  100);
+            stack_info->procname = toUnicode(procname);
+            stack_info->modname = toUnicode(modname);
 
             elem_stackinfo  stack_info_aptr(stack_info);
-
-
             m_stackinfo.push_back(stack_info_aptr);
 
             st_prev = st_cur;

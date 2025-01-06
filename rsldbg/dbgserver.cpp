@@ -11,6 +11,7 @@
 #include <QEvent>
 #include <QFile>
 #include <QDataStream>
+#include <QTextCodec>
 #include "rsldbg.h"
 
 #define DEFAULT_PORT 1491
@@ -22,6 +23,7 @@ DbgServer::DbgServer(QObject *parent)
     : QObject{parent}
 {
     ClientSocket = INVALID_SOCKET;
+    oem866 = QTextCodec::codecForName("IBM 866");
 }
 
 DbgServer::~DbgServer()
@@ -437,14 +439,14 @@ void DbgServer::UpdateStack()
         Qt::HANDLE hst = RslGetStatementFromStack(stack);
 
         int isBtrStream = 0;
-        QString fullfilename = RslGetModuleFile(module, &isBtrStream);
-        QString func = RslGetProcNameFromStack(stack);
+        //QString fullfilename = oem866->toUnicode(RslGetModuleFile(module, &isBtrStream));
+        //QString func = oem866->toUnicode(RslGetProcNameFromStack(stack));
 
         RslGetStatementPos(hst, &item.offs, &item.len);
         item.line = RslGetModuleLine(module, item.offs, item.len);
 
-        qstrcpy(item.fullfilename, fullfilename.toLocal8Bit().data());
-        qstrcpy(item.func, func.toLocal8Bit().data());
+        qstrcpy(item.fullfilename, RslGetModuleFile(module, &isBtrStream));
+        qstrcpy(item.func, RslGetProcNameFromStack(stack));
         //qDebug() << func << item.line << item.func;
 
         packet.append(item);
@@ -478,12 +480,10 @@ void DbgServer::UpdateText(const int &index)
     updtext.len = len;
     updtext.line = line;
 
-    if (m_curModuleInView == mod)
+    if (m_curModuleInView != mod)
     {
+        //m_curModuleInView = mod;
 
-    }
-    else
-    {
         int isBtrStream = 0;
         char *filename = RslGetModuleFile((Qt::HANDLE)mod, &isBtrStream);
 

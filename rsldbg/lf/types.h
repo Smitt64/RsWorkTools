@@ -15,8 +15,8 @@ typedef struct tagTStackInfo
     RSLPROC		proc;
     RSLSTMT		stmt;
     RSLMODULE	mod;
-    char		procname[100];
-    char		modname[100];
+    QString		procname;
+    QString		modname;
     int			offs, len;
 } TStackInfo;
 

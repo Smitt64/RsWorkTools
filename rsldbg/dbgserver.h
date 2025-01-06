@@ -11,6 +11,7 @@ Q_DECLARE_LOGGING_CATEGORY(dbgServer)
 
 class CDebug;
 class QProcess;
+class QTextCodec;
 class DbgServer : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -33,6 +34,7 @@ signals:
     void started();
 
 private:
+    QTextCodec *oem866;
     int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
 
     bool startapp();

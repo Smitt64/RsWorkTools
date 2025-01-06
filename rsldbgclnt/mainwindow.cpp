@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QTreeView>
 #include <QHeaderView>
+#include <QTextCodec>
 //#include <QIODevice>
 
 Q_LOGGING_CATEGORY(dbg, "rsldbg")
@@ -64,8 +65,13 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow),
     m_pSocket(new QTcpSocket())
 {
+    oem866 = QTextCodec::codecForName("IBM 866");
+
     ui->setupUi(this);
     setIconSize(QSize(16, 16));
+
+    setDockNestingEnabled(true);
+    setDockOptions(GroupedDragging | AnimatedDocks | AllowTabbedDocks);
 
     m_LogModel.reset(new LogEventModel());
     m_CallStackModel.reset(new CallStackModel());
@@ -136,6 +142,8 @@ void MainWindow::dbgDisconnected()
 
 void MainWindow::InitDebugToolBar()
 {
+    ui->actionExit->setIcon(QIcon::fromTheme("ResumeExec"));
+
     ui->actionResume->setIcon(QIcon::fromTheme("Resume"));
     ui->actionResume->setShortcut(QKeySequence(tr("F5")));
 
@@ -346,10 +354,7 @@ void MainWindow::readyRead()
 
         DBG_UPDATSTACK *stack = (DBG_UPDATSTACK*)data.data();
         for (int i = 0; i < count; i++, stack++)
-        {
             m_CallStackModel->append(stack);
-            //qDebug() << QString::fromLocal8Bit(stack->func) << stack->line;
-        }
     }
 
     bytesAvailable = m_pSocket->bytesAvailable();

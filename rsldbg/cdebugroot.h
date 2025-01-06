@@ -15,6 +15,8 @@ public:
     CDebugRoot(QObject *parent = nullptr);
     virtual ~CDebugRoot();
 
+    QString toUnicode(const char *str);
+
     void SetChildsLimit (DWORD childsLimit_);
     void SetExternalMode(int mode);
     BOOL NeedConvert();
@@ -62,6 +64,7 @@ protected:
     HRD			m_inst;
 
 private:
+    QTextCodec *oem866;
     int m_mode;
     DWORD childsLimit;
     std::map<RSLVINFO, unsigned> curChilds;

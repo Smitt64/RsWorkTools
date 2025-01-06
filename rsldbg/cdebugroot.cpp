@@ -3,6 +3,7 @@
 #include <QApplication>
 #include "dbg.h"
 #include "convert.h"
+#include <QTextCodec>
 
 void GetLastErrorText (CDebugRoot* dbgRoot, QString* str, const QString& def)
 {
@@ -21,12 +22,20 @@ CDebugRoot::CDebugRoot(QObject *parent)
     m_mode(TRUE),
     childsLimit(0)
 {
-
+    oem866 = QTextCodec::codecForName("IBM 866");
 }
 
 CDebugRoot::~CDebugRoot()
 {
 
+}
+
+QString CDebugRoot::toUnicode(const char *str)
+{
+    if (NeedConvert())
+        return oem866->toUnicode(str);
+
+    return QString::fromLocal8Bit(str);
 }
 
 void CDebugRoot::SetChildsLimit (DWORD childsLimit_)
