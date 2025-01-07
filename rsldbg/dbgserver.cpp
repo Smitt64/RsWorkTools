@@ -1,6 +1,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include "dbgserver.h"
+#include "clocals.h"
 #include "dbgserverproto.h"
 #include <QThread>
 #include <QProcess>
@@ -22,6 +23,8 @@ Q_LOGGING_CATEGORY(dbgServer, "rsldbg.server")
 DbgServer::DbgServer(QObject *parent)
     : QObject{parent}
 {
+    prevStack = 0;
+    newDbg = true;
     ClientSocket = INVALID_SOCKET;
     oem866 = QTextCodec::codecForName("IBM 866");
 }
@@ -35,6 +38,11 @@ DbgServer::~DbgServer()
 bool DbgServer::isConnected()
 {
     return ClientSocket != INVALID_SOCKET;
+}
+
+void DbgServer::setIsNewDebug(const bool &v)
+{
+    newDbg = v;
 }
 
 void DbgServer::run()
@@ -406,6 +414,7 @@ void DbgServer::sendEventBreakPoint(Qt::HANDLE BpData)
 
 void DbgServer::UpdateDbgInfo(TBpData *data)
 {
+    m_curdbg->GetRemoteVersion();
     m_curdbg->UpdateDbgInfo();
     m_curdbg->SetDebugState(true);
     m_curdbg->SetCurModule((RSLMODULE)-1);
@@ -417,14 +426,58 @@ void DbgServer::UpdateDbgInfo(TBpData *data)
         m_curdbg->DelBp(data);
     }
 
-    m_curdbg->SetIndex (0);
+    m_curdbg->SetIndex(0);
     UpdateDbgInfo(0);
+}
+
+void DbgServer::UpdateVariables(const int &index)
+{
+    CLocals* pLocals = m_curdbg->GetLocals ();
+    RSLSTACK st = m_curdbg->GetStackAt (index);
+    pLocals->CollectLocals (st, &prevStack, newDbg);
+
+    qDebug() << "UpdateVariables" << newDbg;
+    ShowVariables(index);
+}
+
+void DbgServer::ShowVariables(const int &index)
+{
+    RSLSTACK st = m_curdbg->GetStackAt (index);
+    CLocals* pLocals = m_curdbg->GetLocals ();
+
+    CLocals::iterator i;
+    //int nsize = (int)pLocals->size();
+    /*int ctr = 0;
+
+    for (i = pLocals->begin(); i != pLocals->end(); ++i)
+    {
+        ++ctr;
+        if ((*i)->is_object && !(*i)->is_expanded)
+            ++ctr;
+    }
+
+    int row = 0;
+    unsigned char* ar_depth = new unsigned char[ctr];
+    unsigned char max_depth = 0;*/
+
+    for (i = pLocals->begin (); i != pLocals->end (); ++i)
+    {
+        qDebug() << "ShowVariables" << (*i)->str_name;
+    }
 }
 
 void DbgServer::UpdateDbgInfo(const int &index)
 {
-    UpdateText(index);
     UpdateStack();
+    UpdateWatch();
+    UpdateVariables(index);
+    UpdateText(index);   
+}
+
+void DbgServer::UpdateWatch()
+{
+    m_curdbg->UpdateSurvey();
+    //ShowSurvey (/*index*/);
 }
 
 void DbgServer::UpdateStack()
@@ -439,15 +492,11 @@ void DbgServer::UpdateStack()
         Qt::HANDLE hst = RslGetStatementFromStack(stack);
 
         int isBtrStream = 0;
-        //QString fullfilename = oem866->toUnicode(RslGetModuleFile(module, &isBtrStream));
-        //QString func = oem866->toUnicode(RslGetProcNameFromStack(stack));
-
         RslGetStatementPos(hst, &item.offs, &item.len);
         item.line = RslGetModuleLine(module, item.offs, item.len);
 
         qstrcpy(item.fullfilename, RslGetModuleFile(module, &isBtrStream));
         qstrcpy(item.func, RslGetProcNameFromStack(stack));
-        //qDebug() << func << item.line << item.func;
 
         packet.append(item);
     }

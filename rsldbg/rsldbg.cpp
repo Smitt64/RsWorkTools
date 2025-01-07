@@ -114,7 +114,7 @@ HDBG Rsldbg::init(HRD inst,TDbgIntf * _dbg_ftable)
 
     DbgServer *srv = new DbgServer();
     m_Servers[new_dbg] = srv;
-    srv->m_curdbg = new_dbg;
+    //srv->m_curdbg = new_dbg;
 
     srv->moveToThread(m_Thread.data());
     QThreadPool::globalInstance()->start(srv);
@@ -202,7 +202,10 @@ int Rsldbg::process(HDBG hDBG, TBpData *data)
 
     int result = 1;
     DbgServer *srv = m_Servers[pDebug];
+    srv->setIsNewDebug(pDebug != srv->m_curdbg);
+    srv->m_curdbg = pDebug;
 
+    //ReplyMessage((LRESULT)TRUE);
     if (!srv->isConnected())
     {
         QEventLoop loop;

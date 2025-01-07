@@ -4,6 +4,7 @@
 #include "dbg.h"
 #include "convert.h"
 #include <QTextCodec>
+#include <QDebug>
 
 void GetLastErrorText (CDebugRoot* dbgRoot, QString* str, const QString& def)
 {
@@ -340,10 +341,12 @@ bool CDebugRoot::do_RefreshInfo(RSLVINFO hinfo,RSLVALUE *val,int *isObject,
 
 bool CDebugRoot::do_DoneInfo(RSLVINFO hinfo)
 {
+    static int count = 1;
     CHECK_FTABLE(DoneInfo);
 
     try
     {
+        qDebug() << "do_DoneInfo" << count++;
         curChilds.erase (hinfo);
         m_dbgftable->DoneInfo(m_inst, hinfo);
     }

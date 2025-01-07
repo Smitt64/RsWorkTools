@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QRunnable>
 #include <QLoggingCategory>
+#include <QQueue>
 
 Q_DECLARE_LOGGING_CATEGORY(dbgServer)
 
@@ -25,6 +26,7 @@ public:
     void UpdateDbgInfo(TBpData *data);
 
     bool isConnected();
+    void setIsNewDebug(const bool &v);
 
 public slots:
     void sendEventBreakPoint(Qt::HANDLE BpData);
@@ -34,6 +36,7 @@ signals:
     void started();
 
 private:
+    QQueue<qint32> m_Messages;
     QTextCodec *oem866;
     int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
 
@@ -46,8 +49,13 @@ private:
     QString ReadTextFileContent(const QString &filename, const QString &encode);
     void UpdateText(const int &index);
     void UpdateStack();
+    void UpdateWatch();
     void UpdateDbgInfo(const int &index);
+    void UpdateVariables(const int &index);
+    void ShowVariables(const int &index);
     QString m_LastError;
+    RSLSTACK prevStack;
+    bool newDbg;
 
     unsigned int ClientSocket;
     Qt::HANDLE m_curModuleInView;
