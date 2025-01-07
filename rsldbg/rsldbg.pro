@@ -28,6 +28,11 @@ SOURCES += \
     remexpressions.cpp \
     rsldbg.cpp \
     saver.cpp \
+    server/breakpointevent.cpp \
+    server/dbgserverbase.cpp \
+    server/serveractionevent.cpp \
+    server/tools.cpp \
+    server/updatedbginfoevent.cpp \
     ui/callstackdockwidget.cpp \
     ui/dbgeditorlinewidgetprovider.cpp \
     ui/events/dbgbreakpointevent.cpp \
@@ -57,6 +62,10 @@ HEADERS += \
     rsldbg_global.h \
     rsldbg.h \
     saver.h \
+    server/breakpointevent.h \
+    server/dbgserverbase.h \
+    server/serveractionevent.h \
+    server/updatedbginfoevent.h \
     tracemsg.h \
     ui/callstackdockwidget.h \
     ui/dbgeditorlinewidgetprovider.h \

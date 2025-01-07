@@ -3,6 +3,8 @@
 #include "ui/events/dbgbreakpointevent.h"
 #include "ui/events/dbgtraceevent.h"
 #include "ui/mainwindow.h"
+#include "server/updatedbginfoevent.h"
+#include "server/breakpointevent.h"
 #include "cdebug.h"
 #include "rsl/dbgintf.h"
 #include "saver.h"
@@ -220,8 +222,10 @@ int Rsldbg::process(HDBG hDBG, TBpData *data)
         loop.exec();
     }
 
-    srv->UpdateDbgInfo(data);
-    srv->sendEventBreakPoint(data);
+    //srv->UpdateDbgInfo(data);
+    srv->sendServerAction(new UpdateDbgInfoEvent(data));
+    srv->sendServerAction(new BreakPointEvent(data));
+    //srv->sendEventBreakPoint(data);
 
     return result;
 }

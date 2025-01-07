@@ -3,6 +3,9 @@
 #include "dbgserver.h"
 #include "clocals.h"
 #include "dbgserverproto.h"
+#include "server/breakpointevent.h"
+#include "server/serveractionevent.h"
+#include "server/updatedbginfoevent.h"
 #include <QThread>
 #include <QProcess>
 #include <QNetworkInterface>
@@ -15,18 +18,15 @@
 #include <QTextCodec>
 #include "rsldbg.h"
 
-#define DEFAULT_PORT 1491
-static int max_port = DEFAULT_PORT;
-
-Q_LOGGING_CATEGORY(dbgServer, "rsldbg.server")
+QString toolProcessStateText(qint16 State);
+QString toolProcessExitStatusText(qint16 State);
+QString toolGetProcessErrorText(const QProcess::ProcessError &error);
 
 DbgServer::DbgServer(QObject *parent)
-    : QObject{parent}
+    : DbgServerBase{parent}
 {
     prevStack = 0;
     newDbg = true;
-    ClientSocket = INVALID_SOCKET;
-    oem866 = QTextCodec::codecForName("IBM 866");
 }
 
 DbgServer::~DbgServer()
@@ -43,151 +43,6 @@ bool DbgServer::isConnected()
 void DbgServer::setIsNewDebug(const bool &v)
 {
     newDbg = v;
-}
-
-void DbgServer::run()
-{
-    WSADATA wsaData = { 0 };
-    int iResult = 0;
-
-    SOCKET ListenSocket = INVALID_SOCKET;
-
-    struct addrinfo *result = NULL;
-    struct addrinfo hints;
-
-    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-    if (iResult != 0)
-    {
-        m_LastError = QString("WSAStartup failed with error: %1").arg(iResult);
-        qCritical(dbgServer()) << m_LastError;
-        emit finished();
-        return;
-    }
-
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    hints.ai_flags = AI_PASSIVE;
-
-    //std::string port = std::to_string(++max_port);
-    char port[_MAX_PATH] = {'\0'};
-    sprintf(port, "%d", ++max_port);
-    iResult = getaddrinfo(NULL, port, &hints, &result);
-
-    if ( iResult != 0 )
-    {
-        m_LastError = QString("getaddrinfo failed with error: %1").arg(iResult);
-        qCritical(dbgServer()) << m_LastError;
-
-        WSACleanup();
-        emit finished();
-        return;
-    }
-
-    ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    if (ListenSocket == INVALID_SOCKET)
-    {
-        m_LastError = QString("socket failed with error: %1").arg(WSAGetLastError());
-        qCritical(dbgServer()) << m_LastError;
-
-        freeaddrinfo(result);
-        WSACleanup();
-        emit finished();
-        return;
-    }
-
-    char ipAddress[INET_ADDRSTRLEN] = { '\0' };
-    inet_ntop(AF_INET, &((struct sockaddr_in *)result->ai_addr)->sin_addr, ipAddress, INET_ADDRSTRLEN);
-    //qDebug() << "ipAddress" << ipAddress;
-
-    iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-    if (iResult == SOCKET_ERROR)
-    {
-        m_LastError = QString("bind failed with error: %1").arg(WSAGetLastError());
-        qCritical(dbgServer()) << m_LastError;
-
-        freeaddrinfo(result);
-        closesocket(ListenSocket);
-        WSACleanup();
-        emit finished();
-        return;
-    }
-    else
-        qInfo(dbgServer()) << "Server binds to" << ipAddress;
-
-    freeaddrinfo(result);
-
-    iResult = listen(ListenSocket, SOMAXCONN);
-    if (iResult == SOCKET_ERROR)
-    {
-        m_LastError = QString("listen failed with error: %1").arg(WSAGetLastError());
-        qCritical(dbgServer()) << m_LastError;
-
-        closesocket(ListenSocket);
-        WSACleanup();
-        emit finished();
-        return;
-    }
-
-    if (!startapp())
-    {
-        m_LastError = QString("Can't start debug app");
-        qCritical(dbgServer()) << m_LastError;
-
-        closesocket(ListenSocket);
-        WSACleanup();
-        emit finished();
-        return;
-    }
-
-    ClientSocket = accept(ListenSocket, NULL, NULL);
-    /*int WaitCount = 0;
-    do {
-        QThread::sleep(5);
-        ClientSocket = accept(ListenSocket, (SOCKADDR*)&result->ai_addr, (int*)&result->ai_addrlen);
-        qDebug() << "Waiting connection";
-        WaitCount ++;
-
-        if (ClientSocket != INVALID_SOCKET)
-            WaitCount = 10;
-    } while (ClientSocket == SOCKET_ERROR && WaitCount < 10);*/
-
-    if (ClientSocket == INVALID_SOCKET)
-    {
-        m_LastError = QString("accept failed with error: %1").arg(WSAGetLastError());
-        qCritical(dbgServer()) << m_LastError;
-
-        closesocket(ListenSocket);
-        WSACleanup();
-        emit finished();
-        return;
-    }
-
-    closesocket(ListenSocket);
-
-    DBGHEADER handshake;
-    DbgMakeHeader(&handshake, 0, DBG_REQUEST_HANDSHAKE);
-    int iSendResult = send(ClientSocket, (char*)&handshake, sizeof(DBGHEADER), 0);
-    emit started();
-
-    do {
-        QThread::usleep(100);
-        qint16 action = 0;
-        QByteArray data;
-        iResult = read(data, &action);
-        //qDebug() << "read" << iResult << WSAGetLastError();
-
-        if (iResult)
-        {
-            process(data, action);
-        }
-    } while (iResult > 0);
-
-    iResult = shutdown(ClientSocket, SD_SEND);
-    closesocket(ClientSocket);
-    WSACleanup();
-    emit finished();
 }
 
 QString DbgServer::ReadTextFileContent(const QString &filename, const QString &encode)
@@ -211,68 +66,7 @@ QString DbgServer::ReadTextFileContent(const QString &filename, const QString &e
     return content;
 }
 
-QString toolProcessStateText(qint16 State)
-{
-    QString result;
-    switch(State)
-    {
-    case QProcess::Starting:
-        result = "The process is starting, but the program has not yet been invoked.";
-        break;
-    case QProcess::Running:
-        result = "The process is running and is ready for reading and writing.";
-        break;
-    default:
-        result = "The process is not running.";
-    }
-
-    return result;
-}
-
-QString toolProcessExitStatusText(qint16 State)
-{
-    QString result;
-    switch(State)
-    {
-    case QProcess::CrashExit:
-        result = "The process crashed.";
-        break;
-    default:
-        result = "The process exited normally.";
-    }
-
-    return result;
-}
-
-QString toolGetProcessErrorText(const QProcess::ProcessError &error)
-{
-    QString errText;
-    switch(error)
-    {
-    case QProcess::FailedToStart:
-        errText = "The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program";
-        break;
-    case QProcess::Crashed:
-        errText = "The process crashed some time after starting successfully";
-        break;
-    case QProcess::Timedout:
-        errText = "The process timedout";
-        break;
-    case QProcess::WriteError:
-        errText = "An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel";
-        break;
-    case QProcess::ReadError:
-        errText = "An error occurred when attempting to read from the process. For example, the process may not be running";
-        break;
-    case QProcess::UnknownError:
-        errText = "An unknown error occurred";
-        break;
-    }
-
-    return errText;
-}
-
-bool DbgServer::startapp()
+bool DbgServer::startApp()
 {
     QNetworkAddressEntry adress;
     foreach(const QNetworkInterface &qNetInterface, QNetworkInterface::allInterfaces())
@@ -296,7 +90,7 @@ bool DbgServer::startapp()
     m_pProc->setArguments(
     {
         "--host", "127.0.0.1",//adress.ip().toString(),
-        "--port", QString::number(max_port)
+        "--port", QString::number(port())
     });
 
     bool hr = true;
@@ -324,56 +118,15 @@ bool DbgServer::startapp()
     return hr;
 }
 
-int DbgServer::read(QByteArray &data, qint16 *action)
-{
-    DBGHEADER hdr;
-    int iResult = recv(ClientSocket, (char*)&hdr, sizeof(DBGHEADER), 0);
-
-    if (iResult > 0)
-    {
-        if (hdr.size && !memcmp(hdr.magic, RSLDBG_MAGIC, sizeof(hdr.magic)))
-        {
-            *action = hdr.action;
-            data.reserve(hdr.size);
-
-            iResult = recv(ClientSocket, (char*)data.data(), hdr.size, 0);
-        }
-    }
-
-    return iResult;
-}
-
 void DbgServer::process(const QByteArray &data, const qint16 &action)
 {
-    if (action == DBG_REQUEST_EXECCONTNUE)
+    /*if (action == DBG_REQUEST_EXECCONTNUE)
     {
         DBG_EXECCONTNUE *exec = (DBG_EXECCONTNUE*)data.data();
         m_curdbg->SetDebugState(false);
         m_curdbg->do_ExecContinue(exec->trace_log);
         qDebug() << "DBG_REQUEST_EXECCONTNUE" << exec->trace_log;
-    }
-}
-
-void DbgServer::write(DBGHEADER *hdr, void *data, int len, const QByteArray &adddata)
-{
-    QByteArray tmp;
-    QDataStream stream(&tmp, QIODevice::ReadWrite);
-
-    stream.writeRawData((char*)hdr, sizeof(DBGHEADER));
-
-    if (data)
-        stream.writeRawData((char*)data, len);
-
-    if(!adddata.isEmpty())
-        stream.writeRawData(adddata.data(), adddata.size());
-
-    DBGHEADER tmphdr;
-    memcpy(&tmphdr, hdr, sizeof(DBGHEADER));
-
-    tmphdr.size = tmp.size();
-    memcpy(tmp.data(), &tmphdr, sizeof(DBGHEADER));
-
-    send(ClientSocket, (char*)tmp.data(), tmp.size(), 0);
+    }*/
 }
 
 void DbgServer::fillBpData(DBGBPDATA *body, Qt::HANDLE BpData)
@@ -593,4 +346,35 @@ int DbgServer::RslGetModuleLine(Qt::HANDLE module, int offs, int len)
     m_curdbg->do_GetStatementOfPos((RSLMODULE)module, offs, len, &realoffs, &reallen, &stmt, &line);
 
     return line;
+}
+
+bool DbgServer::serverActionEvent(ServerActionEvent *e)
+{
+    QByteArray &data = e->buffer();
+    if (e->action() == DBG_REQUEST_EXECCONTNUE)
+    {
+        DBG_EXECCONTNUE *exec = (DBG_EXECCONTNUE*)data.data();
+        m_curdbg->SetDebugState(false);
+        m_curdbg->do_ExecContinue(exec->trace_log);
+        //qDebug() << "DBG_REQUEST_EXECCONTNUE" << exec->trace_log;
+    }
+    return DbgServerBase::serverActionEvent(e);
+}
+
+bool DbgServer::serverEvent(QEvent *event)
+{
+    if (event->type() == MSG_UPDATEDBGINFO_EVENT)
+    {
+        qDebug() << "MSG_UPDATEDBGINFO_EVENT";
+        UpdateDbgInfoEvent *e = dynamic_cast<UpdateDbgInfoEvent*>(event);
+        UpdateDbgInfo((TBpData*)e->data());
+    }
+    else if (event->type() == MSG_BREAKPOINT)
+    {
+        qDebug() << "MSG_BREAKPOINT";
+        BreakPointEvent *e = dynamic_cast<BreakPointEvent*>(event);
+        sendEventBreakPoint(e->data());
+    }
+
+    return DbgServerBase::serverEvent(event);
 }

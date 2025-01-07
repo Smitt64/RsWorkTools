@@ -3,23 +3,18 @@
 
 #include "dbgserverproto.h"
 #include "lf/bp_data.h"
+#include "server/dbgserverbase.h"
 #include <QObject>
-#include <QRunnable>
-#include <QLoggingCategory>
-#include <QQueue>
-
-Q_DECLARE_LOGGING_CATEGORY(dbgServer)
 
 class CDebug;
 class QProcess;
 class QTextCodec;
-class DbgServer : public QObject, public QRunnable
+class DbgServer : public DbgServerBase
 {
     Q_OBJECT
 public:
     DbgServer(QObject *parent = nullptr);
     virtual ~DbgServer();
-    virtual void run();
 
     CDebug *m_curdbg;
 
@@ -31,19 +26,20 @@ public:
 public slots:
     void sendEventBreakPoint(Qt::HANDLE BpData);
 
+protected:
+    virtual bool startApp() Q_DECL_OVERRIDE;
+    virtual bool serverActionEvent(ServerActionEvent *e) Q_DECL_OVERRIDE;
+    virtual bool serverEvent(QEvent *e) Q_DECL_OVERRIDE;
+
 signals:
     void finished();
     void started();
 
 private:
-    QQueue<qint32> m_Messages;
     QTextCodec *oem866;
     int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
 
-    bool startapp();
     void process(const QByteArray &data, const qint16 &action);
-    int read(QByteArray &data, qint16 *action);
-    void write(DBGHEADER *hdr, void *data, int len, const QByteArray &adddata = QByteArray());
     void fillBpData(DBGBPDATA *body, Qt::HANDLE BpData);
 
     QString ReadTextFileContent(const QString &filename, const QString &encode);

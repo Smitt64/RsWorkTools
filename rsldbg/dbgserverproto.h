@@ -15,11 +15,14 @@
 #define DBG_REQUEST_UPDATEBP 104
 #define DBG_REQUEST_UPDATESTACK 105
 
-#define	MSG_BREAKPOINT (QEvent::User + 1)
-#define MSG_FINISH     (QEvent::User + 2)
-#define MSG_TRACE      (QEvent::User + 3)
-#define MSG_EDITWATCH  (QEvent::User + 4)
-#define	MSG_LOG        (QEvent::User + 5)
+#define	MSG_BREAKPOINT   (QEvent::User + 1)
+#define MSG_FINISH       (QEvent::User + 2)
+#define MSG_TRACE        (QEvent::User + 3)
+#define MSG_EDITWATCH    (QEvent::User + 4)
+#define	MSG_LOG          (QEvent::User + 5)
+
+#define	MSG_SERVER_EVENT        (QEvent::User + 6)
+#define	MSG_UPDATEDBGINFO_EVENT (QEvent::User + 7)
 
 #define  EXECCONTNUE_STEP_OVER           1
 #define  EXECCONTNUE_STEP_INTO           2
