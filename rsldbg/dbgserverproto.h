@@ -96,7 +96,7 @@ typedef struct
 
 typedef struct
 {
-    char func[_MAX_PATH], fullfilename[_MAX_PATH];
+    char func[_MAX_PATH], fullfilename[_MAX_PATH], fnamespace[_MAX_PATH];
     int offs;
     int len;
     int line;

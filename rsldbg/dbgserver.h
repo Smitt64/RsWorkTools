@@ -5,6 +5,7 @@
 #include "lf/bp_data.h"
 #include "server/dbgserverbase.h"
 #include <QObject>
+#include <QCache>
 
 class CDebug;
 class QProcess;
@@ -36,6 +37,8 @@ signals:
     void started();
 
 private:
+    QCache<Qt::HANDLE, QString> m_ProcNamespace;
+
     QTextCodec *oem866;
     int RslGetModuleLine(Qt::HANDLE module, int offs, int len);
 

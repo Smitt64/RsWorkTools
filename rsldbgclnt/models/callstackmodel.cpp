@@ -41,7 +41,14 @@ QVariant CallStackModel::data(const QModelIndex &index, int role) const
         if (index.column() == ColumnLevel)
             return index.row() + 1;
         if (index.column() == ColumnFunction)
-            return m_Items[index.row()].func;
+        {
+            if (m_Items[index.row()].fnamespace.isEmpty())
+                return m_Items[index.row()].func;
+
+            return QString("%1::%2")
+                .arg(m_Items[index.row()].fnamespace)
+                .arg(m_Items[index.row()].func);
+        }
         if (index.column() == ColumnFile)
             return m_Items[index.row()].file;
         if (index.column() == ColumnLine)
@@ -66,6 +73,7 @@ void CallStackModel::append(Qt::HANDLE stack)
     StackItem item;
     item.fullfilename = oem866->toUnicode(upd->fullfilename);
     item.func = oem866->toUnicode(upd->func);
+    item.fnamespace = oem866->toUnicode(upd->fnamespace);
 
     item.len = upd->len;
     item.line = upd->line;

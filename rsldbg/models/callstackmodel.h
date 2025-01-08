@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    QString func, file, fullfilename;
+    QString func, file, fullfilename, funcnamespace;
     int offs;
     int len;
     int line;

@@ -189,7 +189,17 @@ void DbgServer::UpdateVariables(const int &index)
     RSLSTACK st = m_curdbg->GetStackAt (index);
     pLocals->CollectLocals (st, &prevStack, newDbg);
 
-    qDebug() << "UpdateVariables" << newDbg;
+    CLocals::iterator i;
+    for (i = pLocals->begin (); i != pLocals->end (); ++i)
+    {
+        QString name = (*i)->str_name;
+        QString value = (*i)->str_value;
+        QString type = (*i)->str_type;
+
+        if (name == "THIS" && value.contains("Object") && !m_ProcNamespace.contains(st))
+            m_ProcNamespace.insert(st, new QString(type));
+    }
+
     ShowVariables(index);
 }
 
@@ -199,31 +209,17 @@ void DbgServer::ShowVariables(const int &index)
     CLocals* pLocals = m_curdbg->GetLocals ();
 
     CLocals::iterator i;
-    //int nsize = (int)pLocals->size();
-    /*int ctr = 0;
-
-    for (i = pLocals->begin(); i != pLocals->end(); ++i)
-    {
-        ++ctr;
-        if ((*i)->is_object && !(*i)->is_expanded)
-            ++ctr;
-    }
-
-    int row = 0;
-    unsigned char* ar_depth = new unsigned char[ctr];
-    unsigned char max_depth = 0;*/
-
     for (i = pLocals->begin (); i != pLocals->end (); ++i)
     {
-        qDebug() << "ShowVariables" << (*i)->str_name;
+        qDebug() << "ShowVariables" << (*i)->str_name << (*i)->str_value << (*i)->str_type << (*i)->str_proc;
     }
 }
 
 void DbgServer::UpdateDbgInfo(const int &index)
 {
+    UpdateVariables(index);
     UpdateStack();
     UpdateWatch();
-    UpdateVariables(index);
     UpdateText(index);   
 }
 
@@ -240,6 +236,8 @@ void DbgServer::UpdateStack()
     for (int i = 0; i < rv; i++)
     {
         DBG_UPDATSTACK item;
+        memset(&item, 0, sizeof(DBG_UPDATSTACK));
+
         Qt::HANDLE stack = m_curdbg->GetStackAt(i);
         Qt::HANDLE module = RslGetModuleFromStack(stack);
         Qt::HANDLE hst = RslGetStatementFromStack(stack);
@@ -250,6 +248,9 @@ void DbgServer::UpdateStack()
 
         qstrcpy(item.fullfilename, RslGetModuleFile(module, &isBtrStream));
         qstrcpy(item.func, RslGetProcNameFromStack(stack));
+
+        if (m_ProcNamespace.contains(stack))
+            qstrcpy(item.fnamespace, m_ProcNamespace[stack]->toLocal8Bit().data());
 
         packet.append(item);
     }
