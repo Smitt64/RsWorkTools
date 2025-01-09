@@ -14,6 +14,8 @@
 #define DBG_REQUEST_EXECCONTNUE 103
 #define DBG_REQUEST_UPDATEBP 104
 #define DBG_REQUEST_UPDATESTACK 105
+#define DBG_REQUEST_UPDATELOCALS 106
+#define DBG_REQUEST_EXPANDVARIABLE 107
 
 #define	MSG_BREAKPOINT   (QEvent::User + 1)
 #define MSG_FINISH       (QEvent::User + 2)
@@ -97,10 +99,39 @@ typedef struct
 typedef struct
 {
     char func[_MAX_PATH], fullfilename[_MAX_PATH], fnamespace[_MAX_PATH];
-    int offs;
-    int len;
-    int line;
+    qint32 offs;
+    qint32 len;
+    qint32 line;
 }DBG_UPDATSTACK;
+
+typedef struct
+{
+    qint32 index;
+    char str_name[_MAX_PATH], str_type[_MAX_PATH], str_proc[_MAX_PATH];
+    unsigned char depth;
+    bool is_object, is_expanded, is_lvalue, isFakeChildrensItem;
+
+    qint64 val;  // RSLVALUE
+    qint64 exp;  // RSLEXPCTX
+    qint64 st;   // RSLSTACK
+    qint64 proc; // RSLPROC
+    qint64 info; // RSLVINFO
+    qint64 mod;  // RSLMODULE
+
+    qint32 value_size;
+}DBG_VARIABLEDATA;
+
+typedef struct
+{
+    qint16 var_count;
+}DBG_LOCALS;
+
+typedef struct
+{
+    qint32 index;
+    qint64 st;   // RSLSTACK
+}DBG_EXPANDVARIABLE;
+
 #include <packpop.h>
 
 inline bool DbgCheckHeader(DBGHEADER *hdr)

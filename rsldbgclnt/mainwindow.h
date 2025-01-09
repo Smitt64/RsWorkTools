@@ -20,6 +20,8 @@ class CodeEditor;
 class LogEventModel;
 class StdViewDockWidget;
 class CallStackModel;
+class VarWatchModel;
+class VarWatchDockWidget;
 class DbgEditorLineWidgetProvider;
 class MainWindow : public QMainWindow
 {
@@ -43,7 +45,12 @@ public slots:
     void dbgDisconnected();
     void readyRead();
 
+private slots:
+    void expandVariable(const int &index, const qint64 &stack);
+
 protected:
+    void write(const quint16 &acton, const QByteArray &data);
+    void write(const quint16 &acton, void *data, const int &len);
     virtual void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
     virtual bool event(QEvent *event) Q_DECL_OVERRIDE;
 
@@ -60,8 +67,11 @@ private:
     QScopedPointer<LogEventModel> m_LogModel;
     QScopedPointer<CallStackModel> m_CallStackModel;
 
+    QScopedPointer<VarWatchModel> m_LocalsModel;
+
     QScopedPointer<StdViewDockWidget> m_LogDockWidget;
     QScopedPointer<StdViewDockWidget> m_StackDockWidget;
+    QScopedPointer<VarWatchDockWidget> m_LocalsDockWidget;
 
     CodeEditor *m_pCodeEditor;
     DbgEditorLineWidgetProvider *m_pCodeEditorProvider;

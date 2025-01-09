@@ -74,6 +74,15 @@ void DbgServerBase::write(DBGHEADER *hdr, const QByteArray &adddata)
     write(hdr, nullptr, 0, adddata);
 }
 
+void DbgServerBase::write(qint16 action, const QByteArray &data)
+{
+    DBGHEADER hdr;
+    hdr.size = sizeof(DBGHEADER) + data.size();
+    DbgMakeHeader(&hdr, hdr.size, action);
+
+    write(&hdr, data);
+}
+
 void DbgServerBase::run()
 {
     WSADATA wsaData = { 0 };
@@ -211,7 +220,7 @@ void DbgServerBase::run()
             delete event;
         }
 
-        QThread::usleep(100);
+        QThread::usleep(50);
 
         if (headers.empty())
         {

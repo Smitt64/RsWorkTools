@@ -3,9 +3,14 @@ Name=Win Xp
 
 PanelDefault=16
 PanelSizes=16
-Directories=actions
+Directories=actions,objects
 
 [actions]
 Size=16
 Context=Actions
+Type=Fixed
+
+[objects]
+Size=16
+Context=Objects
 Type=Fixed

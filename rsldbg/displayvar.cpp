@@ -1,4 +1,5 @@
 #include "displayvar.h"
+#include "dbgserverproto.h"
 
 DisplayVar::DisplayVar(CDebugRoot* pDebug)
 {
@@ -58,4 +59,25 @@ bool DisplayVar::IsError () const
 bool DisplayVar::IsStringLikeEditable () const
 {
     return (str_type == "String") || (str_type == "STRING") || IsError ();
+}
+
+void DisplayVar::toDbgVariable(Qt::HANDLE obj)
+{
+    DBG_VARIABLEDATA *v = (DBG_VARIABLEDATA*)obj;
+    qstrcpy(v->str_name, str_name.toLocal8Bit().data());
+    qstrcpy(v->str_type, str_type.toLocal8Bit().data());
+    qstrcpy(v->str_proc, str_proc.toLocal8Bit().data());
+
+    v->depth = depth;
+    v->is_object = is_object;
+    v->is_expanded = is_expanded;
+    v->is_lvalue = is_lvalue;
+    v->isFakeChildrensItem = isFakeChildrensItem;
+
+    v->val = reinterpret_cast<qint64>(val);
+    v->exp = reinterpret_cast<qint64>(exp);
+    v->st = reinterpret_cast<qint64>(st);
+    v->proc = reinterpret_cast<qint64>(proc);
+    v->info = reinterpret_cast<qint64>(info);
+    v->mod = reinterpret_cast<qint64>(mod);
 }

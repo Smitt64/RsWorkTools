@@ -11,7 +11,7 @@ public:
     StdViewDockWidget();
     virtual ~StdViewDockWidget();
 
-    void setModel(QAbstractItemModel *model);
+    virtual void setModel(QAbstractItemModel *model);
     void setAutoScrollToBottom(bool value);
 
     QTreeView *view();

@@ -36,6 +36,8 @@ public:
     bool IsError () const;
     bool IsStringLikeEditable () const;
 
+    void toDbgVariable(Qt::HANDLE obj);
+
 private:
     QString str_error;
 };

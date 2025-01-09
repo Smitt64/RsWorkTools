@@ -11,5 +11,8 @@
         <file>icons/winxp-theme/actions/StepOut.png</file>
         <file>icons/winxp-theme/actions/Resume.png</file>
         <file>icons/winxp-theme/actions/ResumeExec.png</file>
+        <file>icons/winxp-theme/objects/Class.png</file>
+        <file>icons/winxp-theme/objects/Variable.png</file>
+        <file>icons/winxp-theme/objects/Undefined.png</file>
     </qresource>
 </RCC>

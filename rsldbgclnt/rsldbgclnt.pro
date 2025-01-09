@@ -15,15 +15,20 @@ SOURCES += \
     mainwindow.cpp \
     models/callstackmodel.cpp \
     models/logeventmodel.cpp \
-    stdviewdockwidget.cpp
+    models/varwatchmodel.cpp \
+    stdviewdockwidget.cpp \
+    varwatchdockwidget.cpp
 
 HEADERS += \
+    ../rsldbg/dbgserverproto.h \
     dbgeditorlinewidgetprovider.h \
     logevent.h \
     mainwindow.h \
     models/callstackmodel.h \
     models/logeventmodel.h \
-    stdviewdockwidget.h
+    models/varwatchmodel.h \
+    stdviewdockwidget.h \
+    varwatchdockwidget.h
 
 FORMS += \
     mainwindow.ui

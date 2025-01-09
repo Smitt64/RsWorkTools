@@ -16,6 +16,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QTextCodec>
+#include <QBuffer>
 #include "rsldbg.h"
 
 QString toolProcessStateText(qint16 State);
@@ -205,14 +206,58 @@ void DbgServer::UpdateVariables(const int &index)
 
 void DbgServer::ShowVariables(const int &index)
 {
-    RSLSTACK st = m_curdbg->GetStackAt (index);
-    CLocals* pLocals = m_curdbg->GetLocals ();
+    RSLSTACK st = m_curdbg->GetStackAt(index);
+    CLocals* pLocals = m_curdbg->GetLocals();
+
+    QByteArray buffer;
+    QBuffer stream(&buffer);
+    stream.open(QIODevice::ReadWrite);
+
+    DBG_LOCALS locals;
+    memset(&locals, 0, sizeof(DBG_LOCALS));
+    stream.write((const char*)&locals, sizeof(DBG_LOCALS));
 
     CLocals::iterator i;
+    /*for (i = pLocals->begin (); i != pLocals->end (); ++i)
+    {
+        if ((*i)->str_name == "OBJ")
+        {
+            int id = std::distance(pLocals->begin(), i);
+            pLocals->ExpandV(id, (*i)->st);
+            break;
+        }
+    }*/
+
     for (i = pLocals->begin (); i != pLocals->end (); ++i)
     {
-        qDebug() << "ShowVariables" << (*i)->str_name << (*i)->str_value << (*i)->str_type << (*i)->str_proc;
+        DBG_VARIABLEDATA var;
+        var.index = std::distance(pLocals->begin(), i);
+        (*i)->toDbgVariable(&var);
+
+        if (!(*i)->str_value.isEmpty())
+            var.value_size = (*i)->str_value.size() + 1;
+        else
+            var.value_size = 0;
+
+        stream.write((const char*)&var, sizeof(DBG_VARIABLEDATA));
+
+        if (var.value_size)
+        {
+            char *value = new char[var.value_size];
+            memset(value, 0, var.value_size);
+            qstrcpy(value, (*i)->str_value.toLocal8Bit().data());
+            stream.write(value, var.value_size);
+            delete[] value;
+        }
+
+        locals.var_count ++;
     }
+
+    stream.seek(0);
+    stream.write((const char*)&locals, sizeof(DBG_LOCALS));
+    stream.close();
+
+    write(DBG_REQUEST_UPDATELOCALS, buffer);
 }
 
 void DbgServer::UpdateDbgInfo(const int &index)
@@ -357,8 +402,15 @@ bool DbgServer::serverActionEvent(ServerActionEvent *e)
         DBG_EXECCONTNUE *exec = (DBG_EXECCONTNUE*)data.data();
         m_curdbg->SetDebugState(false);
         m_curdbg->do_ExecContinue(exec->trace_log);
-        //qDebug() << "DBG_REQUEST_EXECCONTNUE" << exec->trace_log;
     }
+    else if (e->action() == DBG_REQUEST_EXPANDVARIABLE)
+    {
+        CLocals* pLocals = m_curdbg->GetLocals();
+        DBG_EXPANDVARIABLE *expand = (DBG_EXPANDVARIABLE*)data.data();
+        pLocals->ExpandV(expand->index, reinterpret_cast<RSLSTACK>(expand->st));
+        ShowVariables(0);
+    }
+
     return DbgServerBase::serverActionEvent(e);
 }
 
@@ -366,13 +418,11 @@ bool DbgServer::serverEvent(QEvent *event)
 {
     if (event->type() == MSG_UPDATEDBGINFO_EVENT)
     {
-        qDebug() << "MSG_UPDATEDBGINFO_EVENT";
         UpdateDbgInfoEvent *e = dynamic_cast<UpdateDbgInfoEvent*>(event);
         UpdateDbgInfo((TBpData*)e->data());
     }
     else if (event->type() == MSG_BREAKPOINT)
     {
-        qDebug() << "MSG_BREAKPOINT";
         BreakPointEvent *e = dynamic_cast<BreakPointEvent*>(event);
         sendEventBreakPoint(e->data());
     }

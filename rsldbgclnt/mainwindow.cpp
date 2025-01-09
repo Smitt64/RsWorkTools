@@ -1,11 +1,13 @@
 #include <Windows.h>
 #include "mainwindow.h"
+#include "models/varwatchmodel.h"
 #include "stdviewdockwidget.h"
 #include "logevent.h"
 #include "models/logeventmodel.h"
 #include "models/callstackmodel.h"
 #include "ui_mainwindow.h"
 #include "dbgeditorlinewidgetprovider.h"
+#include "varwatchdockwidget.h"
 #include <dbgserverproto.h>
 #include <codeeditor/codeeditor.h>
 #include <codeeditor/cppcodehighlighter.h>
@@ -13,6 +15,7 @@
 #include <QTreeView>
 #include <QHeaderView>
 #include <QTextCodec>
+#include <QBuffer>
 //#include <QIODevice>
 
 Q_LOGGING_CATEGORY(dbg, "rsldbg")
@@ -83,6 +86,13 @@ MainWindow::MainWindow(QWidget *parent)
     m_StackDockWidget->setModel(m_CallStackModel.data());
     m_StackDockWidget->setWindowTitle(tr("Call stack"));
 
+    m_LocalsModel.reset(new VarWatchModel());
+    m_LocalsDockWidget.reset(new VarWatchDockWidget());
+    m_LocalsDockWidget->setWindowTitle(tr("Locals"));
+    m_LocalsDockWidget->setModel(m_LocalsModel.data());
+    m_LocalsDockWidget->view()->setRootIsDecorated(true);
+    m_LocalsDockWidget->view()->resetIndentation();
+
     m_pCodeEditor = new CodeEditor(this);
     m_pCodeEditor->setReadOnly(true);
     m_pCodeEditor->setAutoHighlightCurrentLine(false);
@@ -104,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     addDockWidget(Qt::BottomDockWidgetArea, m_LogDockWidget.data());
     addDockWidget(Qt::BottomDockWidgetArea, m_StackDockWidget.data());
+    tabifyDockWidget(m_LogDockWidget.data(), m_LocalsDockWidget.data());
 
     m_StackDockWidget->view()->header()->setStretchLastSection(false);
     m_StackDockWidget->view()->header()->setSectionResizeMode(CallStackModel::ColumnLevel, QHeaderView::ResizeToContents);
@@ -116,6 +127,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_pSocket.data(), &QTcpSocket::connected, this, &MainWindow::dbgConnected);
     connect(m_pSocket.data(), &QTcpSocket::disconnected, this, &MainWindow::dbgDisconnected);
+    connect(m_LocalsDockWidget.data(), &VarWatchDockWidget::expandVariable, this, &MainWindow::expandVariable);
 }
 
 MainWindow::~MainWindow()
@@ -265,6 +277,78 @@ bool MainWindow::event(QEvent *event)
     return QMainWindow::event(event);
 }
 
+void MainWindow::applyCurrentStatement(const int &offs, const int &len, const int &line)
+{
+    QTextDocument *doc = m_pCodeEditor->document();
+    QTextBlock blok = doc->firstBlock();
+
+    if (blok.isValid())
+    {
+        QTextCursor cursor(blok);
+        cursor.setPosition(offs - line + 1, QTextCursor::MoveAnchor);
+        cursor.setPosition(offs + len - line + 1, QTextCursor::KeepAnchor);
+
+        QLinearGradient gradient;
+        gradient.setColorAt(0.0, QColor("#fb000d")); //#c34222
+        gradient.setColorAt(1.0, QColor("#a30008")); //
+
+        gradient.setStart(1, 100);
+        gradient.setFinalStop(1, 200);
+        //QBrush brush(QPixmap("://img/debugrect.png"));
+
+        QTextCharFormat format;
+        format.setBackground(gradient);
+        m_pCodeEditor->appendUserSelection(cursor, format);
+    }
+}
+
+void MainWindow::write(const quint16 &acton, void *data, const int &len)
+{
+    QByteArray tmp;
+    tmp.append((char*)data, len);
+    write(acton, tmp);
+}
+
+void MainWindow::write(const quint16 &acton, const QByteArray &data)
+{
+    DBGHEADER hdr;
+    DbgMakeHeader(&hdr, data.size(), acton);
+
+    QByteArray tmp;
+    QDataStream stream(&tmp, QIODevice::WriteOnly);
+    stream.writeRawData((char*)&hdr, sizeof(DBGHEADER));
+    tmp.append(data);
+
+    m_pSocket->write(tmp);
+    m_pSocket->waitForBytesWritten();
+}
+
+void MainWindow::exec_continue(int trace_log)
+{
+    DBGHEADER hdr;
+    DbgMakeHeader(&hdr, sizeof(DBG_EXECCONTNUE), DBG_REQUEST_EXECCONTNUE);
+
+    DBG_EXECCONTNUE exec;
+    exec.trace_log = trace_log;
+
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream.writeRawData((char*)&hdr, sizeof(DBGHEADER));
+    stream.writeRawData((char*)&exec, sizeof(DBG_EXECCONTNUE));
+
+    m_pSocket->write(data);
+    m_pSocket->waitForBytesWritten();
+}
+
+void MainWindow::expandVariable(const int &index, const qint64 &stack)
+{
+    DBG_EXPANDVARIABLE var;
+    var.index = index;
+    var.st = stack;
+
+    write(DBG_REQUEST_EXPANDVARIABLE, &var, sizeof(DBG_EXPANDVARIABLE));
+}
+
 void MainWindow::readyRead()
 {
     qint64 bytesAvailable = m_pSocket->bytesAvailable();
@@ -356,6 +440,34 @@ void MainWindow::readyRead()
         for (int i = 0; i < count; i++, stack++)
             m_CallStackModel->append(stack);
     }
+    else if (header.action == DBG_REQUEST_UPDATELOCALS)
+    {
+        QByteArray data = m_pSocket->read(header.size - sizeof(DBGHEADER));
+        QBuffer stream(&data);
+        stream.open(QIODevice::ReadOnly);
+
+        DBG_LOCALS locals;
+        stream.read((char*)&locals, sizeof(DBG_LOCALS));
+
+        m_LocalsModel->clear();
+        for (int i = 0; i < locals.var_count; i++)
+        {
+            DBG_VARIABLEDATA valdata;
+            stream.read((char*)&valdata, sizeof(DBG_VARIABLEDATA));
+
+            if (valdata.value_size)
+            {
+                char *value = new char[valdata.value_size];
+                memset(value, 0, valdata.value_size);
+                stream.read(value, valdata.value_size);
+
+                QString val = QString::fromLocal8Bit(value);
+                m_LocalsModel->append(&valdata, val);
+
+                delete[] value;
+            }
+        }
+    }
 
     bytesAvailable = m_pSocket->bytesAvailable();
 
@@ -364,46 +476,4 @@ void MainWindow::readyRead()
 
     if (bytesAvailable)
         readyRead();
-}
-
-void MainWindow::applyCurrentStatement(const int &offs, const int &len, const int &line)
-{
-    QTextDocument *doc = m_pCodeEditor->document();
-    QTextBlock blok = doc->firstBlock();
-
-    if (blok.isValid())
-    {
-        QTextCursor cursor(blok);
-        cursor.setPosition(offs - line + 1, QTextCursor::MoveAnchor);
-        cursor.setPosition(offs + len - line + 1, QTextCursor::KeepAnchor);
-
-        QLinearGradient gradient;
-        gradient.setColorAt(0.0, QColor("#fb000d")); //#c34222
-        gradient.setColorAt(1.0, QColor("#a30008")); //
-
-        gradient.setStart(1, 100);
-        gradient.setFinalStop(1, 200);
-        //QBrush brush(QPixmap("://img/debugrect.png"));
-
-        QTextCharFormat format;
-        format.setBackground(gradient);
-        m_pCodeEditor->appendUserSelection(cursor, format);
-    }
-}
-
-void MainWindow::exec_continue(int trace_log)
-{
-    DBGHEADER hdr;
-    DbgMakeHeader(&hdr, sizeof(DBG_EXECCONTNUE), DBG_REQUEST_EXECCONTNUE);
-
-    DBG_EXECCONTNUE exec;
-    exec.trace_log = trace_log;
-
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream.writeRawData((char*)&hdr, sizeof(DBGHEADER));
-    stream.writeRawData((char*)&exec, sizeof(DBG_EXECCONTNUE));
-
-    m_pSocket->write(data);
-    m_pSocket->waitForBytesWritten();
 }
