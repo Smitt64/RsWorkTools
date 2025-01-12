@@ -1,7 +1,7 @@
 #include "varwatchmodel.h"
-#include "dbgserverproto.h"
 #include "mainwindow.h"
 #include <QDebug>
+#include "dbgserverproto.h"
 
 class TreeItem
 {
@@ -10,7 +10,8 @@ public:
         pModel(model),
         m_parentItem(parentItem)
     {
-
+        //memset(&m_VarInfo, 0, sizeof(DBG_VARIABLEDATA));
+        m_VarInfo.depth = 0;
     }
 
     void appendChild(std::unique_ptr<TreeItem> &&child)
@@ -49,7 +50,12 @@ public:
             if (column == VarWatchModel::ColumnName)
             {
                 if (m_VarInfo.is_object)
-                    return QIcon::fromTheme("Class");
+                {
+                    if (!m_VarInfo.isFakeChildrensItem)
+                        return QIcon::fromTheme("Class");
+                    else
+                        return QIcon::fromTheme("Childs");
+                }
                 else
                 {
                     if (!qstrcmp(m_VarInfo.str_type, "UNDEFINED"))
@@ -63,6 +69,8 @@ public:
             return m_VarInfo.index;
         else if (role == VarWatchModel::StackRole)
             return m_VarInfo.st;
+        else if (role == VarWatchModel::RealHasChild)
+            return !m_childItems.empty();
 
         return QVariant();
     }
@@ -109,6 +117,8 @@ private:
     //QVariantList m_itemData;
     TreeItem *m_parentItem;
 
+    QString VarNameCache, VarValueCache;
+
     DBG_VARIABLEDATA m_VarInfo;
     QString value;
 };
@@ -129,20 +139,87 @@ VarWatchModel::~VarWatchModel()
 
 void VarWatchModel::clear()
 {
-    beginResetModel();
+    //beginResetModel();
     rootItem.reset(new TreeItem(this));
+    //m_LastItem.push(rootItem.get());
+    //endResetModel();
+}
+
+void VarWatchModel::WalkExpandedItems(TreeItem *item, QModelIndexList &lst)
+{
+    for (int i = 0; i < item->childCount(); i++)
+    {
+        if (item->child(i)->var().is_expanded)
+        {
+            TreeItem *parentItem = item->child(i);//item->parentItem();
+            QModelIndex index = createIndex(parentItem->row(), 0, parentItem);
+            WalkExpandedItems(parentItem, lst);
+            lst.append(index);
+        }
+    }
+}
+
+QModelIndexList VarWatchModel::getExpanded()
+{
+    QModelIndexList list;
+    WalkExpandedItems(rootItem.get(), list);
+    return list;
+}
+
+void VarWatchModel::startResetVarables()
+{
+    beginResetModel();
+    clear();
+
+    m_LastItem.clear();
+    m_LastItem.push(rootItem.get());
+}
+
+void VarWatchModel::finishResetVarables()
+{
     endResetModel();
+
+    QModelIndexList list = getExpanded();
+    for (int i = 0; i < list.size(); i++)
+        emit expand(list[i]);
 }
 
 void VarWatchModel::append(Qt::HANDLE var, const QString &val)
 {
-    beginInsertRows(QModelIndex(), rootItem->childCount(), rootItem->childCount());
-    rootItem->appendChild(std::make_unique<TreeItem>(this, rootItem.get()));
+    DBG_VARIABLEDATA *curvar = (DBG_VARIABLEDATA*)var;
+    const DBG_VARIABLEDATA &lastvar = m_LastItem.top()->var();
 
-    TreeItem *item = rootItem->lastChild();
-    memcpy(&item->var(), var, sizeof(DBG_VARIABLEDATA));
-    item->setValue(val);
-    endInsertRows();
+    if (curvar->depth > lastvar.depth)
+    {
+        TreeItem *topItem = m_LastItem.top();
+        //TreeItem *parentItem = topItem->parentItem() ? topItem->parentItem() : rootItem.get();
+        TreeItem *parentItem = topItem ? topItem : rootItem.get();
+        parentItem->appendChild(std::make_unique<TreeItem>(this, parentItem));
+
+        TreeItem *item = parentItem->lastChild();
+        item->var() = *curvar;
+        item->setValue(val);
+
+        m_LastItem.push(item);
+    }
+    else if (curvar->depth == lastvar.depth)
+    {
+        TreeItem *topItem = m_LastItem.top();
+        TreeItem *parentItem = topItem->parentItem() ? topItem->parentItem() : rootItem.get();
+        parentItem->appendChild(std::make_unique<TreeItem>(this, parentItem));
+
+        TreeItem *item = parentItem->lastChild();
+        item->var() = *curvar;
+        item->setValue(val);
+
+        m_LastItem.pop();
+        m_LastItem.push(item);
+    }
+    else
+    {
+        m_LastItem.pop();
+        append(var, val);
+    }
 }
 
 int VarWatchModel::columnCount(const QModelIndex &parent) const
@@ -190,10 +267,6 @@ int VarWatchModel::rowCount(const QModelIndex &parent) const
     const TreeItem *parentItem = parent.isValid()
                                      ? static_cast<const TreeItem*>(parent.internalPointer())
                                      : rootItem.get();
-
-
-    /*if (!parentItem->childCount() && parentItem->var().is_object)
-        return 1;*/
 
     return parentItem->childCount();
 }

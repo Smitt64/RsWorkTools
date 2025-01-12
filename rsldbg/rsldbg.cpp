@@ -116,6 +116,7 @@ HDBG Rsldbg::init(HRD inst,TDbgIntf * _dbg_ftable)
 
     DbgServer *srv = new DbgServer();
     m_Servers[new_dbg] = srv;
+    new_dbg->SetChildsLimit(100);
     //srv->m_curdbg = new_dbg;
 
     srv->moveToThread(m_Thread.data());

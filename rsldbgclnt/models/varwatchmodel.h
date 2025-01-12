@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QObject>
+#include <QStack>
 
 class TreeItem;
 class VarWatchModel : public QAbstractItemModel
@@ -21,7 +22,8 @@ public:
     enum CustomRoles
     {
         IndexRole = Qt::UserRole + 1,
-        StackRole
+        StackRole,
+        RealHasChild
     };
 
     VarWatchModel(QObject *parent = nullptr);
@@ -40,8 +42,19 @@ public:
 
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
+    void startResetVarables();
+    void finishResetVarables();
+
+    QModelIndexList getExpanded();
+
+signals:
+    void expand(const QModelIndex &index);
+
 private:
+    void WalkExpandedItems(TreeItem *item, QModelIndexList &lst);
     std::unique_ptr<TreeItem> rootItem;
+
+    QStack<TreeItem*> m_LastItem;
 };
 
 #endif // VARWATCHMODEL_H

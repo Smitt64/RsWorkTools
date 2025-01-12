@@ -149,6 +149,7 @@ void DbgServer::sendEventBreakPoint(Qt::HANDLE BpData)
 
     DBGEVENT event;
     event.event = MSG_BREAKPOINT;
+    event.data.bp_event.stackindex = 0;
 
     if (data)
     {
@@ -405,9 +406,13 @@ bool DbgServer::serverActionEvent(ServerActionEvent *e)
     }
     else if (e->action() == DBG_REQUEST_EXPANDVARIABLE)
     {
-        CLocals* pLocals = m_curdbg->GetLocals();
         DBG_EXPANDVARIABLE *expand = (DBG_EXPANDVARIABLE*)data.data();
-        pLocals->ExpandV(expand->index, reinterpret_cast<RSLSTACK>(expand->st));
+
+        CLocals* pLocals = m_curdbg->GetLocals();
+        RSLSTACK st = m_curdbg->GetStackAt (expand->stackindex);
+        pLocals->ExpandV(expand->index);
+        //pLocals->CollectLocals (st, &prevStack, newDbg);
+        //pLocals->ExpandV(expand->index);//reinterpret_cast<RSLSTACK>(expand->st)
         ShowVariables(0);
     }
 

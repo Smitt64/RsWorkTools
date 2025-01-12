@@ -32,7 +32,7 @@ public:
 
     bool AddWatchV (const QString &str);
     bool DelWatchV(int index);
-    bool ExpandV(int index, RSLSTACK _st);
+    bool ExpandV(int index, RSLSTACK _st = nullptr);
     bool CollapseV(int);
 
 protected:

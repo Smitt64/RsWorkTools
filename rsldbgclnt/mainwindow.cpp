@@ -16,6 +16,7 @@
 #include <QHeaderView>
 #include <QTextCodec>
 #include <QBuffer>
+#include <QItemSelectionModel>
 //#include <QIODevice>
 
 Q_LOGGING_CATEGORY(dbg, "rsldbg")
@@ -90,8 +91,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_LocalsDockWidget.reset(new VarWatchDockWidget());
     m_LocalsDockWidget->setWindowTitle(tr("Locals"));
     m_LocalsDockWidget->setModel(m_LocalsModel.data());
-    m_LocalsDockWidget->view()->setRootIsDecorated(true);
-    m_LocalsDockWidget->view()->resetIndentation();
+    //m_LocalsDockWidget->view()->setRootIsDecorated(true);
+    //m_LocalsDockWidget->view()->resetIndentation();
 
     m_pCodeEditor = new CodeEditor(this);
     m_pCodeEditor->setReadOnly(true);
@@ -346,6 +347,13 @@ void MainWindow::expandVariable(const int &index, const qint64 &stack)
     var.index = index;
     var.st = stack;
 
+    QModelIndex Selected = m_StackDockWidget->view()->selectionModel()->currentIndex();
+
+    if (Selected.isValid())
+        var.stackindex = Selected.row();
+    else
+        var.stackindex = 0;
+
     write(DBG_REQUEST_EXPANDVARIABLE, &var, sizeof(DBG_EXPANDVARIABLE));
 }
 
@@ -449,24 +457,26 @@ void MainWindow::readyRead()
         DBG_LOCALS locals;
         stream.read((char*)&locals, sizeof(DBG_LOCALS));
 
-        m_LocalsModel->clear();
+        //m_LocalsModel->clear();
+        m_LocalsModel->startResetVarables();
         for (int i = 0; i < locals.var_count; i++)
         {
             DBG_VARIABLEDATA valdata;
             stream.read((char*)&valdata, sizeof(DBG_VARIABLEDATA));
 
+            QString val;
             if (valdata.value_size)
             {
                 char *value = new char[valdata.value_size];
                 memset(value, 0, valdata.value_size);
                 stream.read(value, valdata.value_size);
-
-                QString val = QString::fromLocal8Bit(value);
-                m_LocalsModel->append(&valdata, val);
-
+                val = QString::fromLocal8Bit(value);
                 delete[] value;
             }
+
+            m_LocalsModel->append(&valdata, val);
         }
+        m_LocalsModel->finishResetVarables();
     }
 
     bytesAvailable = m_pSocket->bytesAvailable();

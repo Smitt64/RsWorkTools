@@ -54,6 +54,7 @@ typedef struct
 
 typedef struct
 {
+    qint32 stackindex;
     char BpSetted;
     qint16 bp_type;
     qint32 offs;
@@ -128,7 +129,7 @@ typedef struct
 
 typedef struct
 {
-    qint32 index;
+    qint32 index, stackindex;
     qint64 st;   // RSLSTACK
 }DBG_EXPANDVARIABLE;
 

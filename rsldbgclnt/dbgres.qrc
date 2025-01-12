@@ -14,5 +14,6 @@
         <file>icons/winxp-theme/objects/Class.png</file>
         <file>icons/winxp-theme/objects/Variable.png</file>
         <file>icons/winxp-theme/objects/Undefined.png</file>
+        <file>icons/winxp-theme/objects/Childs.png</file>
     </qresource>
 </RCC>
