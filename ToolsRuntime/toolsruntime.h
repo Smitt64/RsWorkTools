@@ -46,7 +46,17 @@ TOOLSRUNTIME_EXPORT int toolShowCodeDialog(QWidget *parent, const QString &title
 
 TOOLSRUNTIME_EXPORT int toolHighlighterByName(const QString &name);
 
+enum JavaHomes
+{
+    JavaRuntimeHomes32 = 1 << 1,
+    JavaDevelopmentHomes32 = 1 << 2,
+    JavaRuntimeHomes64 = 1 << 3,
+    JavaDevelopmentHomes64 = 1 << 4,
 
+    JavaAllHomes = JavaRuntimeHomes32 | JavaDevelopmentHomes32 |
+        JavaRuntimeHomes64 | JavaDevelopmentHomes64,
+};
+TOOLSRUNTIME_EXPORT QStringList toolGetJavaHomes(const quint32 &homeflags);
 TOOLSRUNTIME_EXPORT int toolStartProcess(QProcess *exe, const QString &program,
                                              const QStringList& arguments,
                                              bool waitForFinished = false,

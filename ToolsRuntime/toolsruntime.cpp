@@ -20,6 +20,8 @@
 #include <QProcess>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QStandardPaths>
+#include <QDirIterator>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -619,4 +621,58 @@ QNetworkReply *toolPostApiReply(QNetworkRequest *request, QNetworkAccessManager 
     }
 
     return Reply;
+}
+
+QStringList toolGetJavaHomes(const quint32 &homeflags)
+{
+    QSet<QString> homes;
+
+    auto ReadPath = [&homes](const QString &path)
+    {
+        QSettings settings64(path, QSettings::NativeFormat);
+        QStringList childKeys = settings64.childGroups();
+
+        for (const QString &sub : childKeys)
+        {
+            QSettings subreg(QString("%1\\%2").arg(path).arg(sub), QSettings::NativeFormat);
+            homes.insert(QDir::toNativeSeparators(subreg.value("JavaHome").toString()));
+        }
+    };
+
+    auto ReadProgramFiles = [&homes](const QString &path, const quint32 &homeflags)
+    {
+        QDirIterator iter(QString("%1\\Java").arg(path), { "javac.exe" }, QDir::Files, QDirIterator::Subdirectories);
+        if (iter.hasNext())
+        {
+            QString d = iter.next();
+            QDir dir(d);
+            dir.cdUp();
+            dir.cdUp();
+
+            QString absolutePath = dir.absolutePath();
+
+            if ((homeflags & JavaRuntimeHomes32) && (homeflags & JavaRuntimeHomes64))
+            {
+                if (absolutePath.contains("jre1", Qt::CaseInsensitive))
+                    homes.insert(QDir::toNativeSeparators(absolutePath));
+            }
+
+            if ((homeflags & JavaDevelopmentHomes32) && (homeflags & JavaDevelopmentHomes64))
+            {
+                if (absolutePath.contains("jdk", Qt::CaseInsensitive))
+                    homes.insert(QDir::toNativeSeparators(absolutePath));
+            }
+        }
+    };
+
+    ReadProgramFiles(qgetenv("ProgramFiles(x86)"), homeflags);
+    ReadProgramFiles(qgetenv("ProgramW6432"), homeflags);
+
+    if (homeflags & JavaRuntimeHomes32)
+        ReadPath("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\JavaSoft\\Java Runtime Environment");
+
+    if (homeflags & JavaDevelopmentHomes32)
+        ReadPath("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\JavaSoft\\Java Development Kit");
+
+    return homes.values();
 }
