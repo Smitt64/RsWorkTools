@@ -1,5 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+     <version ver="1.0.0.2">
+        <add>Добавлена функция поиска домашнего каталога java;</add>
+    </version>
     <version ver="1.0.0.1">
         <add>Добавлена поддержка RSL;</add>
         <add>Добавлена поддержка проверки орфографии;</add>
