@@ -67,6 +67,8 @@ public:
     Q_INVOKABLE QString replace(QString str, const int &pos, const int &len, const QString &replace);
     Q_INVOKABLE QString replace(QString str, const QString &before, const QString &after, const bool &CaseSensitive = true);
     Q_INVOKABLE QString simplified(QString str);
+
+    Q_INVOKABLE QStringList getJavaHomes(const quint32 &homeflags);
 };
 
 #endif // TOOLSRUNTINERSL_H

@@ -88,3 +88,8 @@ QString ToolsRuntime::simplified(QString str)
 {
     return str.simplified();
 }
+
+QStringList ToolsRuntime::getJavaHomes(const quint32 &homeflags)
+{
+    return toolGetJavaHomes(homeflags);
+}

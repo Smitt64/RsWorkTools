@@ -4,6 +4,7 @@
 #include "rsscript/registerobjlist.hpp"
 #include "codeeditor/codehighlighter.h"
 #include "toolsruntinersl.h"
+#include "toolsruntime.h"
 #include "rsscript/rslibdynamicfuncs.h"
 #include "errordlg.h"
 #include "rslexecutor.h"
@@ -120,6 +121,12 @@ void ToolsRuntimeModule::Proc()
     addConstant("OmitTrailingEquals", QByteArray::OmitTrailingEquals);
     addConstant("IgnoreBase64DecodingErrors", QByteArray::IgnoreBase64DecodingErrors);
     addConstant("AbortOnBase64DecodingErrors", QByteArray::AbortOnBase64DecodingErrors);
+
+    addConstant("JavaRuntimeHomes32", JavaRuntimeHomes32);
+    addConstant("JavaDevelopmentHomes32", JavaDevelopmentHomes32);
+    addConstant("JavaRuntimeHomes64", JavaRuntimeHomes64);
+    addConstant("JavaDevelopmentHomes64", JavaDevelopmentHomes64);
+    addConstant("JavaAllHomes", JavaAllHomes);
 
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
