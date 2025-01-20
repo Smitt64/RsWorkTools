@@ -30,7 +30,7 @@ public:
     ~CWatchV();
     void operator = (std::vector<DisplayVar*>* arg);
 
-    bool AddWatchV (const QString &str);
+    bool AddWatchV (const QByteArray &str);
     bool DelWatchV(int index);
     bool ExpandV(int index, RSLSTACK _st = nullptr);
     bool CollapseV(int);

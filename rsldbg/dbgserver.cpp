@@ -207,6 +207,8 @@ void DbgServer::UpdateVariables(const int &index)
 
 void DbgServer::ShowVariables(const int &index)
 {
+    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+
     RSLSTACK st = m_curdbg->GetStackAt(index);
     CLocals* pLocals = m_curdbg->GetLocals();
 
@@ -219,15 +221,6 @@ void DbgServer::ShowVariables(const int &index)
     stream.write((const char*)&locals, sizeof(DBG_LOCALS));
 
     CLocals::iterator i;
-    /*for (i = pLocals->begin (); i != pLocals->end (); ++i)
-    {
-        if ((*i)->str_name == "OBJ")
-        {
-            int id = std::distance(pLocals->begin(), i);
-            pLocals->ExpandV(id, (*i)->st);
-            break;
-        }
-    }*/
 
     for (i = pLocals->begin (); i != pLocals->end (); ++i)
     {
@@ -246,7 +239,7 @@ void DbgServer::ShowVariables(const int &index)
         {
             char *value = new char[var.value_size];
             memset(value, 0, var.value_size);
-            qstrcpy(value, (*i)->str_value.toLocal8Bit().data());
+            qstrcpy(value, (*i)->str_value.data());
             stream.write(value, var.value_size);
             delete[] value;
         }
@@ -263,10 +256,10 @@ void DbgServer::ShowVariables(const int &index)
 
 void DbgServer::UpdateDbgInfo(const int &index)
 {
+    UpdateText(index);
     UpdateVariables(index);
     UpdateStack();
     UpdateWatch();
-    UpdateText(index);   
 }
 
 void DbgServer::UpdateWatch()
@@ -291,6 +284,7 @@ void DbgServer::UpdateStack()
         int isBtrStream = 0;
         RslGetStatementPos(hst, &item.offs, &item.len);
         item.line = RslGetModuleLine(module, item.offs, item.len);
+        item.module = reinterpret_cast<qint64>(module);
 
         qstrcpy(item.fullfilename, RslGetModuleFile(module, &isBtrStream));
         qstrcpy(item.func, RslGetProcNameFromStack(stack));
@@ -328,11 +322,10 @@ void DbgServer::UpdateText(const int &index)
     updtext.offs = offs;
     updtext.len = len;
     updtext.line = line;
+    updtext.curModuleInView = reinterpret_cast<qint64>(mod);
 
     if (m_curModuleInView != mod)
     {
-        //m_curModuleInView = mod;
-
         int isBtrStream = 0;
         char *filename = RslGetModuleFile((Qt::HANDLE)mod, &isBtrStream);
 
@@ -384,6 +377,29 @@ void DbgServer::UpdateText(const int &index)
     }
 }
 
+void DbgServer::ShowVariableValue(const DBG_GETVALUENFO &getvalue)
+{
+    int size = 0;
+    m_curdbg->do_GetValueSize(reinterpret_cast<RSLVINFO>(getvalue.info), &size);
+
+    if (size)
+    {
+        QByteArray result;
+        DBG_GETVALUENFO_RESULT resfata;
+        resfata.size = size + 1;
+
+        char *value = new char[resfata.size];
+        memset(value, 0, resfata.size);
+        m_curdbg->do_GetValueData(reinterpret_cast<RSLVINFO>(getvalue.info), value, resfata.size, 0, &size);
+
+        result.append((char*)&resfata, sizeof(DBG_GETVALUENFO_RESULT));
+        result.append(value, resfata.size);
+
+        write(DBG_REQUEST_GETVALUENFO, result);
+        delete[] value;
+    }
+}
+
 int DbgServer::RslGetModuleLine(Qt::HANDLE module, int offs, int len)
 {
     int      line = -1;
@@ -414,6 +430,11 @@ bool DbgServer::serverActionEvent(ServerActionEvent *e)
         //pLocals->CollectLocals (st, &prevStack, newDbg);
         //pLocals->ExpandV(expand->index);//reinterpret_cast<RSLSTACK>(expand->st)
         ShowVariables(0);
+    }
+    else if (e->action() == DBG_REQUEST_GETVALUENFO)
+    {
+        DBG_GETVALUENFO *getvalue = (DBG_GETVALUENFO*)data.data();
+        ShowVariableValue(*getvalue);
     }
 
     return DbgServerBase::serverActionEvent(e);

@@ -47,6 +47,7 @@ public slots:
 
 private slots:
     void expandVariable(const int &index, const qint64 &stack);
+    void showVarValue(const qint64 &val, const qint64 &info);
 
 protected:
     void write(const quint16 &acton, const QByteArray &data);
@@ -63,6 +64,7 @@ private:
 
     Ui::MainWindow *ui;
     QString m_LastError;
+    qint64 m_CurModuleInView;
     QScopedPointer<QTcpSocket> m_pSocket;
     QScopedPointer<LogEventModel> m_LogModel;
     QScopedPointer<CallStackModel> m_CallStackModel;

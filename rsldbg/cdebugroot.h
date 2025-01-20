@@ -70,6 +70,6 @@ private:
     std::map<RSLVINFO, unsigned> curChilds;
 };
 
-void GetLastErrorText (CDebugRoot* dbgRoot, QString* str, const QString& def);
+void GetLastErrorText (CDebugRoot* dbgRoot, QByteArray* str, const QByteArray& def);
 
 #endif // CDEBUGROOT_H

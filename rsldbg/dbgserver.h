@@ -52,6 +52,7 @@ private:
     void UpdateDbgInfo(const int &index);
     void UpdateVariables(const int &index);
     void ShowVariables(const int &index);
+    void ShowVariableValue(const DBG_GETVALUENFO &getvalue);
     QString m_LastError;
     RSLSTACK prevStack;
     bool newDbg;

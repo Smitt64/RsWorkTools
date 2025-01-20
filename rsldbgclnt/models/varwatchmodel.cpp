@@ -2,6 +2,9 @@
 #include "mainwindow.h"
 #include <QDebug>
 #include "dbgserverproto.h"
+#include <QStyle>
+#include <QApplication>
+#include <QTextCodec>
 
 class TreeItem
 {
@@ -36,14 +39,25 @@ public:
 
     QVariant data(int column, int role) const
     {
+        TreeItem *pThis = const_cast<TreeItem*>(this);
         if (role == Qt::DisplayRole)
         {
             if (column == VarWatchModel::ColumnName)
-                return m_VarInfo.str_name;
+            {
+                if (!VarNameCache.isValid())
+                    pThis->VarNameCache = m_VarInfo.str_name;
+
+                return VarNameCache;
+            }
             else if (column == VarWatchModel::ColumnType)
-                return m_VarInfo.str_type;
+            {
+                if (!VarTypeCache.isValid())
+                    pThis->VarTypeCache = m_VarInfo.str_type;
+
+                return VarTypeCache;
+            }
             else if (column == VarWatchModel::ColumnValue)
-                return value;
+                return VarValueCache;
         }
         else if (role == Qt::DecorationRole)
         {
@@ -71,6 +85,12 @@ public:
             return m_VarInfo.st;
         else if (role == VarWatchModel::RealHasChild)
             return !m_childItems.empty();
+        else if (role == VarWatchModel::ShowWatchButtonRole)
+            return !VarTypeCache.toString().compare("STRING", Qt::CaseInsensitive) && !m_VarInfo.isFakeChildrensItem;
+        else if (role == VarWatchModel::ValueRole)
+            return QVariant::fromValue<qint64>(m_VarInfo.val);
+        else if (role == VarWatchModel::ValueInfoRole)
+            return QVariant::fromValue<qint64>(m_VarInfo.info);
 
         return QVariant();
     }
@@ -108,7 +128,7 @@ public:
 
     void setValue(const QString &val)
     {
-        value = val;
+        VarValueCache = val;
     }
 
 private:
@@ -117,10 +137,9 @@ private:
     //QVariantList m_itemData;
     TreeItem *m_parentItem;
 
-    QString VarNameCache, VarValueCache;
+    QVariant VarNameCache, VarValueCache, VarTypeCache;
 
     DBG_VARIABLEDATA m_VarInfo;
-    QString value;
 };
 
 //-------------------------------------------------------------
@@ -129,7 +148,7 @@ VarWatchModel::VarWatchModel(QObject *parent)
     : QAbstractItemModel{parent},
     rootItem(std::make_unique<TreeItem>(this))
 {
-
+    codec = QTextCodec::codecForName("IBM 866");
 }
 
 VarWatchModel::~VarWatchModel()

@@ -2,6 +2,8 @@
 #include "models/logeventmodel.h"
 #include <QTreeView>
 #include <QHeaderView>
+#include <QFile>
+#include <QDebug>
 
 StdViewDockWidget::StdViewDockWidget() :
     QDockWidget()
@@ -40,4 +42,18 @@ void StdViewDockWidget::setAutoScrollToBottom(bool value)
 QTreeView *StdViewDockWidget::view()
 {
     return m_View.data();
+}
+
+void StdViewDockWidget::setDrawBranches(const bool &value)
+{
+    if (!value)
+        m_View->setStyleSheet("");
+    else
+    {
+        QFile f(":/img/tree/treebranch.qss");
+        f.open(QIODevice::ReadOnly);
+        m_View->setStyleSheet(f.readAll());
+
+        qDebug() << m_View->styleSheet();
+    }
 }

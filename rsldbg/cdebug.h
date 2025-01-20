@@ -107,9 +107,9 @@ public:
     void SetCurModule(RSLMODULE mod);
     RSLMODULE GetActiveModule(void);
 
-    bool AddSWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule, bool isLvalue);
+    bool AddSWatch(QByteArray str, RSLSTACK st, RSLPROC proc, QByteArray curprocname, RSLMODULE curmodule, bool isLvalue);
     bool DelSwatch(DisplayVar *var);
-    bool AddQWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule);
+    bool AddQWatch(QByteArray str, RSLSTACK st, RSLPROC proc, QByteArray curprocname, RSLMODULE curmodule);
     bool DelQWatch(QString);
 
     BP_TYPE GetBPType(int index);

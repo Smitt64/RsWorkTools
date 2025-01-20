@@ -14,10 +14,10 @@ public:
     DisplayVar(CDebugRoot* pDebug);
     virtual ~DisplayVar();
 
-    QString        str_name;
-    QString        str_type;
-    QString        str_value;
-    QString        str_proc;
+    QByteArray str_name;
+    QByteArray str_type;
+    QByteArray str_value;
+    QByteArray str_proc;
     unsigned char  depth;
     bool           is_object;
     bool           is_expanded;
@@ -39,7 +39,7 @@ public:
     void toDbgVariable(Qt::HANDLE obj);
 
 private:
-    QString str_error;
+    QByteArray str_error;
 };
 
 #endif // DISPLAYVAR_H

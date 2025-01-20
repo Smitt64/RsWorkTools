@@ -6,9 +6,11 @@
 #include <QStack>
 
 class TreeItem;
+class QTextCodec;
 class VarWatchModel : public QAbstractItemModel
 {
     Q_OBJECT
+    friend class TreeItem;
 public:
     enum Column
     {
@@ -23,7 +25,10 @@ public:
     {
         IndexRole = Qt::UserRole + 1,
         StackRole,
-        RealHasChild
+        ValueRole,
+        ValueInfoRole,
+        RealHasChild,
+        ShowWatchButtonRole
     };
 
     VarWatchModel(QObject *parent = nullptr);
@@ -51,6 +56,7 @@ signals:
     void expand(const QModelIndex &index);
 
 private:
+    QTextCodec *codec;
     void WalkExpandedItems(TreeItem *item, QModelIndexList &lst);
     std::unique_ptr<TreeItem> rootItem;
 

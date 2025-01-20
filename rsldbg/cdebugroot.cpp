@@ -6,7 +6,7 @@
 #include <QTextCodec>
 #include <QDebug>
 
-void GetLastErrorText (CDebugRoot* dbgRoot, QString* str, const QString& def)
+void GetLastErrorText (CDebugRoot* dbgRoot, QByteArray* str, const QByteArray& def)
 {
     char buff [ERROR_TEXT_MAX_LENGTH] = {0};
 

@@ -16,6 +16,7 @@
 #define DBG_REQUEST_UPDATESTACK 105
 #define DBG_REQUEST_UPDATELOCALS 106
 #define DBG_REQUEST_EXPANDVARIABLE 107
+#define DBG_REQUEST_GETVALUENFO 108
 
 #define	MSG_BREAKPOINT   (QEvent::User + 1)
 #define MSG_FINISH       (QEvent::User + 2)
@@ -85,6 +86,8 @@ typedef struct
     qint32 offs;
     qint32 len;
     qint32 line;
+
+    qint64 curModuleInView; // RSLMODULE
 }DBG_UPDATETEXT;
 
 typedef struct
@@ -103,6 +106,7 @@ typedef struct
     qint32 offs;
     qint32 len;
     qint32 line;
+    qint64 module; // RSLMODULE
 }DBG_UPDATSTACK;
 
 typedef struct
@@ -132,6 +136,18 @@ typedef struct
     qint32 index, stackindex;
     qint64 st;   // RSLSTACK
 }DBG_EXPANDVARIABLE;
+
+typedef struct
+{
+    qint64 val;  // RSLVALUE
+    qint64 info; // RSLVINFO
+    uint hash_id;
+}DBG_GETVALUENFO;
+
+typedef struct
+{
+    qint64 size;
+}DBG_GETVALUENFO_RESULT;
 
 #include <packpop.h>
 

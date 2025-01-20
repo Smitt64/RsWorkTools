@@ -29,7 +29,7 @@ bool CSurvey::ParseExpression (SpVarPtrType value)
 {
     int isLval = 0;
     RSLEXPCTX expr = NULL;
-    bool parsed = m_parent->do_ParseExp (m_parent->GetCurProc(), value->str_name.toLocal8Bit().data(), &isLval, &expr);
+    bool parsed = m_parent->do_ParseExp (m_parent->GetCurProc(), value->str_name.data(), &isLval, &expr);
 
     if (expr)
     {
@@ -175,19 +175,19 @@ void CSurvey::RefreshValue (SpVarPtrType value)
             isObject = 0;
             if (parseExpired)
             {
-                QString errStr;
+                QByteArray errStr;
                 GetLastErrorText (m_parent, &errStr, errorStr);
 
-                strcpy (valueStr, errStr.toLocal8Bit().data());
-                strcpy (typeStr,  errorStr.toLocal8Bit().data());
+                strcpy (valueStr, errStr.data());
+                strcpy (typeStr,  errorStr.data());
             }
             else
             {
-                QString errStr;
+                QByteArray errStr;
                 GetLastErrorText (m_parent, &errStr, errorStr);
 
-                strcpy (valueStr, errStr.toLocal8Bit().data());
-                strcpy (typeStr,  errorStr.toLocal8Bit().data());
+                strcpy (valueStr, errStr.data());
+                strcpy (typeStr,  errorStr.data());
             }
         }
     }

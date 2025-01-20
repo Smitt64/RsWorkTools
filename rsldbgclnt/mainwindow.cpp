@@ -17,10 +17,11 @@
 #include <QTextCodec>
 #include <QBuffer>
 #include <QItemSelectionModel>
+#include <QInputDialog>
 //#include <QIODevice>
 
 Q_LOGGING_CATEGORY(dbg, "rsldbg")
-
+// русский комментарий
 static QString strippedActionText(QString s)
 {
     s.remove(QString::fromLatin1("..."));
@@ -67,6 +68,7 @@ void AddShortcutToToolTip(QAction *action)
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow),
+    m_CurModuleInView(0),
     m_pSocket(new QTcpSocket())
 {
     oem866 = QTextCodec::codecForName("IBM 866");
@@ -129,6 +131,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pSocket.data(), &QTcpSocket::connected, this, &MainWindow::dbgConnected);
     connect(m_pSocket.data(), &QTcpSocket::disconnected, this, &MainWindow::dbgDisconnected);
     connect(m_LocalsDockWidget.data(), &VarWatchDockWidget::expandVariable, this, &MainWindow::expandVariable);
+    connect(m_LocalsDockWidget.data(), &VarWatchDockWidget::showVarValue, this, &MainWindow::showVarValue);
 }
 
 MainWindow::~MainWindow()
@@ -357,6 +360,16 @@ void MainWindow::expandVariable(const int &index, const qint64 &stack)
     write(DBG_REQUEST_EXPANDVARIABLE, &var, sizeof(DBG_EXPANDVARIABLE));
 }
 
+void MainWindow::showVarValue(const qint64 &val, const qint64 &info)
+{
+    DBG_GETVALUENFO value;
+    value.hash_id = 0;
+    value.val = val;
+    value.info = info;
+
+    write(DBG_REQUEST_GETVALUENFO, &value, sizeof(DBG_EXPANDVARIABLE));
+}
+
 void MainWindow::readyRead()
 {
     qint64 bytesAvailable = m_pSocket->bytesAvailable();
@@ -412,6 +425,7 @@ void MainWindow::readyRead()
             setWindowFilePath(updatetext.filename);
         }
 
+        m_CurModuleInView = updatetext.curModuleInView;
         m_pCodeEditor->setCurrentHighlightLine(updatetext.line);
         m_pCodeEditorProvider->addItemId(DbgEditorLineWidgetProvider::IconCurrentLine, updatetext.line);
 
@@ -446,10 +460,16 @@ void MainWindow::readyRead()
 
         DBG_UPDATSTACK *stack = (DBG_UPDATSTACK*)data.data();
         for (int i = 0; i < count; i++, stack++)
+        {
             m_CallStackModel->append(stack);
+
+            if (i != 0 && m_CurModuleInView == stack->module)
+                m_pCodeEditorProvider->addEnterFunction(stack->line);
+        }
     }
     else if (header.action == DBG_REQUEST_UPDATELOCALS)
     {
+        QTextCodec *codec = QTextCodec::codecForName("Windows-1251"); // Windows-1250   IBM 866
         QByteArray data = m_pSocket->read(header.size - sizeof(DBGHEADER));
         QBuffer stream(&data);
         stream.open(QIODevice::ReadOnly);
@@ -464,19 +484,38 @@ void MainWindow::readyRead()
             DBG_VARIABLEDATA valdata;
             stream.read((char*)&valdata, sizeof(DBG_VARIABLEDATA));
 
+            qstrcpy(valdata.str_name, codec->toUnicode(valdata.str_name).toStdString().c_str());
+            qstrcpy(valdata.str_type, codec->toUnicode(valdata.str_type).toStdString().c_str());
+
             QString val;
             if (valdata.value_size)
             {
                 char *value = new char[valdata.value_size];
                 memset(value, 0, valdata.value_size);
+                //QByteArray tmpval = stream.read(valdata.value_size);
                 stream.read(value, valdata.value_size);
-                val = QString::fromLocal8Bit(value);
+                //OemToCharA(tmpval.data(), value);
+                val = codec->toUnicode(value);
+                //qDebug() << "val" << val << value;
                 delete[] value;
             }
 
             m_LocalsModel->append(&valdata, val);
         }
         m_LocalsModel->finishResetVarables();
+    }
+    else if (header.action == DBG_REQUEST_GETVALUENFO)
+    {
+        QTextCodec *codec = QTextCodec::codecForName("Windows-1251");
+        QByteArray data = m_pSocket->read(header.size - sizeof(DBGHEADER));
+        QBuffer stream(&data);
+        stream.open(QIODevice::ReadOnly);
+
+        DBG_GETVALUENFO_RESULT resfata;
+        stream.read((char*)&resfata, sizeof(DBG_GETVALUENFO_RESULT));
+
+        QByteArray value = stream.read(resfata.size);
+        QInputDialog::getMultiLineText(this, "", "", codec->toUnicode(value));
     }
 
     bytesAvailable = m_pSocket->bytesAvailable();

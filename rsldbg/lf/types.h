@@ -15,14 +15,14 @@ typedef struct tagTStackInfo
     RSLPROC		proc;
     RSLSTMT		stmt;
     RSLMODULE	mod;
-    QString		procname;
-    QString		modname;
+    QByteArray		procname;
+    QByteArray		modname;
     int			offs, len;
 } TStackInfo;
 
 typedef struct tagTModuleInfo
 {
-    QString		name;
+    QByteArray		name;
     int			type;
     RSLMODULE	hmod;
 } TModuleInfo;
@@ -32,7 +32,7 @@ typedef Loki::SmartPtr<TStackInfo, Loki::RefLinked> elem_stackinfo;
 typedef Loki::SmartPtr<TModuleInfo, Loki::RefLinked> elem_moduleinfo;
 typedef Loki::SmartPtr<TTraceMsg, Loki::RefLinked> elem_tracemsg;
 
-typedef	QString elem_qwatch;
+typedef	QByteArray elem_qwatch;
 
 typedef	std::vector<elem_bpdata>    CBPData;
 typedef	std::vector<elem_stackinfo> CStackInfo;

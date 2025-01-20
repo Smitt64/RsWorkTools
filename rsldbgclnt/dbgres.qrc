@@ -15,5 +15,8 @@
         <file>icons/winxp-theme/objects/Variable.png</file>
         <file>icons/winxp-theme/objects/Undefined.png</file>
         <file>icons/winxp-theme/objects/Childs.png</file>
+        <file>icons/winxp-theme/actions/FunctionEnter.png</file>
+        <file>icons/winxp-theme/actions/PrintPreview.png</file>
+        <file>icons/winxp-theme/actions/ViewVarValue.png</file>
     </qresource>
 </RCC>

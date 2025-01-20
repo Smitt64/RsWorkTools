@@ -406,8 +406,8 @@ void CDebug::UpdateDbgInfo()
             stack_info->len  = len;
             stack_info->mod  = mod;
 
-            stack_info->procname = toUnicode(procname);
-            stack_info->modname = toUnicode(modname);
+            stack_info->procname = procname;//toUnicode(procname);
+            stack_info->modname = modname;//toUnicode(modname);
 
             elem_stackinfo  stack_info_aptr(stack_info);
             m_stackinfo.push_back(stack_info_aptr);
@@ -477,9 +477,9 @@ void CDebug::UpdateQSurvey()
     char       value[MAX_VALUE];
     RSLEXPCTX  exp;
 
-    QString    str_unknown;
-    QString    str_error;
-    QString    str_cannoteval;
+    QByteArray str_unknown;
+    QByteArray str_error;
+    QByteArray str_cannoteval;
 
     str_unknown = "unknown";
     str_error = "error";
@@ -492,7 +492,7 @@ void CDebug::UpdateQSurvey()
             exp       = NULL;
             is_lvalue = -1;
 
-            do_ParseExp((*i)->proc, (*i)->str_name.toLocal8Bit().data(), &is_lvalue, &exp);
+            do_ParseExp((*i)->proc, (*i)->str_name.data(), &is_lvalue, &exp);
 
             (*i)->exp       = exp;
             (*i)->is_lvalue = is_lvalue != 0;
@@ -620,7 +620,7 @@ TBpData* CDebug::FindBPbyKey (unsigned long key)
     return NULL;
 }
 
-bool CDebug::AddSWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule, bool isLvalue)
+bool CDebug::AddSWatch(QByteArray str, RSLSTACK st, RSLPROC proc, QByteArray curprocname, RSLMODULE curmodule, bool isLvalue)
 {
     iter_watch i = FindSWatch(str, st, proc);
 
@@ -647,7 +647,7 @@ bool CDebug::DelSwatch(DisplayVar *var)
     return true;
 }
 
-bool CDebug::AddQWatch(QString str, RSLSTACK st, RSLPROC proc, QString curprocname, RSLMODULE curmodule)
+bool CDebug::AddQWatch(QByteArray str, RSLSTACK st, RSLPROC proc, QByteArray curprocname, RSLMODULE curmodule)
 {
     iter_watch  i = FindQWatch(str , st, proc);
 

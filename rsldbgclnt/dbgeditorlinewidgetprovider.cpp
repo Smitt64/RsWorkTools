@@ -2,6 +2,7 @@
 #include "qdebug.h"
 #include <QPainter>
 #include <QIcon>
+#include <QMapIterator>
 
 DbgEditorLineWidgetProvider::DbgEditorLineWidgetProvider()
 {
@@ -38,6 +39,13 @@ void DbgEditorLineWidgetProvider::paint(QPainter *painter, const int &line, cons
         QRect rc(rect.topLeft(), QSize(rect.height(), rect.height()));
         painter->drawPixmap(rc, breakpoint.pixmap(rect.height()));
     }
+
+    if (flags & IconEnterFunction)
+    {
+        QIcon enterFunction = QIcon::fromTheme("FunctionEnter");
+        QRect rc(rect.topLeft(), QSize(rect.height(), rect.height()));
+        painter->drawPixmap(rc, enterFunction.pixmap(rect.height()));
+    }
 }
 
 void DbgEditorLineWidgetProvider::lineClick(const int &line, const Qt::MouseButton &button)
@@ -72,4 +80,20 @@ void DbgEditorLineWidgetProvider::removeItemId(const int &id, const int &line)
 {
     if (m_IconInfo.contains(line))
         m_IconInfo[line] = m_IconInfo[line] & (~id);
+}
+
+void DbgEditorLineWidgetProvider::clearEnterFunction()
+{
+    QMapIterator<int, quint32> iter(m_IconInfo);
+    while (iter.hasNext())
+    {
+        iter.next();
+        if (iter.value() & IconEnterFunction)
+            removeItemId(IconEnterFunction, iter.key());
+    }
+}
+
+void DbgEditorLineWidgetProvider::addEnterFunction(const int &line)
+{
+    addItemId(IconEnterFunction, line);
 }

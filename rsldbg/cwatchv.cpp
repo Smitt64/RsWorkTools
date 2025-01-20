@@ -90,7 +90,7 @@ DisplayVar* CWatchV::CreateFakeChildrensItem (RSLVALUE value, int curDepth)
     return var;
 }
 
-bool CWatchV::AddWatchV (const QString &str)
+bool CWatchV::AddWatchV (const QByteArray &str)
 {
     if(end() == FindWatchV(str))
     {
@@ -110,7 +110,7 @@ bool CWatchV::AddWatchV (const QString &str)
     char str_type[MAX_TYPENAME];
 
     int is_lvalue = -1;
-    bool rv = m_parent->do_ParseExp(proc, str.toLocal8Bit().data()/*.data()*/, &is_lvalue, &exp);
+    bool rv = m_parent->do_ParseExp(proc, str.data()/*.data()*/, &is_lvalue, &exp);
 
     if(!rv || !exp)
         return false;

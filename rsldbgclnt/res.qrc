@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>img/debugrect.png</file>
+        <file>img/tree/stylesheet-branch-end.png</file>
+        <file>img/tree/stylesheet-branch-more.png</file>
+        <file>img/tree/stylesheet-vline.png</file>
+        <file>img/tree/treebranch.qss</file>
+        <file>img/tree/stylesheet-branch-closed.png</file>
+        <file>img/tree/stylesheet-branch-open.png</file>
     </qresource>
 </RCC>

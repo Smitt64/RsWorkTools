@@ -64,9 +64,9 @@ bool DisplayVar::IsStringLikeEditable () const
 void DisplayVar::toDbgVariable(Qt::HANDLE obj)
 {
     DBG_VARIABLEDATA *v = (DBG_VARIABLEDATA*)obj;
-    qstrcpy(v->str_name, str_name.toLocal8Bit().data());
-    qstrcpy(v->str_type, str_type.toLocal8Bit().data());
-    qstrcpy(v->str_proc, str_proc.toLocal8Bit().data());
+    qstrcpy(v->str_name, str_name.data());
+    qstrcpy(v->str_type, str_type.data());
+    qstrcpy(v->str_proc, str_proc.data());
 
     v->depth = depth;
     v->is_object = is_object;

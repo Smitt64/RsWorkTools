@@ -38,6 +38,7 @@ INCLUDEPATH += $$PWD/../ToolsRuntime
 INCLUDEPATH += $$PWD/../CodeEditorStatic
 
 DEPENDPATH += $$PWD/../CodeEditorStatic
+LIBS += -lUser32
 
 target.path = $$PWD/../RslTest/debug
 INSTALLS += target

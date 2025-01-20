@@ -15,6 +15,7 @@ public:
     void setAutoScrollToBottom(bool value);
 
     QTreeView *view();
+    void setDrawBranches(const bool &value);
 
 public slots:
     void rowsInserted(const QModelIndex &parent, int first, int last);
