@@ -17,6 +17,7 @@ SOURCES += \
     models/logeventmodel.cpp \
     models/varwatchmodel.cpp \
     stdviewdockwidget.cpp \
+    varwatchdlg.cpp \
     varwatchdockwidget.cpp
 
 HEADERS += \
@@ -28,10 +29,12 @@ HEADERS += \
     models/logeventmodel.h \
     models/varwatchmodel.h \
     stdviewdockwidget.h \
+    varwatchdlg.h \
     varwatchdockwidget.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    varwatchdlg.ui
 
 INCLUDEPATH += $$PWD/../rsldbg
 INCLUDEPATH += $$PWD/../ToolsRuntime
@@ -59,3 +62,16 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../CodeEditorStatic/libCodeEditorStatic.a
 RESOURCES += \
     dbgres.qrc \
     res.qrc
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../FindDialog/release/ -lFindDialog
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../FindDialog/debug/ -lFindDialog
+else:unix: LIBS += -L$$OUT_PWD/../FindDialog/ -lFindDialog
+
+INCLUDEPATH += $$PWD/../FindDialog
+DEPENDPATH += $$PWD/../FindDialog
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../FindDialog/release/libFindDialog.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../FindDialog/debug/libFindDialog.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../FindDialog/release/FindDialog.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../FindDialog/debug/FindDialog.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../FindDialog/libFindDialog.a

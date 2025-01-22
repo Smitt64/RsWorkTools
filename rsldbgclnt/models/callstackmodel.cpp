@@ -65,6 +65,7 @@ QVariant CallStackModel::data(const QModelIndex &index, int role) const
 void CallStackModel::append(Qt::HANDLE stack)
 {
     QTextCodec *oem866 = QTextCodec::codecForName("IBM 866");
+    QTextCodec *oem1251 = QTextCodec::codecForName("Windows-1251");
 
     beginInsertRows(QModelIndex(), m_Items.size(), m_Items.size());
 
@@ -73,7 +74,7 @@ void CallStackModel::append(Qt::HANDLE stack)
     StackItem item;
     item.fullfilename = oem866->toUnicode(upd->fullfilename);
     item.func = oem866->toUnicode(upd->func);
-    item.fnamespace = oem866->toUnicode(upd->fnamespace);
+    item.fnamespace = oem1251->toUnicode(upd->fnamespace);
 
     item.len = upd->len;
     item.line = upd->line;

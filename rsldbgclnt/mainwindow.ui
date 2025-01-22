@@ -33,6 +33,8 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionFind"/>
+    <addaction name="actionFindNext"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -89,6 +91,16 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionFindNext">
+   <property name="text">
+    <string>Find next</string>
    </property>
   </action>
  </widget>

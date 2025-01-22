@@ -109,3 +109,5 @@ bin/
 CodeEditorStatic/debug/
 
 rsldbgclnt/debug/
+
+FindDialog/debug/

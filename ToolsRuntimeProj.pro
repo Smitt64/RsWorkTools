@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     CodeEditorStatic \
+    FindDialog \
     RslTest \
     RslToolRuntimeStatic \
     ToolsRuntime \
@@ -11,6 +12,7 @@ SUBDIRS += \
     rsldbgclnt
 
 rsldbg.depends = CodeEditorStatic loki
+rsldbgclnt.depends = CodeEditorStatic FindDialog
 RslTest.depends = CodeEditorStatic
 RslTest.depends = ToolsRuntime
 ToolsRuntime.depends = CodeEditorStatic RslToolRuntimeStatic

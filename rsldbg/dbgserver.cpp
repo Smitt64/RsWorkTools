@@ -196,10 +196,10 @@ void DbgServer::UpdateVariables(const int &index)
     {
         QString name = (*i)->str_name;
         QString value = (*i)->str_value;
-        QString type = (*i)->str_type;
+        QByteArray type = (*i)->str_type;
 
         if (name == "THIS" && value.contains("Object") && !m_ProcNamespace.contains(st))
-            m_ProcNamespace.insert(st, new QString(type));
+            m_ProcNamespace.insert(st, new QByteArray(type));
     }
 
     ShowVariables(index);
@@ -290,7 +290,7 @@ void DbgServer::UpdateStack()
         qstrcpy(item.func, RslGetProcNameFromStack(stack));
 
         if (m_ProcNamespace.contains(stack))
-            qstrcpy(item.fnamespace, m_ProcNamespace[stack]->toLocal8Bit().data());
+            qstrcpy(item.fnamespace, m_ProcNamespace[stack]->data());
 
         packet.append(item);
     }
@@ -380,6 +380,10 @@ void DbgServer::UpdateText(const int &index)
 void DbgServer::ShowVariableValue(const DBG_GETVALUENFO &getvalue)
 {
     int size = 0;
+    char str_name[MAX_NAME] = {0};
+    char str_type[MAX_TYPENAME] = {0};
+    char str_value[MAX_VALUE] = {0};
+    RSLVALUE val  = NULL;
     m_curdbg->do_GetValueSize(reinterpret_cast<RSLVINFO>(getvalue.info), &size);
 
     if (size)
@@ -391,6 +395,10 @@ void DbgServer::ShowVariableValue(const DBG_GETVALUENFO &getvalue)
         char *value = new char[resfata.size];
         memset(value, 0, resfata.size);
         m_curdbg->do_GetValueData(reinterpret_cast<RSLVINFO>(getvalue.info), value, resfata.size, 0, &size);
+        m_curdbg->do_RefreshInfo(reinterpret_cast<RSLVINFO>(getvalue.info), &val, NULL, str_name, MAX_NAME, str_type, MAX_TYPENAME, str_value, MAX_VALUE);
+
+        qstrcpy(resfata.str_name, str_name);
+        qstrcpy(resfata.str_type, str_type);
 
         result.append((char*)&resfata, sizeof(DBG_GETVALUENFO_RESULT));
         result.append(value, resfata.size);

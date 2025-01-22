@@ -147,6 +147,7 @@ typedef struct
 typedef struct
 {
     qint64 size;
+    char str_name[_MAX_PATH], str_type[_MAX_PATH];
 }DBG_GETVALUENFO_RESULT;
 
 #include <packpop.h>

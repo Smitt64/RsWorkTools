@@ -37,7 +37,7 @@ signals:
     void started();
 
 private:
-    QCache<Qt::HANDLE, QString> m_ProcNamespace;
+    QCache<Qt::HANDLE, QByteArray> m_ProcNamespace;
 
     QTextCodec *oem866;
     int RslGetModuleLine(Qt::HANDLE module, int offs, int len);

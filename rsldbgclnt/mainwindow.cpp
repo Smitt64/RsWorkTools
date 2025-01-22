@@ -8,6 +8,7 @@
 #include "ui_mainwindow.h"
 #include "dbgeditorlinewidgetprovider.h"
 #include "varwatchdockwidget.h"
+#include <finddialog.h>
 #include <dbgserverproto.h>
 #include <codeeditor/codeeditor.h>
 #include <codeeditor/cppcodehighlighter.h>
@@ -17,7 +18,7 @@
 #include <QTextCodec>
 #include <QBuffer>
 #include <QItemSelectionModel>
-#include <QInputDialog>
+#include <varwatchdlg.h>
 //#include <QIODevice>
 
 Q_LOGGING_CATEGORY(dbg, "rsldbg")
@@ -69,7 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow),
     m_CurModuleInView(0),
-    m_pSocket(new QTcpSocket())
+    m_pSocket(new QTcpSocket()),
+    m_pFindDialog(nullptr)
 {
     oem866 = QTextCodec::codecForName("IBM 866");
 
@@ -127,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_StackDockWidget->view()->header()->resizeSections(QHeaderView::Stretch);
 
     InitDebugToolBar();
+    InitOtherToolBars();
 
     connect(m_pSocket.data(), &QTcpSocket::connected, this, &MainWindow::dbgConnected);
     connect(m_pSocket.data(), &QTcpSocket::disconnected, this, &MainWindow::dbgDisconnected);
@@ -154,6 +157,17 @@ void MainWindow::dbgDisconnected()
 {
     qInfo(dbg()) << "Disconnected...";
     close();
+}
+
+void MainWindow::InitOtherToolBars()
+{
+    ui->actionFind->setIcon(QIcon::fromTheme("Find"));
+    ui->actionFind->setShortcut(QKeySequence::Find);
+
+    ui->actionFindNext->setShortcut(QKeySequence::FindNext);
+
+    connect(ui->actionFind, &QAction::triggered, this, &MainWindow::onFind);
+    connect(ui->actionFindNext, &QAction::triggered, this, &MainWindow::onFindNext);
 }
 
 void MainWindow::InitDebugToolBar()
@@ -199,6 +213,16 @@ void MainWindow::InitDebugToolBar()
     connect(ui->actionStepOut, &QAction::triggered, [=]()
     {
         exec_continue(EXECCONTNUE_STEP_OUT);
+    });
+
+    connect(ui->actionResume, &QAction::triggered, [=]()
+    {
+        exec_continue(EXECCONTNUE_DBG_RUN);
+    });
+
+    connect(ui->actionStop, &QAction::triggered, [=]()
+    {
+        exec_continue(EXECCONTNUE_DBG_ABORT);
     });
 }
 
@@ -279,6 +303,35 @@ bool MainWindow::event(QEvent *event)
     }
 
     return QMainWindow::event(event);
+}
+
+void MainWindow::onFind()
+{
+    if (m_pFindDialog)
+    {
+        if (m_pFindDialog->isVisible())
+            return;
+    }
+
+    if (!m_pFindDialog)
+    {
+        m_pFindDialog = new FindDialog(this);
+        m_pFindDialog->setEditor(m_pCodeEditor);
+        m_pFindDialog->setWindowIcon(QIcon::fromTheme("Find"));
+    }
+
+    m_pFindDialog->show();
+}
+
+void MainWindow::onFindNext()
+{
+    if (m_pFindDialog)
+    {
+        if (!m_pFindDialog->isVisible())
+            return;
+    }
+
+    m_pFindDialog->find();
 }
 
 void MainWindow::applyCurrentStatement(const int &offs, const int &len, const int &line)
@@ -515,7 +568,12 @@ void MainWindow::readyRead()
         stream.read((char*)&resfata, sizeof(DBG_GETVALUENFO_RESULT));
 
         QByteArray value = stream.read(resfata.size);
-        QInputDialog::getMultiLineText(this, "", "", codec->toUnicode(value));
+        VarWatchDlg dlg(this);
+        dlg.setValue(codec->toUnicode(value));
+        dlg.setVarName(codec->toUnicode(resfata.str_name));
+        dlg.setVarType(codec->toUnicode(resfata.str_type));
+        dlg.exec();
+        //QInputDialog::getMultiLineText(this, "", "", codec->toUnicode(value));
     }
 
     bytesAvailable = m_pSocket->bytesAvailable();

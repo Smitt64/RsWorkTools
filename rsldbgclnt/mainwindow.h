@@ -22,6 +22,7 @@ class StdViewDockWidget;
 class CallStackModel;
 class VarWatchModel;
 class VarWatchDockWidget;
+class FindDialog;
 class DbgEditorLineWidgetProvider;
 class MainWindow : public QMainWindow
 {
@@ -48,6 +49,8 @@ public slots:
 private slots:
     void expandVariable(const int &index, const qint64 &stack);
     void showVarValue(const qint64 &val, const qint64 &info);
+    void onFind();
+    void onFindNext();
 
 protected:
     void write(const quint16 &acton, const QByteArray &data);
@@ -59,6 +62,7 @@ private:
     QTextCodec *oem866;
 
     void InitDebugToolBar();
+    void InitOtherToolBars();
     void exec_continue(int trace_log);
     void applyCurrentStatement(const int &offs, const int &len, const int &line);
 
@@ -79,5 +83,7 @@ private:
     DbgEditorLineWidgetProvider *m_pCodeEditorProvider;
 
     QStack<DBGHEADER> m_LastHeader;
+
+    FindDialog *m_pFindDialog;
 };
 #endif // MAINWINDOW_H

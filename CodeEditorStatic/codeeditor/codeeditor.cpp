@@ -43,6 +43,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE
     {
         CodeEditorLineWidgetProvider *provider = codeEditor->codeEditorLineWidgetProvider();
+
+        if (!provider)
+            return;
+
         QTextBlock block = codeEditor->firstVisibleBlock();
         int blockNumber = block.blockNumber();
 
