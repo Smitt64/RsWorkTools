@@ -22,6 +22,7 @@
 #include <QNetworkReply>
 #include <QStandardPaths>
 #include <QDirIterator>
+#include <QDomDocument>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -675,4 +676,33 @@ QStringList toolGetJavaHomes(const quint32 &homeflags)
         ReadPath("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\JavaSoft\\Java Development Kit");
 
     return homes.values();
+}
+
+SvnInfoMap toolSvnGetRepoInfo(const QString &path)
+{
+    SvnInfoMap info;
+
+    QProcess proc;
+    proc.setWorkingDirectory(path);
+
+    toolStartProcess(&proc, "svn.exe", {"info", "--xml"}, true, true, 30000, true);
+
+    QByteArray data = proc.readAllStandardOutput();
+    QDomDocument doc;
+    doc.setContent(data);
+
+    QDomElement docElem = doc.documentElement();
+
+    QDomNode n = docElem.firstChildElement("entry").firstChild();
+    while(!n.isNull())
+    {
+        QDomElement e = n.toElement();
+
+        if (e.tagName() != "wc-info")
+            info.insert(e.tagName(), e.text());
+
+        n = n.nextSibling();
+    }
+
+    return info;
 }

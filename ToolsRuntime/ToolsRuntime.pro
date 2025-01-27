@@ -71,6 +71,7 @@ SOURCES += \
     spelling/spellchecker.cpp \
     spelling/spellcheckerdlg.cpp \
     spelling/spellstringsdlg.cpp \
+    svn/svnstatusmodel.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
@@ -134,6 +135,7 @@ HEADERS += \
     spelling/spellchecker.h \
     spelling/spellcheckerdlg.h \
     spelling/spellstringsdlg.h \
+    svn/svnstatusmodel.h \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \

@@ -72,4 +72,7 @@ TOOLSRUNTIME_EXPORT QNetworkReply *toolPostApiReply(QNetworkRequest *request, QN
                                                     const QByteArray &data,
                                                     bool wait = false);
 
+typedef QMap<QString, QString> SvnInfoMap;
+TOOLSRUNTIME_EXPORT SvnInfoMap toolSvnGetRepoInfo(const QString &path);
+
 #endif // TOOLSRUNTIME_H
