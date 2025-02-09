@@ -1,6 +1,9 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
-     <version ver="1.0.0.2">
+    <version ver="1.0.0.3">
+        <fix>Исправлено срабатывание антивируса с ошибкой &quot;trojan.win32.statinko.gen&quot;;</fix>
+    </version>
+    <version ver="1.0.0.2">
         <add>Добавлена функция поиска домашнего каталога java;</add>
     </version>
     <version ver="1.0.0.1">

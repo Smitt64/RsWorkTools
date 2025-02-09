@@ -506,7 +506,7 @@ int toolStartProcess(QProcess *exe, const QString &program,
 }
 
 // ---------------------------------------------------------------------
-BOOL GetCurrentUserAndDomain(PTSTR szUser, PDWORD pcchUser, PTSTR szDomain, PDWORD pcchDomain)
+/*BOOL GetCurrentUserAndDomain(PTSTR szUser, PDWORD pcchUser, PTSTR szDomain, PDWORD pcchDomain)
 {
     BOOL         fSuccess = FALSE;
     HANDLE       hToken   = NULL;
@@ -554,17 +554,17 @@ BOOL GetCurrentUserAndDomain(PTSTR szUser, PDWORD pcchUser, PTSTR szDomain, PDWO
     }
 
     return fSuccess;
-}
+}*/
 
 UserDomainTuple toolGetCurrentUserAndDomain()
 {
     UserDomainTuple result;
 
-    TCHAR user[1024], domain[1024];
+    /*TCHAR user[1024], domain[1024];
     DWORD chUser = sizeof(user), chDomain = sizeof(domain);
 
     if (GetCurrentUserAndDomain(user, &chUser, domain, &chDomain))
-        result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));
+        result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));*/
 
     return result;
 }
