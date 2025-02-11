@@ -93,3 +93,13 @@ QStringList ToolsRuntime::getJavaHomes(const quint32 &homeflags)
 {
     return toolGetJavaHomes(homeflags);
 }
+
+int ToolsRuntime::levenshteinDistance(const QString &s1, const QString &s2)
+{
+    return toolLevenshteinDistance(s1, s2);
+}
+
+double ToolsRuntime::levenshteinSimilarity(const QString &s1, const QString &s2)
+{
+    return toolLevenshteinSimilarity(s1, s2);
+}

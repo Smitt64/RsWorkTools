@@ -69,6 +69,9 @@ public:
     Q_INVOKABLE QString simplified(QString str);
 
     Q_INVOKABLE QStringList getJavaHomes(const quint32 &homeflags);
+
+    Q_INVOKABLE int levenshteinDistance(const QString &s1, const QString &s2);
+    Q_INVOKABLE double levenshteinSimilarity(const QString &s1, const QString &s2);
 };
 
 #endif // TOOLSRUNTINERSL_H

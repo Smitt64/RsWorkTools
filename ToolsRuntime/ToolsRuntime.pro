@@ -24,6 +24,7 @@ SOURCES += \
     errordlg.cpp \
     errorsmodel.cpp \
     iconlibdlg.cpp \
+    levenshtein.cpp \
     netapi/apiuser.cpp \
     optionsdlg/OptionsPage.cpp \
     optionsdlg/codeeditoroptionspage.cpp \

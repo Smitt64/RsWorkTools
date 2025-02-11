@@ -75,4 +75,8 @@ TOOLSRUNTIME_EXPORT QNetworkReply *toolPostApiReply(QNetworkRequest *request, QN
 typedef QMap<QString, QString> SvnInfoMap;
 TOOLSRUNTIME_EXPORT SvnInfoMap toolSvnGetRepoInfo(const QString &path);
 
+// Функция для вычисления расстояния Левенштейна
+TOOLSRUNTIME_EXPORT int toolLevenshteinDistance(const QString &s1, const QString &s2);
+TOOLSRUNTIME_EXPORT double toolLevenshteinSimilarity(const QString &s1, const QString &s2);
+
 #endif // TOOLSRUNTIME_H

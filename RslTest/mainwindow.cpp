@@ -71,6 +71,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     QString macro = rslFindMacroFile("Test.mac");
 
+    QString str1 = "кот";
+    QString str2 = "коты";
+
+    double similarity = toolLevenshteinSimilarity(str1, str2);
+    qDebug() << "Процент совпадения:" << similarity << "%";
+
     pEditor = new CodeEditor();
     pOutput = new CodeEditor();
 
