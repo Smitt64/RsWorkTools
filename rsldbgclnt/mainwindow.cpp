@@ -8,6 +8,7 @@
 #include "ui_mainwindow.h"
 #include "dbgeditorlinewidgetprovider.h"
 #include "varwatchdockwidget.h"
+#include "callstackdockwidget.h"
 #include <finddialog.h>
 #include <dbgserverproto.h>
 #include <codeeditor/codeeditor.h>
@@ -87,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_LogDockWidget.reset(new StdViewDockWidget());
     m_LogDockWidget->setModel(m_LogModel.data());
 
-    m_StackDockWidget.reset(new StdViewDockWidget());
+    m_StackDockWidget.reset(new CallStackDockWidget());
     m_StackDockWidget->setModel(m_CallStackModel.data());
     m_StackDockWidget->setWindowTitle(tr("Call stack"));
 

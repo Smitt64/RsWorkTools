@@ -8,6 +8,9 @@
 #include <QStyleOptionButton>
 #include <QStyle>
 #include <QMouseEvent>
+#include <QMenu>
+#include <QGuiApplication>
+#include <QClipboard>
 
 // https://stackoverflow.com/questions/59202334/python-pyqt5-is-it-possible-to-add-a-button-to-press-inside-qtreeview
 TreeButtonDelegate::TreeButtonDelegate() :
@@ -31,17 +34,11 @@ QStyleOptionToolButton TreeButtonDelegate::getOption(const QStyleOptionViewItem 
     btnOption.text = "";
 
     btnOption.rect = QRect(option.rect);
-    //btnOption.rect.setWidth(btnOption.rect.height());
 
     btnOption.iconSize = QSize(16, 16);
     btnOption.icon = QIcon::fromTheme("ViewVarValue");
     btnOption.subControls = QStyle::SC_ToolButton;
-
-    //QStyle *style = option.widget->style();
-    //int margin = style->pixelMetric(QStyle::PM_ButtonMargin, &btnOption) * 2;
     btnOption.rect.setLeft(option.rect.right() - (btnOption.iconSize.width() + 2));
-
-    //if (textRect.width() < textWidth + margin)
 
     return btnOption;
 }
@@ -50,12 +47,6 @@ void TreeButtonDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     if (index.data(VarWatchModel::ShowWatchButtonRole).toBool())
     {
-        /*QStyleOptionViewItem opt = option;
-        opt.rect.setX(opt.rect.x() + 18);
-        opt.rect.setWidth(opt.rect.width() - 18);
-
-        QStyledItemDelegate::paint(painter, opt, index);*/
-
         QStyledItemDelegate::paint(painter, option, index);
         QStyleOptionToolButton btnOption = getOption(option, index);
         btnOption.state &= ~QStyle::State_HasFocus;
@@ -150,6 +141,7 @@ VarWatchDockWidget::VarWatchDockWidget() :
     tree->resetIndentation();
     tree->setMouseTracking(true);
     tree->setUniformRowHeights(true);
+    tree->setContextMenuPolicy(Qt::CustomContextMenu);
 
     m_pDelegate.reset(new TreeButtonDelegate());
     tree->setItemDelegateForColumn(VarWatchModel::ColumnValue, m_pDelegate.data());
@@ -176,6 +168,8 @@ VarWatchDockWidget::VarWatchDockWidget() :
         emit showVarValue(value, info);
     });
 
+    connect(tree, &QTreeView::customContextMenuRequested, this, &VarWatchDockWidget::customContextMenu);
+
     setDrawBranches(true);
 }
 
@@ -197,8 +191,6 @@ void VarWatchDockWidget::setModel(QAbstractItemModel *model)
     });
     connect((VarWatchModel*)model, &VarWatchModel::modelReset, [=]()
     {
-        qDebug() << m_LastScroll;
-
         if (m_LastScroll.isValid())
             view()->verticalScrollBar()->setValue(m_LastScroll.toInt());
     });
@@ -209,4 +201,56 @@ void VarWatchDockWidget::setModel(QAbstractItemModel *model)
         //view()->setIndexWidget(index, btn);
         //qDebug() << index << view()->itemDelegate(index);
     });
+}
+
+void VarWatchDockWidget::customContextMenu(const QPoint &pos)
+{
+    QTreeView *tree = view();
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    QItemSelectionModel *selection = tree->selectionModel();
+
+    if (!selection->hasSelection() || !selection->currentIndex().isValid())
+        return;
+
+    QModelIndex index = selection->currentIndex();
+    QModelIndex Name = tree->model()->index(index.row(), VarWatchModel::ColumnName, index.parent());
+    QModelIndex Type = tree->model()->index(index.row(), VarWatchModel::ColumnType, index.parent());
+    QModelIndex Val = tree->model()->index(index.row(), VarWatchModel::ColumnValue, index.parent());
+
+    QMenu menu;
+    QAction *pViewValue = menu.addAction(QIcon::fromTheme("ViewVarValue"), tr("View value"));
+
+    if (!index.data(VarWatchModel::ShowWatchButtonRole).toBool())
+        pViewValue->setEnabled(false);
+
+    menu.addSeparator();
+    QAction *pCopyValue = menu.addAction(tr("Copy value"));
+    QAction *pCopyName = menu.addAction(tr("Copy name \"%1\"").arg(tree->model()->data(Name).toString()));
+    QAction *pCopyType = menu.addAction(tr("Copy typename \"%1\"").arg(tree->model()->data(Type).toString()));
+
+    menu.setDefaultAction(pViewValue);
+    QAction *result = menu.exec(tree->mapToGlobal(pos));
+
+    if (result == pViewValue)
+    {
+        qint64 value = index.data(VarWatchModel::ValueRole).value<qint64>();
+        qint64 info = index.data(VarWatchModel::ValueInfoRole).value<qint64>();
+
+        emit showVarValue(value, info);
+    }
+    else if (result == pCopyName)
+    {
+        QString value = tree->model()->data(Name).toString();
+        clipboard->setText(value);
+    }
+    else if (result == pCopyType)
+    {
+        QString value = tree->model()->data(Type).toString();
+        clipboard->setText(value);
+    }
+    else if (result == pCopyValue)
+    {
+        QString value = tree->model()->data(Val).toString();
+        clipboard->setText(value);
+    }
 }

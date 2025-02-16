@@ -104,3 +104,27 @@ QVariant CallStackModel::headerData(int section, Qt::Orientation orientation, in
 
     return QVariant();
 }
+
+QString CallStackModel::file(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return QString();
+
+    return m_Items[index.row()].file;
+}
+
+QString CallStackModel::func(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return QString();
+
+    return m_Items[index.row()].func;
+}
+
+QString CallStackModel::filename(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return QString();
+
+    return m_Items[index.row()].fullfilename;
+}

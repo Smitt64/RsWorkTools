@@ -35,6 +35,10 @@ public:
 
     void append(Qt::HANDLE stack);
 
+    QString file(const QModelIndex &index) const;
+    QString filename(const QModelIndex &index) const;
+    QString func(const QModelIndex &index) const;
+
 private:
     QVector<StackItem> m_Items;
 };

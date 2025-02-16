@@ -37,6 +37,9 @@ signals:
     void expandVariable(int, qint64);
     void showVarValue(qint64 val, qint64 info);
 
+private slots:
+    void customContextMenu(const QPoint &pos);
+
 private:
     QVariant m_LastScroll;
     QScopedPointer<TreeButtonDelegate> m_pDelegate;

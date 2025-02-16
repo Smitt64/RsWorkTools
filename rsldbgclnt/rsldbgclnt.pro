@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    callstackdockwidget.cpp \
     dbgeditorlinewidgetprovider.cpp \
     logevent.cpp \
     main.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     ../rsldbg/dbgserverproto.h \
+    callstackdockwidget.h \
     dbgeditorlinewidgetprovider.h \
     logevent.h \
     mainwindow.h \

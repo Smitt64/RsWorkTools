@@ -19,5 +19,6 @@
         <file>icons/winxp-theme/actions/PrintPreview.png</file>
         <file>icons/winxp-theme/actions/ViewVarValue.png</file>
         <file>icons/winxp-theme/actions/Find.png</file>
+        <file>icons/winxp-theme/actions/Copy.png</file>
     </qresource>
 </RCC>
