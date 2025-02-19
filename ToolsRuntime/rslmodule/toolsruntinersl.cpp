@@ -103,3 +103,23 @@ double ToolsRuntime::levenshteinSimilarity(const QString &s1, const QString &s2)
 {
     return toolLevenshteinSimilarity(s1, s2);
 }
+
+int ToolsRuntime::makeArchive(const QString &archiveName, const QString &sourceDir)
+{
+    return toolCreateArchive(archiveName, sourceDir);
+}
+
+int ToolsRuntime::makeArchive(const QString &archiveName, const QStringList &files)
+{
+    return toolCreateArchive(archiveName, files);
+}
+
+int ToolsRuntime::extractArchive(const QString &archiveName, const QString &extractDir)
+{
+    return toolExtractArchive(archiveName, extractDir);
+}
+
+int ToolsRuntime::extractDirFromArchive(const QString &archiveName, const QString &targetDir, const QString &dirInArchive)
+{
+    return toolExtractDirFromArchive(archiveName, targetDir, dirInArchive);
+}

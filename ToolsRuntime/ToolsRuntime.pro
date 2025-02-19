@@ -12,6 +12,7 @@ include(../../configtools.pri)
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    7zip/archive.cpp \
     aboutdlg.cpp \
     codeeditor/codeeditor.cpp \
     codeeditor/codehighlighter.cpp \

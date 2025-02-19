@@ -79,4 +79,9 @@ TOOLSRUNTIME_EXPORT SvnInfoMap toolSvnGetRepoInfo(const QString &path);
 TOOLSRUNTIME_EXPORT int toolLevenshteinDistance(const QString &s1, const QString &s2);
 TOOLSRUNTIME_EXPORT double toolLevenshteinSimilarity(const QString &s1, const QString &s2);
 
+TOOLSRUNTIME_EXPORT int toolCreateArchive(const QString &archiveName, const QString &sourceDir);
+TOOLSRUNTIME_EXPORT int toolCreateArchive(const QString &archiveName, const QStringList &files);
+TOOLSRUNTIME_EXPORT int toolExtractArchive(const QString &archiveName, const QString &extractDir);
+TOOLSRUNTIME_EXPORT int toolExtractDirFromArchive(const QString &archiveName, const QString &targetDir, const QString &dirInArchive);
+
 #endif // TOOLSRUNTIME_H

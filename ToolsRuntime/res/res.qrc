@@ -32,5 +32,6 @@
         <file>icons/fxscover.exe_14_108-2.png</file>
         <file>img/CheckSpellingHS.png</file>
         <file>icons/inetcpl.cpl_14_4487-3.png</file>
+        <file alias="7z">../7zip/7zr.exe</file>
     </qresource>
 </RCC>
