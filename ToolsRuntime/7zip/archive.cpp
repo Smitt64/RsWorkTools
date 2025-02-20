@@ -2,6 +2,8 @@
 #include <QProcess>
 #include <QTemporaryDir>
 #include <QDirIterator>
+#include <QStandardItemModel>
+#include <QFileIconProvider>
 
 bool toolCopyDirectory(const QString &sourceDir, const QString &destinationDir)
 {
@@ -204,4 +206,158 @@ int toolExtractDirFromArchive(const QString &archiveName, const QString &targetD
         qWarning() << "Ошибка при распаковке каталога из архива. Код ошибки:" << result;
 
     return result;
+}
+
+QStringList toolGetArchiveFileList(const QString &archivePath)
+{
+    QStringList fileList;
+
+    // Создаем временный каталог
+    QTemporaryDir tempDir;
+    if (!tempDir.isValid())
+        return fileList;
+
+    // Извлекаем 7zr.exe из ресурсов
+    QString exePath = extract7zrFromResources(tempDir);
+    if (exePath.isEmpty())
+        return fileList;
+
+    // Запускаем 7zr.exe для получения списка файлов
+    QProcess process;
+    process.start(exePath, {"l", archivePath});
+    if (!process.waitForFinished())
+        return fileList;
+
+    // Читаем вывод процесса
+    QString output = process.readAllStandardOutput();
+    QStringList lines = output.split("\n", Qt::SkipEmptyParts);
+
+    // Разбираем вывод
+    bool fileListStarted = false;
+    for (const QString &line : lines)
+    {
+        if (line.startsWith("----"))
+        {
+            fileListStarted = true;
+            continue;
+        }
+
+        if (fileListStarted && !line.trimmed().isEmpty())
+        {
+            // Извлекаем имя файла (первый столбец)
+            QString fileName = line.simplified().split(" ").first();
+            fileList << fileName;
+        }
+    }
+
+    return fileList;
+}
+
+QList<ArchiveFileInfo> toolGetArchiveFileInfoList(const QString &archivePath)
+{
+    QList<ArchiveFileInfo> fileInfoList;
+
+    // Создаем временный каталог
+    QTemporaryDir tempDir;
+    if (!tempDir.isValid())
+        return fileInfoList;
+
+    // Извлекаем 7zr.exe из ресурсов
+    QString exePath = extract7zrFromResources(tempDir);
+    if (exePath.isEmpty())
+        return fileInfoList;
+
+    // Запускаем 7zr.exe для получения списка файлов
+    QProcess process;
+    process.start(exePath, {"l", archivePath});
+    if (!process.waitForFinished())
+        return fileInfoList;
+
+    // Читаем вывод процесса
+    QString output = process.readAllStandardOutput();
+    QStringList lines = output.split("\n", Qt::SkipEmptyParts);
+
+    // Разбираем вывод
+    bool fileListStarted = false;
+    for (const QString &line : lines)
+    {
+        if (line.startsWith("----"))
+        {
+            fileListStarted = true;
+            continue;
+        }
+
+        if (fileListStarted && !line.trimmed().isEmpty())
+        {
+            // Разбиваем строку на части
+            QStringList parts = line.simplified().split(" ", Qt::SkipEmptyParts);
+            if (parts.size() >= 5)
+            {
+                ArchiveFileInfo info;
+                info.name = parts[5]; // Имя файла
+                info.size = parts[3].toLongLong(); // Размер файла
+                info.modified = QDateTime::fromString(parts[0] + " " + parts[1], "yyyy-MM-dd HH:mm:ss"); // Дата изменения
+                info.isDirectory = parts[2].startsWith("D"); // Является ли директорией
+                fileInfoList << info;
+            }
+        }
+    }
+
+    return fileInfoList;
+}
+
+QStandardItemModel* toolCreateArchiveModel(const QList<ArchiveFileInfo> &fileInfoList)
+{
+    QFileIconProvider provider;
+    auto *model = new QStandardItemModel();
+    model->setHorizontalHeaderLabels({"Имя файла", "Размер", "Дата изменения", "Тип"});
+
+    // Словарь для хранения иерархии
+    QMap<QString, QStandardItem*> directoryMap;
+    directoryMap[""] = model->invisibleRootItem(); // Корневой элемент
+
+    // Обрабатываем каждый файл
+    for (const ArchiveFileInfo &info : fileInfoList)
+    {
+        QFileInfo fileInfo(info.name);
+
+        // Получаем родительскую директорию
+        QString parentDir = fileInfo.path();
+        if (!directoryMap.contains(parentDir))
+        {
+            // Создаем элементы для родительских директорий
+            QStringList dirs = parentDir.split("/", Qt::SkipEmptyParts);
+            QString currentPath;
+            QStandardItem *parentItem = directoryMap[""];
+
+            for (const QString &dir : dirs)
+            {
+                currentPath += (currentPath.isEmpty() ? "" : "/") + dir;
+                if (!directoryMap.contains(currentPath))
+                {
+                    auto *dirItem = new QStandardItem(dir);
+                    dirItem->setIcon(provider.icon(QFileIconProvider::Folder)); // Иконка для директории
+                    parentItem->appendRow(dirItem);
+                    directoryMap[currentPath] = dirItem;
+                }
+
+                parentItem = directoryMap[currentPath];
+            }
+        }
+
+        // Создаем элемент для файла
+        auto *fileItem = new QStandardItem(fileInfo.fileName());
+        fileItem->setIcon(provider.icon(QFileIconProvider::File)); // Иконка для файла
+
+        // Добавляем информацию о размере и дате изменения
+        auto *sizeItem = new QStandardItem(QString::number(info.size));
+        auto *dateItem = new QStandardItem(info.modified.toString("yyyy-MM-dd HH:mm:ss"));
+        auto *typeItem = new QStandardItem(info.isDirectory ? "Folder" : "File");
+
+        // Добавляем строку в модель
+        QList<QStandardItem*> rowItems = {fileItem, sizeItem, dateItem, typeItem};
+        directoryMap[parentDir]->appendRow(rowItems);
+    }
+
+    return model;
 }

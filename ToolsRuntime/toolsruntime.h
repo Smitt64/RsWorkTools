@@ -5,7 +5,16 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QDateTime>
 #include "ToolsRuntime_global.h"
+
+typedef struct ArchiveFileInfo
+{
+    QString name;          // Имя файла
+    qint64 size;           // Размер файла
+    QDateTime modified;    // Дата и время изменения
+    bool isDirectory;      // Является ли директорией
+} ArchiveFileInfo;
 
 class QSqlQuery;
 class QSqlDatabase;
@@ -13,6 +22,7 @@ class QProcess;
 class QNetworkAccessManager;
 class QNetworkRequest;
 class QNetworkReply;
+class QStandardItemModel;
 
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
@@ -84,5 +94,8 @@ TOOLSRUNTIME_EXPORT int toolCreateArchive(const QString &archiveName, const QStr
 TOOLSRUNTIME_EXPORT int toolCreateArchive(const QString &archiveName, const QStringList &files);
 TOOLSRUNTIME_EXPORT int toolExtractArchive(const QString &archiveName, const QString &extractDir);
 TOOLSRUNTIME_EXPORT int toolExtractDirFromArchive(const QString &archiveName, const QString &targetDir, const QString &dirInArchive);
+TOOLSRUNTIME_EXPORT QStringList toolGetArchiveFileList(const QString &archivePath);
+TOOLSRUNTIME_EXPORT QList<ArchiveFileInfo> toolGetArchiveFileInfoList(const QString &archivePath);
+TOOLSRUNTIME_EXPORT QStandardItemModel* toolCreateArchiveModel(const QList<ArchiveFileInfo> &fileInfoList);
 
 #endif // TOOLSRUNTIME_H
