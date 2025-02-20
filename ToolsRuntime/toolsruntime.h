@@ -36,6 +36,7 @@ TOOLSRUNTIME_EXPORT const QLoggingCategory &toolLoggingCategory(const QString &n
 
 TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);
+TOOLSRUNTIME_EXPORT bool toolCopyDirectory(const QString &sourceDir, const QString &destinationDir);
 TOOLSRUNTIME_EXPORT QString toolReadTextFileContent(const QString &filename, const QString &encode = QString());
 TOOLSRUNTIME_EXPORT QByteArray toolReadFileContent(const QString &filename);
 TOOLSRUNTIME_EXPORT bool toolSaveResourceToFile(const QString &resname, const QString &filename); 

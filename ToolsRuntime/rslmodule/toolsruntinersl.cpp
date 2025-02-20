@@ -123,3 +123,8 @@ int ToolsRuntime::extractDirFromArchive(const QString &archiveName, const QStrin
 {
     return toolExtractDirFromArchive(archiveName, targetDir, dirInArchive);
 }
+
+bool ToolsRuntime::CopyDirectory(const QString &sourceDir, const QString &destinationDir)
+{
+    return toolCopyDirectory(sourceDir, destinationDir);
+}

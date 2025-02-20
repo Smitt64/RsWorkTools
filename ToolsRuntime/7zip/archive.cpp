@@ -3,6 +3,49 @@
 #include <QTemporaryDir>
 #include <QDirIterator>
 
+bool toolCopyDirectory(const QString &sourceDir, const QString &destinationDir)
+{
+    QDir source(sourceDir);
+    QDir destination(destinationDir);
+
+    // Проверяем, существует ли исходный каталог
+    if (!source.exists())
+        return false;
+
+    // Создаем целевую директорию, если она не существует
+    if (!destination.exists())
+    {
+        if (!destination.mkpath("."))
+            return false;
+    }
+
+    // Рекурсивно обходим все файлы и подкаталоги
+    QDirIterator it(sourceDir, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        it.next();
+
+        QFileInfo fileInfo = it.fileInfo();
+        QString relativePath = source.relativeFilePath(fileInfo.filePath());
+        QString destinationPath = destination.filePath(relativePath);
+
+        if (fileInfo.isDir())
+        {
+            // Если это директория, создаем её в целевой директории
+            if (!destination.mkpath(destinationPath))
+                return false;
+        }
+        else if (fileInfo.isFile())
+        {
+            // Если это файл, копируем его
+            if (!QFile::copy(fileInfo.filePath(), destinationPath))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 QString extract7zrFromResources(QTemporaryDir &tempDir)
 {
     if (!tempDir.isValid()) {

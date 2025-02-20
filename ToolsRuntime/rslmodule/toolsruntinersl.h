@@ -73,6 +73,8 @@ public:
     Q_INVOKABLE int levenshteinDistance(const QString &s1, const QString &s2);
     Q_INVOKABLE double levenshteinSimilarity(const QString &s1, const QString &s2);
 
+    Q_INVOKABLE bool CopyDirectory(const QString &sourceDir, const QString &destinationDir);
+
     Q_INVOKABLE int makeArchive(const QString &archiveName, const QString &sourceDir);
     Q_INVOKABLE int makeArchive(const QString &archiveName, const QStringList &files);
     Q_INVOKABLE int extractArchive(const QString &archiveName, const QString &extractDir);
