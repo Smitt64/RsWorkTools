@@ -2,6 +2,20 @@
 #include "rsscript/registerobjlist.hpp"
 #include "strlib.h"
 
+void strFill()
+{
+    if (GetFuncParamCount() < 2)
+        ThrowParamCountError(1);
+
+    QString str = GetFuncParam(0).toString();
+    int size = GetFuncParam(1).toInt();
+
+    if (!str.isEmpty())
+        SetReturnVal(QString(size, str[0]));
+    else
+        SetReturnVal(QString());
+}
+
 /**
  * @brief Преобразует строку в верхний регистр.
  * @param str Исходная строка.
@@ -448,4 +462,5 @@ void StrStaticModule::Proc()
     RegisterObjList::inst()->AddStdProc("strIsEmpty", strIsEmpty);
     RegisterObjList::inst()->AddStdProc("strSplit", strSplit);
     RegisterObjList::inst()->AddStdProc("strArg", strArg);
+    RegisterObjList::inst()->AddStdProc("strFill", strFill);
 }
