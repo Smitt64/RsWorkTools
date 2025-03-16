@@ -481,6 +481,12 @@ void SetFuncParam(const int &id, const QVariant &value)
     SetValueFromVariant(SetterFunc, value);
 }
 
+void ThrowParamCountError(const int &count)
+{
+    sprintf(ErrorString, "Param count missmatch. Expected %d", count);
+    iError(IER_RUNTIME, ErrorString);
+}
+
 void ThrowParamTypeError(const int &id, const QString &needtype)
 {
     if (needtype.isEmpty())

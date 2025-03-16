@@ -8,6 +8,7 @@
 #include "rslmodule/io/temporaryfile.h"
 #include "rslmodule/io/process.h"
 #include "rslmodule/io/ionamespace.h"
+#include "rslmodule/io/iofileinfo.h"
 #include "toolsruntime.h"
 #include <QIODevice>
 #include <QTextStream>
@@ -78,6 +79,7 @@ IoStaticModule::IoStaticModule()
     RegisterObjList::inst()->RegisterRslObject<ProcessEnvironment>();
     RegisterObjList::inst()->RegisterRslObject<TemporaryDir>();
 
+    RegisterObjList::inst()->RegisterRslObject<IoFileInfo>();
     RegisterObjList::inst()->RegisterRslObject<IoNamespace>();
 }
 
@@ -174,6 +176,7 @@ void IoStaticModule::Proc()
     RegisterObjList::inst()->AddObject<TemporaryDir>();
     RegisterObjList::inst()->AddObject<ProcessEnvironment>();
     RegisterObjList::inst()->AddObject<Process>();
+    RegisterObjList::inst()->AddObject<IoFileInfo>();
     //RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     //RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
     RegisterObjList::inst()->AddStdProc("toolStartProcess", Rsl_toolStartProcess);

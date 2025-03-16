@@ -69,9 +69,14 @@ public:
         return rc;
     }
 
-    ChildObject *child()
+    Q_INVOKABLE ChildObject *child()
     {
-        return _child;
+        return nullptr;
+    }
+
+    Q_INVOKABLE QObject *nullObj()
+    {
+        return nullptr;
     }
 
     QString message()

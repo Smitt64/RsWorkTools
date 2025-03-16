@@ -41,7 +41,9 @@ SOURCES += \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
     rslmodule/io/iodevice.cpp \
+    rslmodule/io/iodir.cpp \
     rslmodule/io/iofile.cpp \
+    rslmodule/io/iofileinfo.cpp \
     rslmodule/io/ionamespace.cpp \
     rslmodule/io/iotextstream.cpp \
     rslmodule/io/process.cpp \
@@ -60,6 +62,7 @@ SOURCES += \
     rslmodule/types/rect.cpp \
     rslmodule/types/size.cpp \
     rslmodule/uistaticmodule.cpp \
+    rslmodule/rslstr/strlib.cpp \
     rsscript/Methods.cpp \
     rsscript/Properties.cpp \
     rsscript/Signals.cpp \
@@ -110,7 +113,9 @@ HEADERS += \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \
+    rslmodule/io/iodir.h \
     rslmodule/io/iofile.h \
+    rslmodule/io/iofileinfo.h \
     rslmodule/io/ionamespace.h \
     rslmodule/io/iotextstream.h \
     rslmodule/io/process.h \
@@ -125,6 +130,7 @@ HEADERS += \
     rslmodule/toolsruntimemodule.h \
     rslmodule/toolsruntinersl.h \
     rslmodule/uistaticmodule.h \
+    rslmodule/rslstr/strlib.h \
     rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
