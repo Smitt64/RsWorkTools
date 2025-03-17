@@ -6,6 +6,7 @@
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
 #include "rsscript/TRsbRSLInstTmpl.hpp"
+#include <optional>
 #include "rslexecutor.h"
 #include "erlist.hpp"
 #include "rsscript/registerobjlist.hpp"
@@ -100,6 +101,8 @@ public:
     TRSLErrorsList m_ErrList;
     RslExecutor *q_ptr;
     RslExecutorProc PlayRepProc;
+
+    std::optional<bool> m_DebugFlag;
 };
 
 RslExecutor::RslExecutor(QObject *parent) :
@@ -154,10 +157,14 @@ void RslExecutor::globalSet(Qt::HANDLE sym, const QVariant &value)
 }
 void RslExecutor::setDebugMacroFlag(const bool &Eanble)
 {
+    Q_D(RslExecutor);
+
     if (Eanble)
         SetDebugMacroFlag(1);
     else
         SetDebugMacroFlag(0);
+
+    d->m_DebugFlag = Eanble;
 }
 
 void RslExecutor::onInspectModuleSymbol(Qt::HANDLE sym)
@@ -327,10 +334,16 @@ void RslExecutor::playRep(const QString &filename, const QString &output, RslExe
 
     QScopedPointer<QSettings> m_RslSettings(new QSettings(toolFullFileNameFromDir("rsl.ini"), QSettings::IniFormat));
 
-    m_RslSettings->beginGroup(QApplication::applicationName());
-    bool debugbreak = m_RslSettings->value("debugbreak", false).toBool();
-    setDebugMacroFlag(debugbreak);
-    m_RslSettings->endGroup();
+    bool debugbreak = false;
+    if (!d->m_DebugFlag.has_value())
+    {
+        m_RslSettings->beginGroup(QApplication::applicationName());
+        debugbreak = m_RslSettings->value("debugbreak", false).toBool();
+        setDebugMacroFlag(debugbreak);
+        m_RslSettings->endGroup();
+    }
+    else
+        debugbreak = d->m_DebugFlag.value();
 
     if (debugbreak)
         qInfo(logRsl()) << "Debugbreak enabled...";
