@@ -430,7 +430,7 @@ void strJoin()
     if (GetFuncParamCount() < 2)
         ThrowParamCountError(2);
 
-    QStringList lst = GetFuncParam(0).toStringList();
+    QStringList lst = GetFuncParam(0, true).toStringList();
     QString separator = GetFuncParam(1).toString();
 
     SetReturnVal(lst.join(separator));
