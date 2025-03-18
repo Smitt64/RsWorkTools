@@ -33,11 +33,11 @@ static bool CompareParamTypes(const QMetaMethod &method, int offset)
 
         bool isOutParam = false;
         if (paramsTypes[i].contains("&"))
-           isOutParam = true;
+            isOutParam = true;
 
         QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
 
-        if (!type) 
+        if (!type)
             type = QMetaType::type(normalized.toLocal8Bit().data());
 
         if (type)
@@ -171,7 +171,7 @@ void *CallMethod(const QMetaObject *meta,
                  Type == QMetaType::UInt ||
                  Type == QMetaType::Long ||
                  Type == QMetaType::ULong
-        )
+                 )
         {
             if (!CnvType(&NewVal, V_INTEGER))
                 iError(IER_RUNTIME, "Param type missmatch, required integer");
@@ -180,7 +180,7 @@ void *CallMethod(const QMetaObject *meta,
         }
         else if (Type == QMetaType::Short ||
                  Type == QMetaType::UShort
-        )
+                 )
         {
             if (!CnvType(&NewVal, V_INTEGER))
                 iError(IER_RUNTIME, "Param type missmatch, required integer");
@@ -211,8 +211,8 @@ void *CallMethod(const QMetaObject *meta,
                 iError(IER_RUNTIME, "Param type missmatch, required date");
 
             (*reinterpret_cast<QDate*>(*param)) = QDate(NewVal.value.date.year,
-                                                        NewVal.value.date.mon,
-                                                        NewVal.value.date.day);
+                                                         NewVal.value.date.mon,
+                                                         NewVal.value.date.day);
         }
         else if (Type == QMetaType::QTime)
         {
@@ -220,8 +220,8 @@ void *CallMethod(const QMetaObject *meta,
                 iError(IER_RUNTIME, "Param type missmatch, required time");
 
             (*reinterpret_cast<QTime*>(*param)) = QTime(NewVal.value.time.hour,
-                                                        NewVal.value.time.min,
-                                                        NewVal.value.time.sec);
+                                                         NewVal.value.time.min,
+                                                         NewVal.value.time.sec);
         }
         else if (Type == QMetaType::QVariant)
         {
@@ -388,7 +388,7 @@ void *CallMethod(const QMetaObject *meta,
             int v = *reinterpret_cast<short*>(params[0]);
             ValueSet(&ret, V_INTEGER, &v);
         }
-            break;
+        break;
         case QMetaType::LongLong:
         case QMetaType::ULongLong:
             ValueSet(&ret, V_BIGINT, reinterpret_cast<int*>(params[0]));
@@ -408,7 +408,7 @@ void *CallMethod(const QMetaObject *meta,
             rsldate.year = qdate.year();
             ValueSet(&ret, V_DATE, &rsldate);
         }
-            break;
+        break;
         case QMetaType::QTime:
         {
             QTime qdate = *reinterpret_cast<QTime*>(params[0]);
@@ -418,13 +418,13 @@ void *CallMethod(const QMetaObject *meta,
             rsldate.sec = qdate.second();
             ValueSet(&ret, V_TIME, &rsldate);
         }
-            break;
+        break;
         case QMetaType::QRect:
         {
             TGenObject *obj = (TGenObject*)CreateRectRsl(*reinterpret_cast<QRect*>(params[0]));
             ValueSet(&ret, V_GENOBJ, obj);
         }
-            break;
+        break;
         case QMetaType::QPoint:
         {
             TGenObject *obj = (TGenObject*)CreatePointRsl(*reinterpret_cast<QPoint*>(params[0]));
@@ -459,7 +459,7 @@ void *CallMethod(const QMetaObject *meta,
 
             ValueSet(&ret, V_GENOBJ, ValueArray);
         }
-            break;
+        break;
 
         case QMetaType::QVariantList:
         {
@@ -480,11 +480,11 @@ void *CallMethod(const QMetaObject *meta,
             }
             ValueSet(&ret, V_GENOBJ, ValueArray);
         }
-            break;
+        break;
 
         case QMetaType::QObjectStar:
         {
-            QObject *obj = reinterpret_cast<QObject*>(params[0]);
+            QObject *obj = *reinterpret_cast<QObject**>(params[0]);
 
             const QMetaObject *meta = nullptr;
 
@@ -526,7 +526,7 @@ void *CallMethod(const QMetaObject *meta,
             }
 
         }
-            break;
+        break;
         }
 
         ReturnVal2(&ret);
