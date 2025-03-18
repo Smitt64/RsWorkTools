@@ -60,6 +60,7 @@ bool TOOLSRUNTIME_EXPORT CompareTypes(const int &MetaType, void *val, bool isOut
 void TOOLSRUNTIME_EXPORT StdValueSetFunc(void *val, int type, void *ptr);
 QVariant TOOLSRUNTIME_EXPORT SetFromRslValue(void *value, bool isStringListProp = false);
 int TOOLSRUNTIME_EXPORT SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value);
+TOOLSRUNTIME_EXPORT RegisterInfoBase *infoFromMeta(const QMetaObject *meta);
 
 QVariant TOOLSRUNTIME_EXPORT GetFuncParam(const int &id, bool isStringListProp = false);
 bool TOOLSRUNTIME_EXPORT IsFuncParamQtObject(const int &id);

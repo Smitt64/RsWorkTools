@@ -384,7 +384,7 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
     return result;
 }
 
-static RegisterInfoBase *infoFromMeta(const QMetaObject *meta)
+RegisterInfoBase *infoFromMeta(const QMetaObject *meta)
 {
     RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
 
@@ -401,6 +401,11 @@ static RegisterInfoBase *infoFromMeta(const QMetaObject *meta)
     }
 
     return nullptr;
+}
+
+void SetObjectToRslValue(QObject *obj, void *value)
+{
+    VALUE *ret = (VALUE*)value;
 }
 
 int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value)

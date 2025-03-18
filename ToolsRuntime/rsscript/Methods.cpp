@@ -482,6 +482,37 @@ void *CallMethod(const QMetaObject *meta,
         }
             break;
 
+        case QMetaType::QObjectStar:
+        {
+            QObject *obj = reinterpret_cast<QObject*>(params[0]);
+
+            const QMetaObject *meta = nullptr;
+
+            if (obj)
+                meta = obj->metaObject();
+
+            if (meta && obj)
+            {
+                RegisterInfoBase *info = infoFromMeta(meta);
+                    //RegisterObjList::inst()->info(meta->className());
+
+                if (info)
+                {
+                    RegisterInfoBase::QObjectRslOwner owner = RegisterInfoBase::CppOwner;
+                    QVariant owner_prop = obj->property(OBJECT_PROP_OWNER);
+
+                    if (owner_prop.isValid())
+                        owner = (RegisterInfoBase::QObjectRslOwner)owner_prop.toInt();
+
+                    TGenObject *Child = nullptr;
+                    info->Create((void**)&Child, obj, owner);
+                    ValueSet(&ret, V_GENOBJ, Child);
+                    //Setter(V_GENOBJ, P_GOBJ(Child));
+                }
+            }
+        }
+        break;
+
         case QMetaType::UnknownType:
         {
             QString normalized = QString(method.typeName()).remove("&").remove("*");
