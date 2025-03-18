@@ -384,6 +384,25 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
     return result;
 }
 
+static RegisterInfoBase *infoFromMeta(const QMetaObject *meta)
+{
+    RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
+
+    if (info)
+        return info;
+
+    const QMetaObject *parent = nullptr;
+    while ((parent = meta->superClass()) != nullptr)
+    {
+        info = RegisterObjList::inst()->info(parent->className());
+
+        if (info)
+            return info;
+    }
+
+    return nullptr;
+}
+
 int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &value)
 {
     int result = 0;
@@ -526,7 +545,8 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
 
         if (meta && obj)
         {
-            RegisterInfoBase *info = RegisterObjList::inst()->info(meta->className());
+            RegisterInfoBase *info = infoFromMeta(meta);
+                //RegisterObjList::inst()->info(meta->className());
 
             if (info)
             {
