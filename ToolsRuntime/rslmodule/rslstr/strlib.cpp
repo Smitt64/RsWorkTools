@@ -425,6 +425,17 @@ void strArg()
     SetReturnVal(str.arg(arg));
 }
 
+void strJoin()
+{
+    if (GetFuncParamCount() < 2)
+        ThrowParamCountError(2);
+
+    QStringList lst = GetFuncParam(0).toStringList();
+    QString separator = GetFuncParam(1).toString();
+
+    SetReturnVal(lst.join(separator));
+}
+
 // -----------------------------------------------------------------------------
 
 StrStaticModule::StrStaticModule() :
@@ -463,4 +474,5 @@ void StrStaticModule::Proc()
     RegisterObjList::inst()->AddStdProc("strSplit", strSplit);
     RegisterObjList::inst()->AddStdProc("strArg", strArg);
     RegisterObjList::inst()->AddStdProc("strFill", strFill);
+    RegisterObjList::inst()->AddStdProc("strJoin", strJoin);
 }
