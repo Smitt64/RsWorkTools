@@ -128,6 +128,10 @@ void ToolsRuntimeModule::Proc()
     addConstant("JavaDevelopmentHomes64", JavaDevelopmentHomes64);
     addConstant("JavaAllHomes", JavaAllHomes);
 
+    addConstant("Unchecked", Qt::Unchecked);
+    addConstant("PartiallyChecked", Qt::PartiallyChecked);
+    addConstant("Checked", Qt::Checked);
+
     addConstant("ToolsRuntime", QVariant::fromValue((QObject*)pToolsRuntime));
 
     RegisterObjList::inst()->AddObject<SpellChecker>();
