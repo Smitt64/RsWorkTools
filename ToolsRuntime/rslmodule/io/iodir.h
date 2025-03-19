@@ -7,6 +7,17 @@
 class IoDir : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool exists READ exists CONSTANT)
+    Q_PROPERTY(bool isRelative READ isRelative CONSTANT)
+    Q_PROPERTY(bool isRoot READ isRoot CONSTANT)
+    Q_PROPERTY(QString absolutePath READ absolutePath CONSTANT)
+    Q_PROPERTY(QString canonicalPath READ canonicalPath CONSTANT)
+    Q_PROPERTY(QString dirName READ dirName CONSTANT)
+    Q_PROPERTY(QString currentPath READ currentPath CONSTANT)
+    Q_PROPERTY(QString rootPath READ rootPath CONSTANT)
+    Q_PROPERTY(QString homePath READ homePath CONSTANT)
+    Q_PROPERTY(QString tempPath READ tempPath CONSTANT)
+    Q_PROPERTY(int count READ count CONSTANT)
 public:
     Q_INVOKABLE IoDir(const QString& path = QString());
 
@@ -14,25 +25,25 @@ public:
      * @brief Проверяет, существует ли директория.
      * @return true, если директория существует, иначе false.
      */
-    Q_INVOKABLE bool exists() const;
+    bool exists() const;
 
     /**
      * @brief Возвращает абсолютный путь к директории.
      * @return Абсолютный путь.
      */
-    Q_INVOKABLE QString absolutePath() const;
+    QString absolutePath() const;
 
     /**
      * @brief Возвращает канонический путь (без символических ссылок).
      * @return Канонический путь.
      */
-    Q_INVOKABLE QString canonicalPath() const;
+    QString canonicalPath() const;
 
     /**
      * @brief Возвращает имя директории.
      * @return Имя директории.
      */
-    Q_INVOKABLE QString dirName() const;
+    QString dirName() const;
 
     /**
      * @brief Возвращает список файлов и директорий.
@@ -121,7 +132,7 @@ public:
      * @brief Возвращает текущую директорию.
      * @return Текущая директория.
      */
-    Q_INVOKABLE QString currentPath() const;
+    QString currentPath() const;
 
     /**
      * @brief Очищает директорию (удаляет все файлы и поддиректории).
@@ -147,7 +158,7 @@ public:
      * @brief Проверяет, является ли путь относительным.
      * @return true, если путь относительный, иначе false.
      */
-    Q_INVOKABLE bool isRelative() const;
+    bool isRelative() const;
 
     /**
      * @brief Преобразует относительный путь в абсолютный.

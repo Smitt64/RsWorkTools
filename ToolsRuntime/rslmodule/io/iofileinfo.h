@@ -8,6 +8,22 @@ class QFileInfo;
 class IoFileInfo : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool exists READ exists CONSTANT)
+    Q_PROPERTY(QString absoluteFilePath READ absoluteFilePath CONSTANT)
+    Q_PROPERTY(QString fileName READ fileName CONSTANT)
+    Q_PROPERTY(QString baseName READ baseName CONSTANT)
+    Q_PROPERTY(QString suffix READ suffix CONSTANT)
+    Q_PROPERTY(QString path READ path CONSTANT)
+    Q_PROPERTY(QString absolutePath READ absolutePath CONSTANT)
+    Q_PROPERTY(bool isFile READ isFile CONSTANT)
+    Q_PROPERTY(bool isDir READ isDir CONSTANT)
+    Q_PROPERTY(qint64 size READ size CONSTANT)
+    Q_PROPERTY(QDateTime lastModified READ lastModified CONSTANT)
+    Q_PROPERTY(QDateTime lastRead READ lastRead CONSTANT)
+    Q_PROPERTY(QDateTime created READ created CONSTANT)
+    Q_PROPERTY(bool isReadable READ isReadable CONSTANT)
+    Q_PROPERTY(bool isWritable READ isWritable CONSTANT)
+    Q_PROPERTY(bool isExecutable READ isExecutable CONSTANT)
 public:
     Q_INVOKABLE IoFileInfo(const QString& path, QObject *parent = nullptr);
 
@@ -15,97 +31,97 @@ public:
      * @brief Проверяет, существует ли файл или директория.
      * @return true, если файл или директория существует, иначе false.
      */
-    Q_INVOKABLE bool exists() const;
+    bool exists() const;
 
     /**
      * @brief Возвращает абсолютный путь к файлу.
      * @return Абсолютный путь.
      */
-    Q_INVOKABLE QString absoluteFilePath() const;
+    QString absoluteFilePath() const;
 
     /**
      * @brief Возвращает имя файла.
      * @return Имя файла.
      */
-    Q_INVOKABLE QString fileName() const;
+    QString fileName() const;
 
     /**
      * @brief Возвращает базовое имя файла (без расширения).
      * @return Базовое имя файла.
      */
-    Q_INVOKABLE QString baseName() const;
+    QString baseName() const;
 
     /**
      * @brief Возвращает расширение файла.
      * @return Расширение файла.
      */
-    Q_INVOKABLE QString suffix() const;
+    QString suffix() const;
 
     /**
      * @brief Возвращает путь к директории.
      * @return Путь к директории.
      */
-    Q_INVOKABLE QString path() const;
+    QString path() const;
 
     /**
      * @brief Возвращает абсолютный путь к директории.
      * @return Абсолютный путь к директории.
      */
-    Q_INVOKABLE QString absolutePath() const;
+    QString absolutePath() const;
 
     /**
      * @brief Проверяет, является ли объект файлом.
      * @return true, если это файл, иначе false.
      */
-    Q_INVOKABLE bool isFile() const;
+    bool isFile() const;
 
     /**
      * @brief Проверяет, является ли объект директорией.
      * @return true, если это директория, иначе false.
      */
-    Q_INVOKABLE bool isDir() const;
+    bool isDir() const;
 
     /**
      * @brief Возвращает размер файла.
      * @return Размер файла в байтах.
      */
-    Q_INVOKABLE qint64 size() const;
+    qint64 size() const;
 
     /**
      * @brief Возвращает время последнего изменения.
      * @return Время последнего изменения.
      */
-    Q_INVOKABLE QDateTime lastModified() const;
+    QDateTime lastModified() const;
 
     /**
      * @brief Возвращает время последнего чтения.
      * @return Время последнего чтения.
      */
-    Q_INVOKABLE QDateTime lastRead() const;
+    QDateTime lastRead() const;
 
     /**
      * @brief Возвращает время создания.
      * @return Время создания.
      */
-    Q_INVOKABLE QDateTime created() const;
+    QDateTime created() const;
 
     /**
      * @brief Проверяет, доступен ли файл для чтения.
      * @return true, если файл доступен для чтения, иначе false.
      */
-    Q_INVOKABLE bool isReadable() const;
+    bool isReadable() const;
 
     /**
      * @brief Проверяет, доступен ли файл для записи.
      * @return true, если файл доступен для записи, иначе false.
      */
-    Q_INVOKABLE bool isWritable() const;
+    bool isWritable() const;
 
     /**
      * @brief Проверяет, доступен ли файл для выполнения.
      * @return true, если файл доступен для выполнения, иначе false.
      */
-    Q_INVOKABLE bool isExecutable() const;
+    bool isExecutable() const;
 
 private:
     QScopedPointer<QFileInfo> fileInfo;
