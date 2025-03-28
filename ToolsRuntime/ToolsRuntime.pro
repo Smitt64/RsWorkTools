@@ -82,6 +82,9 @@ SOURCES += \
     updatecheckermessagebox.cpp \
     widgets/selectactiondlg.cpp \
     widgets/stringlisteditor.cpp \
+    widgets/treeheadervew/gridtableheadermodel.cpp \
+    widgets/treeheadervew/gridtableheaderview.cpp \
+    widgets/treeheadervew/tableheaderitem.cpp \
     windowactionsregistry.cpp
 
 HEADERS += \
@@ -149,6 +152,9 @@ HEADERS += \
     updatecheckermessagebox.h \
     widgets/selectactiondlg.h \
     widgets/stringlisteditor.h \
+    widgets/treeheadervew/gridtableheadermodel.h \
+    widgets/treeheadervew/gridtableheaderview.h \
+    widgets/treeheadervew/tableheaderitem.h \
     windowactionsregistry.h
 
 # Default rules for deployment.

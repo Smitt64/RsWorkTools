@@ -27,7 +27,7 @@
 #include <QStateMachine>
 #include "windowactionsregistry.h"
 #include <QSignalSpy>
-#include "netapi/apiuser.h"
+#include "treehadertest.h"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -130,6 +130,12 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.exec();
     });
 
+    connect(ui->actionElement2, &QAction::triggered, [=]()
+    {
+        TreeHaderTest dlg(this);
+        dlg.exec();
+    });
+
     ui->menu->insertAction(nullptr, exec);
 
     RslExecutor *executor = new RslExecutor();
@@ -149,9 +155,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     //qDebug() << std::get<0>(userdomain) << std::get<1>(userdomain);
 
-    ApiUser *user = toolGetCurrentUser();
+    //ApiUser *user = toolGetCurrentUser();
     //qDebug() << user;
-    qDebug() << "ApiUser" << user->userName() << user->domain() << user->email() << user->createDate();
+    //qDebug() << "ApiUser" << user->userName() << user->domain() << user->email() << user->createDate();
 }
 
 MainWindow::~MainWindow()

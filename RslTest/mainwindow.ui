@@ -66,7 +66,7 @@
   </action>
   <action name="actionElement2">
    <property name="text">
-    <string>Элемент</string>
+    <string>Test tree header</string>
    </property>
   </action>
   <action name="actionElement3">
