@@ -1,5 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+    <version ver="1.0.0.6">
+        <add>Добавлен иерархический header view;</add>
+    </version>
     <version ver="1.0.0.5">
         <add>Добавлены функции для работы с архивами;</add>
     </version>
