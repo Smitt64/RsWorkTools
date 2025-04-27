@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #ifndef REGISTERINFOBASE_H
 #define REGISTERINFOBASE_H
 
@@ -52,10 +52,12 @@ public:
 
     Qt::HANDLE rslID() const;
     Qt::HANDLE object(Qt::HANDLE GenObject);
+    const int &metaType() const;
 
     virtual void Create(void **GenObject, QObject *cls, const QObjectRslOwner &owner = CppOwner);
 
 protected:
+    void setMetatypeId(const int &id);
     void FillFromMetaObject(const qint32 &flags,
                             const QMetaObject &meta,
                             ObjTypeName ObjTypeNameFunc,

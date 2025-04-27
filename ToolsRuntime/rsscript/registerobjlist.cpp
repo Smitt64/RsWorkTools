@@ -168,6 +168,26 @@ RegisterInfoBase *RegisterObjList::info(const Qt::HANDLE &rslID)
     return result;
 }
 
+RegisterInfoBase *RegisterObjList::infoFormMetaId(const int &id)
+{
+    Q_D(RegisterObjList);
+
+    if (id < 0)
+        return nullptr;
+
+    RegisterInfoBase *result = nullptr;
+    for (auto item : d->m_Info)
+    {
+        if (item->metaType() == id)
+        {
+            result = item;
+            break;
+        }
+    }
+
+    return result;
+}
+
 RegisterInfoBase *findInfo(const QString &name)
 {
     return RegisterObjList::inst()->info(name);

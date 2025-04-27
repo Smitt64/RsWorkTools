@@ -379,7 +379,21 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
         break;
 
     default:
-        result = false;
+        if (((VALUE*)val)->v_type == V_GENOBJ)
+        {
+            const QMetaObject *obj = nullptr;
+            if (MetaType != -1 && (obj = QMetaType::metaObjectForType(MetaType)))
+            {
+                RegisterInfoBase *info = RegisterObjList::inst()->infoFormMetaId(MetaType);
+
+                if (info)
+                    result = true;
+                else
+                    result = false;
+            }
+        }
+        else
+            result = false;
     }
     return result;
 }
@@ -403,6 +417,28 @@ RegisterInfoBase *infoFromMeta(const QMetaObject *meta)
     return nullptr;
 }
 
+RegisterInfoBase *infoFromMetaTypeID(const int &id)
+{
+    RegisterInfoBase *info = RegisterObjList::inst()->infoFormMetaId(id);
+
+    if (info)
+        return info;
+
+    QMetaType type(id);
+    const QMetaObject *meta = type.metaObject();
+
+    const QMetaObject *parent = nullptr;
+    while ((parent = meta->superClass()) != nullptr)
+    {
+        info = RegisterObjList::inst()->info(parent->className());
+
+        if (info)
+            return info;
+    }
+
+    return nullptr;
+}
+
 void SetObjectToRslValue(QObject *obj, void *value)
 {
     VALUE *ret = (VALUE*)value;
@@ -413,6 +449,34 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
     int result = 0;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
     LoadFunctions();
+
+    auto SetFromObjectStar = [=](const QVariant &value)
+    {
+        QObject *obj = value.value<QObject*>();
+        const QMetaObject *meta = nullptr;
+
+        if (obj)
+            meta = obj->metaObject();
+
+        if (meta && obj)
+        {
+            RegisterInfoBase *info = infoFromMeta(meta);
+                //RegisterObjList::inst()->info(meta->className());
+
+            if (info)
+            {
+                RegisterInfoBase::QObjectRslOwner owner = RegisterInfoBase::CppOwner;
+                QVariant owner_prop = obj->property(OBJECT_PROP_OWNER);
+
+                if (owner_prop.isValid())
+                    owner = (RegisterInfoBase::QObjectRslOwner)owner_prop.toInt();
+
+                TGenObject *Child = nullptr;
+                info->Create((void**)&Child, obj, owner);
+                Setter(V_GENOBJ, P_GOBJ(Child));
+            }
+        }
+    };
 
     int type = value.type();
     switch(type)
@@ -541,37 +605,15 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         break;
 
     case QMetaType::QObjectStar:
-    {
-        QObject *obj = value.value<QObject*>();
-        const QMetaObject *meta = nullptr;
-
-        if (obj)
-            meta = obj->metaObject();
-
-        if (meta && obj)
-        {
-            RegisterInfoBase *info = infoFromMeta(meta);
-                //RegisterObjList::inst()->info(meta->className());
-
-            if (info)
-            {
-                RegisterInfoBase::QObjectRslOwner owner = RegisterInfoBase::CppOwner;
-                QVariant owner_prop = obj->property(OBJECT_PROP_OWNER);
-
-                if (owner_prop.isValid())
-                    owner = (RegisterInfoBase::QObjectRslOwner)owner_prop.toInt();
-
-                TGenObject *Child = nullptr;
-                info->Create((void**)&Child, obj, owner);
-                Setter(V_GENOBJ, P_GOBJ(Child));
-            }
-        }
-    }
+        SetFromObjectStar(value);
         break;
 
     default:
         //qDebug() << value.type() << (int)value.type() << value.userType();
-        result =  -1;
+        if (value.userType() != -1 && QMetaType::metaObjectForType(value.userType()))
+            SetFromObjectStar(value);
+        else
+            result =  -1;
     }
 
     return result;

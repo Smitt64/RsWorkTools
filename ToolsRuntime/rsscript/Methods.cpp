@@ -294,9 +294,17 @@ void *CallMethod(const QMetaObject *meta,
             if (info->rslID() != (Qt::HANDLE)RSCLSID(val->value.obj))
                 iError(IER_RUNTIME, "Unknown param type");
             else
-            {
                 *((void**)param[0]) = info->object(val->value.obj);
-            }
+        }
+        else
+        {
+            if (!CnvType(&NewVal, V_GENOBJ))
+                iError(IER_RUNTIME, "Param type missmatch, required QObject");
+
+            RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(val->value.obj));
+
+            if (info)
+                *((void**)param[0]) = info->object(val->value.obj);
         }
     };
 

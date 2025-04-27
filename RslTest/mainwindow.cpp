@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     //QSettings::Format format = (QSettings::Format)registerJsonSettingsFormat();
     //pSettings = new QSettings(format, QSettings::UserScope, "RslTest");
 
+    //qRegisterMetaType<ChildObject>();
     qApp->setStyle(pSettings->value("Style", "windowsvista").toString());
     //ui->listView->setModel(&m_Errors);
 

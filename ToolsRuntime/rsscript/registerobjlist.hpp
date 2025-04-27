@@ -7,8 +7,16 @@
 #include "registerinfobase.h"
 #include "rslstaticmodule.h"
 #include "ToolsRuntime_global.h"
+#include <QDebug>
 
 #define OBJECT_PROP_OWNER "RSL_OWNER"
+
+template<typename T>
+constexpr bool isQObjectDerived()
+{
+    return std::is_base_of<QObject, T>::value &&
+           static_cast<bool>(static_cast<const QObject*>(static_cast<const T*>(nullptr)));
+}
 
 typedef void (*RslFuncProc)(void);
 
@@ -23,6 +31,17 @@ public:
         RegisterInfoBase()
     {
         const QMetaObject meta = Obj::staticMetaObject;
+
+        //qDebug() << meta.className() << QTypeInfo<Obj>::isSpecialized;/*&& isQObjectDerived<Obj>()*/
+        if constexpr(QTypeInfo<Obj*>::isSpecialized)
+        {
+            int id = qMetaTypeId<Obj*>();
+            setMetatypeId(id);
+            qDebug() << meta.className() << id;
+        }
+        //QMetaType type = QMetaType::fromType<Obj>();
+        //qDebug() << meta.className() << type.id();
+
         FillFromMetaObject(flags, meta,
                            RegisterObjInfo<Obj>::GenObjTypeName,
                            RegisterObjInfo<Obj>::GenObjFindMember);
@@ -122,6 +141,7 @@ public:
 
     RegisterInfoBase *info(const QString &name);
     RegisterInfoBase *info(const Qt::HANDLE &rslID);
+    RegisterInfoBase *infoFormMetaId(const int &id);
     bool isExists(const QString &name) const;
 
     template<class Module, const char *name>

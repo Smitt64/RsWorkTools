@@ -1,5 +1,11 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+    <version ver="1.0.0.7">
+        <add>Доработан механизм передачи объектов из rsl;</add>
+    </version>
+    <version ver="1.0.0.6">
+        <add>Добавлен иерархический header view;</add>
+    </version>
     <version ver="1.0.0.6">
         <add>Добавлен иерархический header view;</add>
     </version>

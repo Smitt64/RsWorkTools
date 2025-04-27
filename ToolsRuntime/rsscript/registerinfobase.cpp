@@ -40,6 +40,7 @@ public:
 
         memset(&Table, 0, sizeof(IRslObject));
         Table.size = sizeof(IRslObject);
+        MetaTypeID = -1;
     }
 
     int findMember(const char *name, long *id)
@@ -229,6 +230,7 @@ public:
     RegisterInfoBase *q_ptr;
 
     QString TypeName;
+    int MetaTypeID;
 
     IRslObject Table;
     IRslTypeInfo TypeTable;
@@ -263,6 +265,12 @@ RegisterInfoBase::RegisterInfoBase() :
 RegisterInfoBase::~RegisterInfoBase()
 {
 
+}
+
+void RegisterInfoBase::setMetatypeId(const int &id)
+{
+    Q_D(RegisterInfoBase);
+    d->MetaTypeID = id;
 }
 
 void RegisterInfoBase::FillFromMetaObject(const qint32 &flags,
@@ -398,6 +406,12 @@ int RegisterInfoBase::enumValue(int id) const
 {
     Q_D(const RegisterInfoBase);
     return d->EnumValue[id];
+}
+
+const int &RegisterInfoBase::metaType() const
+{
+    Q_D(const RegisterInfoBase);
+    return d->MetaTypeID;
 }
 
 void RegisterInfoBase::importObject(const bool &canCreate)

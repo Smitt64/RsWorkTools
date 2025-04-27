@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include <QStringListModel>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,6 +24,11 @@ public:
         _message = "This is ChildObject";
     }
 
+    Q_INVOKABLE ChildObject(const ChildObject &other)
+    {
+
+    }
+
     QString message()
     {
         return _message;
@@ -32,12 +38,15 @@ private:
     QString _message;
 };
 
+Q_DECLARE_TYPEINFO(ChildObject, Q_COMPLEX_TYPE);
+Q_DECLARE_OPAQUE_POINTER(ChildObject);
+
 class TestObject : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString message READ message WRITE setMessage);
     Q_PROPERTY(QStringList stringlist READ stringlist);
-    Q_PROPERTY(ChildObject* child READ child);
+    Q_PROPERTY(ChildObject* child READ childObj);
 public:
     Q_INVOKABLE TestObject() :
         QObject()
@@ -69,9 +78,14 @@ public:
         return rc;
     }
 
-    Q_INVOKABLE ChildObject *child()
+    Q_INVOKABLE ChildObject *childObj()
     {
-        return nullptr;
+        return _child;
+    }
+
+    Q_INVOKABLE void passObj(ChildObject *obj)
+    {
+        qDebug() << "passObj" << obj;
     }
 
     Q_INVOKABLE QObject *nullObj()
@@ -134,4 +148,5 @@ private:
     QTabWidget *pContainer;
     QStringListModel m_Errors;
 };
+
 #endif // MAINWINDOW_H
