@@ -7,7 +7,6 @@
 #include <QVariant>
 #include "rsscript/registerinfobase.h"
 #include "ToolsRuntime_global.h"
-#include <concepts>
 #include <type_traits>
 
 typedef void (*ToolRslStdProc)(void);

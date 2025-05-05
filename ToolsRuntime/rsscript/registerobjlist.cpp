@@ -5,6 +5,7 @@
 #include "registerobjlist.hpp"
 #include "registerinfobase.h"
 #include "rsldirs.h"
+#include "rslexecutor.h"
 #include "toolsruntime.h"
 #include "rsscript/RslModulePluginInterface.h"
 #include "rslobjconnections.h"
@@ -345,6 +346,27 @@ void rslPopModule()
 
     if (hInst)
         HRSLINST_FUN(hInst)->PopModule(hInst);
+}
+
+void rslAddConstant(const QString &name, const QVariant &value)
+{
+    auto SetterFunc = [=](int type, void *ptr) -> void
+    {
+        RslAddConst(type, name.toLocal8Bit().data(), ptr);
+    };
+
+    SetValueFromVariant(SetterFunc, value);
+}
+
+void rslAddGlobal(const QString &name, const QVariant &value)
+{
+    auto SetterFunc = [=](int type, void *ptr) -> void
+    {
+        SYMGLOBAL *sym= (SYMGLOBAL*)AddSymGlobal(type, name.toLocal8Bit().data());
+        SymGlobalSet(P_SYM(sym), type, ptr);
+    };
+
+    SetValueFromVariant(SetterFunc, value);
 }
 
 void rslAddMacroDir(const QString &dir)
