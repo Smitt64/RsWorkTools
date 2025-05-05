@@ -253,6 +253,9 @@ TOOLSRUNTIME_EXPORT void rslPopModule();
 TOOLSRUNTIME_EXPORT void rslAddConstant(const QString &name, const QVariant &value);
 TOOLSRUNTIME_EXPORT void rslAddGlobal(const QString &name, const QVariant &value);
 
+TOOLSRUNTIME_EXPORT Qt::HANDLE rslGetSymbol(const QString &name);
+TOOLSRUNTIME_EXPORT bool rslSetSymbolValue(Qt::HANDLE sym, const QVariant &value);
+
 TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
 TOOLSRUNTIME_EXPORT void rslAddMacroDir(const QString &dir);
 TOOLSRUNTIME_EXPORT void rslAddStaticMacroDir(const QString &dir);

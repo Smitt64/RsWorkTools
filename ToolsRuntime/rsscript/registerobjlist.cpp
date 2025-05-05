@@ -369,6 +369,23 @@ void rslAddGlobal(const QString &name, const QVariant &value)
     SetValueFromVariant(SetterFunc, value);
 }
 
+Qt::HANDLE rslGetSymbol(const QString &name)
+{
+    ISYMBOL *sym = RslGetInstSymbol(name.toLocal8Bit().data());
+    return sym;
+}
+
+bool rslSetSymbolValue(Qt::HANDLE sym, const QVariant &value)
+{
+    bool retval = false;
+    auto SetterFunc = [=, &retval](int type, void *ptr) -> void
+    {
+        retval = RslCallInstSymbol((ISYMBOL*)sym, RSL_DISP_SET, 0, nullptr, (VALUE*)ptr);
+    };
+
+    return retval;
+}
+
 void rslAddMacroDir(const QString &dir)
 {
     RegisterObjList::inst()->addMacroDir(dir);
