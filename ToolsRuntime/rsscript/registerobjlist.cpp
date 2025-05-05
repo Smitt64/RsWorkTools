@@ -383,6 +383,7 @@ bool rslSetSymbolValue(Qt::HANDLE sym, const QVariant &value)
         retval = RslCallInstSymbol((ISYMBOL*)sym, RSL_DISP_SET, 0, nullptr, (VALUE*)ptr);
     };
 
+    SetValueFromVariant(SetterFunc, value);
     return retval;
 }
 
