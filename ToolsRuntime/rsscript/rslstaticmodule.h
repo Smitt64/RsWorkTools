@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #ifndef RSLSTATICMODULE_H
 #define RSLSTATICMODULE_H
 
@@ -30,7 +30,6 @@ public:
     virtual void Init();
     virtual void Proc() = 0;
     virtual void Close();
-
 
 private:
     RslStaticModulePrivate * const d_ptr;

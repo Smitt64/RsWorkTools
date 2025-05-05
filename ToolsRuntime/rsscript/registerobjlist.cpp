@@ -323,6 +323,30 @@ RegisterObjList *rslObjList()
     return RegisterObjList::inst();
 }
 
+void rslPushModule(const QString &name, bool privateMode)
+{
+    HRSLINST hInst = RslGetCurrentInst();
+
+    if (hInst)
+        HRSLINST_FUN(hInst)->PushModule(hInst, name.toLocal8Bit().data(), privateMode);
+}
+
+void rslAddModule(const QString &name)
+{
+    HRSLINST hInst = RslGetCurrentInst();
+
+    if (hInst)
+        HRSLINST_FUN(hInst)->AddModule(hInst, name.toLocal8Bit().data());
+}
+
+void rslPopModule()
+{
+    HRSLINST hInst = RslGetCurrentInst();
+
+    if (hInst)
+        HRSLINST_FUN(hInst)->PopModule(hInst);
+}
+
 void rslAddMacroDir(const QString &dir)
 {
     RegisterObjList::inst()->addMacroDir(dir);

@@ -246,6 +246,10 @@ void addStaticModule(RslStaticModule *module)
     RegisterObjList::inst()->addStaticModule<Module, Module::name>(module);
 }
 
+TOOLSRUNTIME_EXPORT void rslPushModule(const QString &name, bool privateMode = false);
+TOOLSRUNTIME_EXPORT void rslAddModule(const QString &name);
+TOOLSRUNTIME_EXPORT void rslPopModule();
+
 TOOLSRUNTIME_EXPORT RegisterObjList *rslObjList();
 TOOLSRUNTIME_EXPORT void rslAddMacroDir(const QString &dir);
 TOOLSRUNTIME_EXPORT void rslAddStaticMacroDir(const QString &dir);

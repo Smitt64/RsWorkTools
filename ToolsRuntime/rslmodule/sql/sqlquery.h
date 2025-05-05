@@ -3,13 +3,14 @@
 
 #include <QObject>
 #include <QVariant>
+#include "ToolsRuntime_global.h"
 
 class QSqlQuery;
 class SqlDatabase;
 /**
  * @brief Класс для работы с запросами к базе данных SQL
  */
-class SqlQuery : public QObject
+class TOOLSRUNTIME_EXPORT SqlQuery : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString executedQuery READ executedQuery CONSTANT)

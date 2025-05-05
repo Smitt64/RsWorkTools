@@ -2,8 +2,9 @@
 #define SQLDATABASE_H
 
 #include <QObject>
+#include "ToolsRuntime_global.h"
 
-class QSqlDatabase;
+class TOOLSRUNTIME_EXPORT QSqlDatabase;
 /**
  * @brief Класс для работы с базой данных SQL
  */
@@ -137,6 +138,5 @@ public:
 private:
     QScopedPointer<QSqlDatabase> db;
 };
-;
 
 #endif // SQLDATABASE_H
