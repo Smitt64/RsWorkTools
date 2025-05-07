@@ -2,6 +2,7 @@
 #define SQLDATABASE_H
 
 #include <QObject>
+#include <QSqlDatabase>
 #include "ToolsRuntime_global.h"
 
 class QSqlDatabase;
