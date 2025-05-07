@@ -548,8 +548,6 @@ void *CallMethod(const QMetaObject *meta,
         }
         }
 
-
-
         ReturnVal2(&ret);
         ValueClear(&ret);
     }

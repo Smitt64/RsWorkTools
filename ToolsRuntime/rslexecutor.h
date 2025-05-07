@@ -75,6 +75,7 @@ int TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);
 void TOOLSRUNTIME_EXPORT ThrowParamTypeError(const int &id, const QString &needtype = QString());
 void TOOLSRUNTIME_EXPORT ThrowParamCountError(const int &count);
+void TOOLSRUNTIME_EXPORT ThrowMethodNotFoundError(const QString &needtype);
 
 bool TOOLSRUNTIME_EXPORT IsRectRsl(Qt::HANDLE obj);
 QRect TOOLSRUNTIME_EXPORT GetRectRsl(Qt::HANDLE obj);

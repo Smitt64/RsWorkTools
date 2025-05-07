@@ -4,11 +4,11 @@
 #include <QObject>
 #include "ToolsRuntime_global.h"
 
-class TOOLSRUNTIME_EXPORT QSqlDatabase;
+class QSqlDatabase;
 /**
  * @brief Класс для работы с базой данных SQL
  */
-class SqlDatabase : public QObject
+class TOOLSRUNTIME_EXPORT SqlDatabase : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString lastError READ lastError CONSTANT)
