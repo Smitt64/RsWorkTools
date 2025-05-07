@@ -368,6 +368,19 @@ void *CallMethod(const QMetaObject *meta,
         }
     }
 
+    auto SetReturnValueFromObject = [](const QMetaMethod &method, VALUE *ret, void *result)
+    {
+        QString normalized = QString(method.typeName()).remove("&").remove("*");
+        RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
+
+        if (info)
+        {
+            TGenObject *obj = nullptr;
+            info->Create((void**)&obj, (QObject*)result, RegisterInfoBase::CppOwner);
+            ValueSet(ret, V_GENOBJ, obj);
+        }
+    };
+
     if (returnType != QMetaType::Void && type != QMetaObject::CreateInstance)
     {
         VALUE ret;
@@ -523,19 +536,19 @@ void *CallMethod(const QMetaObject *meta,
 
         case QMetaType::UnknownType:
         {
-            QString normalized = QString(method.typeName()).remove("&").remove("*");
-            RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
-
-            if (info)
-            {
-                TGenObject *obj = nullptr;
-                info->Create((void**)&obj, (QObject*)result, RegisterInfoBase::CppOwner);
-                ValueSet(&ret, V_GENOBJ, obj);
-            }
-
+            if (QMetaType::metaObjectForType(returnType))
+                SetReturnValueFromObject(method, &ret, result);
         }
         break;
+
+        default:
+        {
+            if (QMetaType::metaObjectForType(returnType))
+                SetReturnValueFromObject(method, &ret, result);
         }
+        }
+
+
 
         ReturnVal2(&ret);
         ValueClear(&ret);
