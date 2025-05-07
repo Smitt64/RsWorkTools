@@ -201,6 +201,11 @@ void RslExecutor::onBeginExec(const QString &modname)
                    SF_STRUC | SF_ARRAY | SF_ALLMODULE, modname.toLocal8Bit().data());
 }
 
+void RslExecutor::onSetStModuleAdd()
+{
+
+}
+
 int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
 {
     TMacroUserData *UserData = (TMacroUserData*)userData;
@@ -255,6 +260,7 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         AddSystemModule();
         RegisterStringList();
         AddStdProc(V_GENOBJ, "StringList", RslStringList, 0);
+        UserData->m_pExecutor->onSetStModuleAdd();
         break;
     case IM_ERROR:
     {

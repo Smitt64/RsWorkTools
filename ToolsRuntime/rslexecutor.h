@@ -45,6 +45,7 @@ protected:
     virtual void PlayRepProc();
     virtual void onError(const int &code, const QString &mes);
     virtual void onBeginExec(const QString &modname);
+    virtual void onSetStModuleAdd();
     virtual void onInspectModuleSymbol(Qt::HANDLE sym);
     virtual void onWriteOut(const QString &msg);
 
