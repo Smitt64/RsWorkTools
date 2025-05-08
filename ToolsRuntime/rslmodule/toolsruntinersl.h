@@ -75,6 +75,14 @@ public:
 
     Q_INVOKABLE bool CopyDirectory(const QString &sourceDir, const QString &destinationDir);
 
+    Q_INVOKABLE QString applicationDirPath();
+    Q_INVOKABLE QString applicationFilePath();
+    Q_INVOKABLE QString applicationName();
+    Q_INVOKABLE qint64 applicationPid();
+    Q_INVOKABLE QString applicationVersion();
+    Q_INVOKABLE QStringList arguments();
+    Q_INVOKABLE QString platformName();
+
     Q_INVOKABLE int makeArchive(const QString &archiveName, const QString &sourceDir);
     Q_INVOKABLE int makeArchive(const QString &archiveName, const QStringList &files);
     Q_INVOKABLE int extractArchive(const QString &archiveName, const QString &extractDir);

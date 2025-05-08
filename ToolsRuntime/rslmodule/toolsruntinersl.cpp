@@ -2,6 +2,8 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "toolsruntinersl.h"
 #include "toolsruntime.h"
+#include <QDir>
+#include <QApplication>
 #include <QTime>
 
 ToolsRuntime::ToolsRuntime(QObject *parent) :
@@ -128,3 +130,39 @@ bool ToolsRuntime::CopyDirectory(const QString &sourceDir, const QString &destin
 {
     return toolCopyDirectory(sourceDir, destinationDir);
 }
+
+QString ToolsRuntime::applicationDirPath()
+{
+    return qApp->applicationDirPath();
+}
+
+QString ToolsRuntime::applicationFilePath()
+{
+    return qApp->applicationFilePath();
+}
+
+QString ToolsRuntime::applicationName()
+{
+    return qApp->applicationName();
+}
+
+qint64 ToolsRuntime::applicationPid()
+{
+    return qApp->applicationPid();
+}
+
+QString ToolsRuntime::applicationVersion()
+{
+    return qApp->applicationVersion();
+}
+
+QStringList ToolsRuntime::arguments()
+{
+    return qApp->arguments();
+}
+
+QString ToolsRuntime::platformName()
+{
+    return qApp->platformName();
+}
+
