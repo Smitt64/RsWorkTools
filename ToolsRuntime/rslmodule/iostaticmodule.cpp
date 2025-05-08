@@ -1,4 +1,5 @@
 #include "iostaticmodule.h"
+#include "rslmodule/io/iodir.h"
 #include "rsscript/registerobjlist.hpp"
 #include "rslexecutor.h"
 #include "rslmodule/io/iodevice.h"
@@ -80,6 +81,7 @@ IoStaticModule::IoStaticModule()
     RegisterObjList::inst()->RegisterRslObject<TemporaryDir>();
 
     RegisterObjList::inst()->RegisterRslObject<IoFileInfo>();
+    RegisterObjList::inst()->RegisterRslObject<IoDir>();
     RegisterObjList::inst()->RegisterRslObject<IoNamespace>();
 }
 
@@ -177,6 +179,7 @@ void IoStaticModule::Proc()
     RegisterObjList::inst()->AddObject<ProcessEnvironment>();
     RegisterObjList::inst()->AddObject<Process>();
     RegisterObjList::inst()->AddObject<IoFileInfo>();
+    RegisterObjList::inst()->AddObject<IoDir>();
     //RegisterObjList::inst()->AddStdProc("uiLoadFile", Rsl_uiLoadFile);
     //RegisterObjList::inst()->AddStdProc("uiFindChild", Rsl_uiFindChild);
     RegisterObjList::inst()->AddStdProc("toolStartProcess", Rsl_toolStartProcess);
