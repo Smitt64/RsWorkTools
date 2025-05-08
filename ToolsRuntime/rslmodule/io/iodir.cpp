@@ -5,7 +5,7 @@
 IoDir::IoDir(const QString &path) :
     QObject()
 {
-
+    dir.reset(new QDir(path));
 }
 
 // Проверка существования директории
