@@ -49,8 +49,10 @@ SOURCES += \
     rslmodule/io/process.cpp \
     rslmodule/io/temporaryfile.cpp \
     rslmodule/iostaticmodule.cpp \
+    rslmodule/iterableobjectbase.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
+    rslmodule/rslstringlist.cpp \
     rslmodule/sql/sqldatabase.cpp \
     rslmodule/sql/sqlquery.cpp \
     rslmodule/sqlstaticmodule.cpp \
@@ -63,6 +65,7 @@ SOURCES += \
     rslmodule/types/size.cpp \
     rslmodule/uistaticmodule.cpp \
     rslmodule/rslstr/strlib.cpp \
+    rslmodule/variantlist.cpp \
     rsscript/Methods.cpp \
     rsscript/Properties.cpp \
     rsscript/Signals.cpp \
@@ -124,8 +127,10 @@ HEADERS += \
     rslmodule/io/process.h \
     rslmodule/io/temporaryfile.h \
     rslmodule/iostaticmodule.h \
+    rslmodule/iterableobjectbase.h \
     rslmodule/regexp/regexp.h \
     rslmodule/regexpmodule.h \
+    rslmodule/rslstringlist.h \
     rslmodule/sql/sqldatabase.h \
     rslmodule/sql/sqlquery.h \
     rslmodule/sqlstaticmodule.h \
@@ -134,6 +139,7 @@ HEADERS += \
     rslmodule/toolsruntinersl.h \
     rslmodule/uistaticmodule.h \
     rslmodule/rslstr/strlib.h \
+    rslmodule/variantlist.h \
     rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
     rsscript/registerinfobase.h \
