@@ -61,7 +61,7 @@ protected:
     int m_currentIndex = -1; // Текущая позиция итератора
 };
 
-struct CachedObjectDeleter
+struct TOOLSRUNTIME_EXPORT CachedObjectDeleter
 {
     template<typename T>
     void operator()(T* obj)
