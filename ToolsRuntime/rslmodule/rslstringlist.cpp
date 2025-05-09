@@ -1,34 +1,34 @@
-#include "rslmodule/rslstringlist.h"
+#include "rslmodule/rslStringList.h"
 #include "rslexecutor.h"
 
-StringList::StringList() :
+StringListEx::StringListEx() :
     IterableObjectBase()
 {
 }
 
-StringList::StringList(StringList *other) :
+StringListEx::StringListEx(StringListEx *other) :
     IterableObjectBase()
 {
     m_Container = other->m_Container;
 }
 
-StringList::StringList(const QStringList &list) :
+StringListEx::StringListEx(const QStringList &list) :
     IterableObjectBase()
 {
     m_Container = list;
 }
 
-StringList::~StringList()
+StringListEx::~StringListEx()
 {
 
 }
 
-int StringList::GetSize() const
+int StringListEx::GetSize() const
 {
     return m_Container.size();
 }
 
-QVariant StringList::GetNext()
+QVariant StringListEx::GetNext()
 {
     if (!_next())
         return QVariant();
@@ -36,7 +36,7 @@ QVariant StringList::GetNext()
     return GetRecord(m_currentIndex);
 }
 
-QVariant StringList::GetPrevious()
+QVariant StringListEx::GetPrevious()
 {
     if (!_previous())
         return QVariant();
@@ -44,7 +44,7 @@ QVariant StringList::GetPrevious()
     return GetRecord(m_currentIndex);
 }
 
-QVariant StringList::GetRecord(int index) const
+QVariant StringListEx::GetRecord(int index) const
 {
     if (index < 0 || index >=  m_Container.size())
         return QVariant();
@@ -52,189 +52,189 @@ QVariant StringList::GetRecord(int index) const
     return m_Container.at(index);
 }
 
-bool StringList::contains(const QString &str, int cs) const
+bool StringListEx::contains(const QString &str, int cs) const
 {
     return m_Container.contains(str, (Qt::CaseSensitivity)cs);
 }
 
-class StringList *StringList::filter(const QString &str, int cs) const
+class StringListEx *StringListEx::filter(const QString &str, int cs) const
 {
     QStringList lst = m_Container.filter(str, (Qt::CaseSensitivity)cs);
 
-    StringList *list = new StringList(lst);
+    StringListEx *list = new StringListEx(lst);
     SetObjectOwnerProp(list, RegisterInfoBase::RslOwner);
 
     return list;
 }
 
-int StringList::indexOf(const QString &str, int from) const
+int StringListEx::indexOf(const QString &str, int from) const
 {
     return m_Container.indexOf(str, from);
 }
 
-QString StringList::join(const QString &separator) const
+QString StringListEx::join(const QString &separator) const
 {
     return m_Container.join(separator);
 }
 
-int StringList::lastIndexOf(const QString &str, int from) const
+int StringListEx::lastIndexOf(const QString &str, int from) const
 {
     return m_Container.lastIndexOf(str, from);
 }
 
-void StringList::removeDuplicates()
+void StringListEx::removeDuplicates()
 {
     m_Container.removeDuplicates();
 }
 
-class StringList *StringList::replaceInStrings(const QString &before, const QString &after, int cs)
+class StringListEx *StringListEx::replaceInStrings(const QString &before, const QString &after, int cs)
 {
     QStringList lst = m_Container.replaceInStrings(before, after, (Qt::CaseSensitivity)cs);
 
-    StringList *list = new StringList(lst);
+    StringListEx *list = new StringListEx(lst);
     SetObjectOwnerProp(list, RegisterInfoBase::RslOwner);
 
     return list;
 }
 
-void StringList::sort(int cs)
+void StringListEx::sort(int cs)
 {
     m_Container.sort((Qt::CaseSensitivity)cs);
 }
 
 // --------------------------------------------------------------------------------------------------------
 
-void StringList::append(const QString &str)
+void StringListEx::append(const QString &str)
 {
     m_Container.append(str);
 }
 
-const QString &StringList::at(const int &index)
+const QString &StringListEx::at(const int &index)
 {
     return m_Container.at(index);
 }
 
-const QString &StringList::back()
+const QString &StringListEx::back()
 {
     return m_Container.back();
 }
 
-void StringList::clear()
+void StringListEx::clear()
 {
     return m_Container.clear();
 }
 
-/*bool StringList::contains(const QString &value) const
+/*bool StringListEx::contains(const QString &value) const
 {
     return m_Container.contains(value);
 }*/
 
-int StringList::count(const QString &value) const
+int StringListEx::count(const QString &value) const
 {
     return m_Container.count(value);
 }
 
-bool StringList::endsWith(const QString &value) const
+bool StringListEx::endsWith(const QString &value) const
 {
     return m_Container.endsWith(value);
 }
 
-const QString &StringList::first()
+const QString &StringListEx::first()
 {
     return m_Container.first();
 }
 
-const QString &StringList::front()
+const QString &StringListEx::front()
 {
     return m_Container.front();
 }
 
-void StringList::insert(int i, const QString &value)
+void StringListEx::insert(int i, const QString &value)
 {
     m_Container.insert(i, value);
 }
 
-const QString &StringList::last()
+const QString &StringListEx::last()
 {
     return m_Container.last();
 }
 
-class StringList *StringList::mid(int pos, int length)
+class StringListEx *StringListEx::mid(int pos, int length)
 {
     QStringList lst = m_Container.mid(pos, length);
 
-    StringList *list = new StringList(lst);
+    StringListEx *list = new StringListEx(lst);
     SetObjectOwnerProp(list, RegisterInfoBase::RslOwner);
 
     return list;
 }
 
-void StringList::move(int from, int to)
+void StringListEx::move(int from, int to)
 {
     m_Container.move(from, to);
 }
 
-void StringList::pop_back()
+void StringListEx::pop_back()
 {
     m_Container.pop_back();
 }
 
-void StringList::pop_front()
+void StringListEx::pop_front()
 {
     m_Container.pop_front();
 }
 
-void StringList::prepend(const QString &str)
+void StringListEx::prepend(const QString &str)
 {
     m_Container.prepend(str);
 }
 
-void StringList::push_back(const QString &str)
+void StringListEx::push_back(const QString &str)
 {
     m_Container.push_back(str);
 }
 
-void StringList::push_front(const QString &str)
+void StringListEx::push_front(const QString &str)
 {
     m_Container.push_front(str);
 }
 
-int StringList::removeAll(const QString &str)
+int StringListEx::removeAll(const QString &str)
 {
     return m_Container.removeAll(str);
 }
 
-void StringList::removeAt(int pos)
+void StringListEx::removeAt(int pos)
 {
     return m_Container.removeAt(pos);
 }
 
-void StringList::removeFirst()
+void StringListEx::removeFirst()
 {
     m_Container.removeFirst();
 }
 
-void StringList::removeLast()
+void StringListEx::removeLast()
 {
     m_Container.removeLast();
 }
 
-bool StringList::removeOne(const QString &str)
+bool StringListEx::removeOne(const QString &str)
 {
     return m_Container.removeOne(str);
 }
 
-void StringList::replace(int i, const QString &value)
+void StringListEx::replace(int i, const QString &value)
 {
     m_Container.replace(i, value);
 }
 
-void StringList::reserve(int alloc)
+void StringListEx::reserve(int alloc)
 {
     m_Container.reserve(alloc);
 }
 
-bool StringList::startsWith(const QString &str)
+bool StringListEx::startsWith(const QString &str)
 {
     return m_Container.startsWith(str);
 }

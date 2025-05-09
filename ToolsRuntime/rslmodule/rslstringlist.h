@@ -1,16 +1,16 @@
-#ifndef StringList__H_
-#define StringList__H_
+#ifndef StringListExt__H_
+#define StringListExt__H_
 
 #include "rslmodule/iterableobjectbase.h"
 
-class TOOLSRUNTIME_EXPORT StringList : public IterableObjectBase
+class TOOLSRUNTIME_EXPORT StringListEx : public IterableObjectBase
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE StringList();
-    Q_INVOKABLE StringList(StringList *other);
-    StringList(const QStringList &list);
-    virtual ~StringList();
+    Q_INVOKABLE StringListEx();
+    Q_INVOKABLE StringListEx(StringListEx *other);
+    StringListEx(const QStringList &list);
+    virtual ~StringListEx();
 
     Q_INVOKABLE void append(const QString &str);
     Q_INVOKABLE const QString &at(const int &index);
@@ -23,7 +23,7 @@ public:
     Q_INVOKABLE const QString &front();
     Q_INVOKABLE void insert(int i, const QString &value);
     Q_INVOKABLE const QString &last();
-    Q_INVOKABLE StringList *mid(int pos, int length = -1);
+    Q_INVOKABLE StringListEx *mid(int pos, int length = -1);
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void pop_back();
     Q_INVOKABLE void pop_front();
@@ -40,12 +40,12 @@ public:
     Q_INVOKABLE bool startsWith(const QString &str);
 
     Q_INVOKABLE bool contains(const QString &str, int cs = Qt::CaseSensitive) const;
-    Q_INVOKABLE StringList *filter(const QString &str, int cs = Qt::CaseSensitive) const;
+    Q_INVOKABLE StringListEx *filter(const QString &str, int cs = Qt::CaseSensitive) const;
     Q_INVOKABLE int indexOf(const QString &str, int from = 0) const;
     Q_INVOKABLE QString join(const QString &separator) const;
     Q_INVOKABLE int lastIndexOf(const QString &str, int from = -1) const;
     Q_INVOKABLE void removeDuplicates();
-    Q_INVOKABLE StringList *replaceInStrings(const QString &before, const QString &after, int cs = Qt::CaseSensitive);
+    Q_INVOKABLE StringListEx *replaceInStrings(const QString &before, const QString &after, int cs = Qt::CaseSensitive);
     Q_INVOKABLE void sort(int cs = Qt::CaseSensitive);
 
 protected:
@@ -58,4 +58,4 @@ private:
     QStringList m_Container;
 };
 
-#endif // StringList__H_
+#endif // StringListExt__H_

@@ -94,7 +94,7 @@ ToolsRuntimeModule::ToolsRuntimeModule() :
     RegisterObjList::inst()->RegisterRslObject<ErrorDlg>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<IterableObjectBase>();
 
-    RegisterObjList::inst()->RegisterRslObject<StringList>(GenInfoUseParentProps | GenInfoUseParentMeths);
+    RegisterObjList::inst()->RegisterRslObject<StringListEx>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<VariantList>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
@@ -146,7 +146,7 @@ void ToolsRuntimeModule::Proc()
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
-    RegisterObjList::inst()->AddObject<StringList>();
+    RegisterObjList::inst()->AddObject<StringListEx>();
     RegisterObjList::inst()->AddObject<VariantList>();
     
     RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
