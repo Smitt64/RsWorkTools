@@ -35,7 +35,7 @@ static bool CompareParamTypes(const QMetaMethod &method, int offset)
         if (paramsTypes[i].contains("&"))
             isOutParam = true;
 
-        QString normalized = QString(paramsTypes[i]).remove("&").remove("*");
+        QString normalized = QString(paramsTypes[i]).remove("&").remove("*").remove("const ");
 
         if (!type)
             type = QMetaType::type(normalized.toLocal8Bit().data());
@@ -326,10 +326,18 @@ void *CallMethod(const QMetaObject *meta,
 
         int RealType = method.parameterType(i);
         QString TypeStr = QString(paramsTypes[i]);
-        QString normalized = TypeStr.remove("&").remove("*");
+        QString normalized = TypeStr.remove("&").remove("*").remove("const ");
 
         if (!RealType)
             RealType = QMetaType::type(normalized.toLocal8Bit().data());
+
+        if (!RealType)
+        {
+            RegisterInfoBase *info = RegisterObjList::inst()->info(normalized);
+
+            if (info)
+                RealType = info->metaType();
+        }
 
         AllocaTeParam(RealType, &params[i + 1], val, normalized);
     }
