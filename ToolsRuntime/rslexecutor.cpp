@@ -6,6 +6,8 @@
 #include "rsl/isymbol.h"
 #include "rsl/krnlintf.h"
 #include "rsscript/TRsbRSLInstTmpl.hpp"
+#include "rslmodule/rslstringlist.h"
+#include "rslmodule/variantlist.h"
 #include <optional>
 #include "rslexecutor.h"
 #include "erlist.hpp"
@@ -67,6 +69,9 @@ public:
         q_ptr(obj)
     {
         Output = nullptr;
+
+        RegisterObjList::inst()->RegisterRslObject<StringListEx>(GenInfoUseParentProps | GenInfoUseParentMeths);
+        RegisterObjList::inst()->RegisterRslObject<VariantList>(GenInfoUseParentProps | GenInfoUseParentMeths);
 
         qstrcpy(UserData.nameSpace, QUuid::createUuid().toString(QUuid::WithoutBraces).toLocal8Bit().data());
         UserData.m_pExecutor = obj;
@@ -259,6 +264,10 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
     case IM_SET_STMODULE_ADD:
         AddSystemModule();
         RegisterStringList();
+
+        RegisterObjList::inst()->AddObject<StringListEx>();
+        RegisterObjList::inst()->AddObject<VariantList>();
+
         AddStdProc(V_GENOBJ, "StringList", RslStringList, 0);
         UserData->m_pExecutor->onSetStModuleAdd();
         break;

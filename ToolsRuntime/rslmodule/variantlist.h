@@ -40,6 +40,8 @@ public:
     Q_INVOKABLE void reserve(int alloc);
     Q_INVOKABLE bool startsWith(const QVariant &str);
 
+    const QVariantList &container() const;
+
 protected:
     virtual int GetSize() const Q_DECL_OVERRIDE;
     virtual QVariant GetNext() Q_DECL_OVERRIDE;
@@ -49,5 +51,7 @@ protected:
 private:
     QVariantList m_Container;
 };
+
+Q_DECLARE_OPAQUE_POINTER(VariantList);
 
 #endif // VARIANTLIST_H

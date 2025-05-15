@@ -23,6 +23,11 @@ StringListEx::~StringListEx()
 
 }
 
+const QStringList &StringListEx::container() const
+{
+    return m_Container;
+}
+
 int StringListEx::GetSize() const
 {
     return m_Container.size();

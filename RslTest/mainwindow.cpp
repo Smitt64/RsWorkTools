@@ -28,12 +28,24 @@
 #include "windowactionsregistry.h"
 #include <QSignalSpy>
 #include "treehadertest.h"
+#include "rsscript/addtemplproc.hpp"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
 
 constexpr static const char name[] = "TestModule";
 const char *DefaultStyleName = "WindowsModernStyleOlive";
+
+QString toObjUpperWrapper(TestObject *obj)
+{
+    return obj->message().toUpper();
+}
+
+QString toObjLowerWrapper(TestObject *obj)
+{
+    return obj->message().toLower();
+}
+
 
 class TestModule : public RslStaticModule
 {
@@ -50,6 +62,9 @@ protected:
         addConstant("TEST_Constant", "TestConstant");
         RegisterObjList::inst()->AddObject<TestObject>();
         RegisterObjList::inst()->AddObject<ChildObject>();
+
+        //rslAddTemplateProc("toObjUpperWrapper", &toObjUpperWrapper);
+        //rslAddTemplateProc("toObjLowerWrapper", &toObjLowerWrapper);
     }
 };
 

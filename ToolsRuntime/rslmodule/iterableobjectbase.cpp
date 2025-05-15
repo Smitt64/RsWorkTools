@@ -125,7 +125,7 @@ QVariant IterableObjectBase::previous()
     return GetPrevious();
 }
 
-QVariant IterableObjectBase::record(int index) const
+QVariant IterableObjectBase::val(int index) const
 {
     return GetRecord(index);
 }

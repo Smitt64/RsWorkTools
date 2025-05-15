@@ -48,6 +48,8 @@ public:
     Q_INVOKABLE StringListEx *replaceInStrings(const QString &before, const QString &after, int cs = Qt::CaseSensitive);
     Q_INVOKABLE void sort(int cs = Qt::CaseSensitive);
 
+    const QStringList &container() const;
+
 protected:
     virtual int GetSize() const Q_DECL_OVERRIDE;
     virtual QVariant GetNext() Q_DECL_OVERRIDE;
@@ -57,5 +59,7 @@ protected:
 private:
     QStringList m_Container;
 };
+
+Q_DECLARE_OPAQUE_POINTER(StringListEx);
 
 #endif // StringListExt__H_

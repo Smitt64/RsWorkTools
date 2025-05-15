@@ -142,6 +142,7 @@ HEADERS += \
     rslmodule/variantlist.h \
     rsscript/RslModulePluginInterface.h \
     rsscript/TRsbRSLInstTmpl.hpp \
+    rsscript/addtemplproc.hpp \
     rsscript/registerinfobase.h \
     rsscript/registerobjlist.hpp \
     rsscript/rslibdynamicfuncs.h \

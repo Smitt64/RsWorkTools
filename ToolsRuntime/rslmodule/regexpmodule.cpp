@@ -35,6 +35,33 @@ static void Rsl_RegExpValidate()
     ReturnVal(V_BOOL, &result);
 }
 
+static void Rsl_RegExpReplace()
+{
+    enum
+    {
+        prm_pattern = 0,
+        prm_str,
+        prm_after,
+    };
+
+    if (GetFuncParamType(prm_pattern) != QVariant::String)
+        ThrowParamTypeError(prm_pattern);
+
+    if (GetFuncParamType(prm_str) != QVariant::String)
+        ThrowParamTypeError(prm_str);
+
+    if (GetFuncParamType(prm_after) != QVariant::String)
+        ThrowParamTypeError(prm_after);
+
+    QString pattern = GetFuncParam(prm_pattern).toString();
+    QString str = GetFuncParam(prm_str).toString();
+    QString after = GetFuncParam(prm_after).toString();
+    QString result = str.replace(QRegExp(pattern), after);
+
+    ReturnVal(V_STRING, &result);
+}
+
+
 RegExpModule::RegExpModule() :
     RslStaticModule()
 {
@@ -50,4 +77,5 @@ void RegExpModule::Proc()
 {
     RegisterObjList::inst()->AddObject<RegExp>();
     AddStdProc(V_BOOL, "RegExpValidate", Rsl_RegExpValidate, 0);
+    AddStdProc(V_BOOL, "RegExpReplace", Rsl_RegExpReplace, 0);
 }

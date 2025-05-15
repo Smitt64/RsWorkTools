@@ -1,6 +1,8 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "rsl/dlmintf.h"
+#include "rslmodule/rslstringlist.h"
+#include "rslmodule/variantlist.h"
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "typeinfo_p.h"
@@ -202,6 +204,19 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
 
                 result = QVariant::fromValue(lst);
             }
+            else
+            {
+                QVariantList lst;
+                int size = _LibRslTArraySize(TArrayText);
+                for (int i = 0; i < size; i++)
+                {
+                    VALUE *v = (VALUE*)_LibRslTArrayGet(TArrayText,i);
+                    QVariant vl = SetFromRslValue(v);
+                    lst.append(vl);
+                }
+
+                result = QVariant::fromValue(lst);
+            }
         }
         else
         {
@@ -209,7 +224,27 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
             RegisterInfoBase *info = RegisterObjList::inst()->info(handle);
 
             if (info)
-                result = QVariant::fromValue<QObject*>((QObject*)info->object(val->value.obj));
+            {
+                int metatype = info->metaType();
+                if (metatype == qMetaTypeId<StringListEx*>())
+                {
+                    QObject *obj = (QObject*)info->object(val->value.obj);
+                    StringListEx *lst = qobject_cast<StringListEx*>(obj);
+
+                    if (lst)
+                        result = QVariant::fromValue(lst->container());
+                }
+                if (metatype == qMetaTypeId<VariantList*>())
+                {
+                    QObject *obj = (QObject*)info->object(val->value.obj);
+                    VariantList *lst = qobject_cast<VariantList*>(obj);
+
+                    if (lst)
+                        result = QVariant::fromValue(lst->container());
+                }
+                else
+                    result = QVariant::fromValue<QObject*>((QObject*)info->object(val->value.obj));
+            }
             else
             {
                 if (IsRectRsl(val->value.obj))
@@ -343,6 +378,14 @@ bool CompareTypes(const int &MetaType, void *val, bool isOutParam)
         {
             if (_LibRslIsTArray(P_GOBJ(((VALUE*)val)->value.obj)) != 0)
                 result = true;
+            else
+            {
+                RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(value->value.obj));
+
+                int metatype = info->metaType();
+                if (metatype == qMetaTypeId<StringListEx*>() || metatype == qMetaTypeId<VariantList*>())
+                    result = true;
+            }
         }
         break;
 

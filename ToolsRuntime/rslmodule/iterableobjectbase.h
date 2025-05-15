@@ -44,7 +44,7 @@ public:
     Q_INVOKABLE QVariant next();
     Q_INVOKABLE QVariant previous();
 
-    Q_INVOKABLE QVariant record(int index) const;
+    Q_INVOKABLE QVariant val(int index) const;
 
     QVariantList getRecords() const;
     bool empty();

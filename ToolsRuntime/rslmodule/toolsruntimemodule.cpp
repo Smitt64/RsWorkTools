@@ -11,8 +11,6 @@
 #include "spelling/spellchecker.h"
 #include "spelling/spellcheckerdlg.h"
 #include "rslmodule/iterableobjectbase.h"
-#include "rslmodule/rslstringlist.h"
-#include "rslmodule/variantlist.h"
 #include <errorsmodel.h>
 
 extern void toolConnect();
@@ -93,9 +91,6 @@ ToolsRuntimeModule::ToolsRuntimeModule() :
     RegisterObjList::inst()->RegisterRslObject<SpellCheckerDlg>();
     RegisterObjList::inst()->RegisterRslObject<ErrorDlg>(GenInfoUseParentProps | GenInfoUseParentMeths);
     RegisterObjList::inst()->RegisterRslObject<IterableObjectBase>();
-
-    RegisterObjList::inst()->RegisterRslObject<StringListEx>(GenInfoUseParentProps | GenInfoUseParentMeths);
-    RegisterObjList::inst()->RegisterRslObject<VariantList>(GenInfoUseParentProps | GenInfoUseParentMeths);
 }
 
 void ToolsRuntimeModule::Init()
@@ -146,8 +141,6 @@ void ToolsRuntimeModule::Proc()
     RegisterObjList::inst()->AddObject<ErrorsModel>();
     RegisterObjList::inst()->AddObject<ErrorDlg>();
     RegisterObjList::inst()->AddObject<ToolsRuntime>(false);
-    RegisterObjList::inst()->AddObject<StringListEx>();
-    RegisterObjList::inst()->AddObject<VariantList>();
     
     RegisterObjList::inst()->AddStdProc("toolFormatStr", Rsl_toolFormatStr);
     RegisterObjList::inst()->AddStdProc("toolConnect", toolConnect);

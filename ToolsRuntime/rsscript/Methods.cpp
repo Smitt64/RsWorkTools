@@ -2,14 +2,14 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "qvariant.h"
 #include "rsl/dlmintf.h"
-#include "statvars.h"
+#include "rslmodule/rslstringlist.h"
+#include "rslmodule/variantlist.h"
 #include "rsl/isymbol.h"
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
 #include "rslexecutor.h"
 #include "rslibdynamicfuncs.h"
 #include "rslexecutor.h"
-#include <cstring>
 #include <QDebug>
 #include <QTextCodec>
 #include <QDate>
@@ -18,6 +18,9 @@
 #include <QLibrary>
 #include <QMetaType>
 #include <QRect>
+
+#define PARAM_TYPE_MISSMATCH_VARIANT_LIST "Param type missmatch, required TArray, or StringListEx or VariantList"
+#define PARAM_TYPE_MISSMATCH_STRING_LIST "Param type missmatch, required TArray or StringListEx"
 
 static bool CompareParamTypes(const QMetaMethod &method, int offset)
 {
@@ -116,9 +119,9 @@ void *CallMethod(const QMetaObject *meta,
     void *result = nullptr;
     QTextCodec *codec = QTextCodec::codecForName("IBM 866");
 
-    int parmaOffset = 0;
+    /*int parmaOffset = 0;
     if (method.returnType() != QMetaType::Void)
-        parmaOffset = 1;
+        parmaOffset = 1;*/
 
     int MethodParams = method.parameterCount();
     QList<QByteArray> paramsTypes = method.parameterTypes();
@@ -127,7 +130,6 @@ void *CallMethod(const QMetaObject *meta,
     {
         _LibSetParm(id, type, ptr);
     };
-
 
     auto AllocaTeParam = [=](const int &Type, void **param, VALUE *val, const  QString &normalized, bool isPtr = false) -> void
     {
@@ -238,45 +240,108 @@ void *CallMethod(const QMetaObject *meta,
         else if (Type == QMetaType::QVariantList)
         {
             if (!CnvType(&NewVal, V_GENOBJ))
-                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+                iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_VARIANT_LIST);
 
             TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(NewVal.value.obj));
 
             if (!TArrayText)
-                iError(IER_RUNTIME, "Param type missmatch, required TArray");
-
-            (*reinterpret_cast<QVariantList*>(*param)) = QVariantList();
-
-            int size = _LibRslTArraySize(TArrayText);
-            for (int i = 0; i < size; i++)
             {
-                VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+                RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(NewVal.value.obj));
 
-                QVariant var = SetFromRslValue(item);
-                (*reinterpret_cast<QVariantList*>(*param)).append(var);
+                if (!info)
+                    iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_VARIANT_LIST);
+                else
+                {
+                    QObject *obj = (QObject*)info->object(NewVal.value.obj);
+
+                    int metatype = info->metaType();
+                    if (metatype == qMetaTypeId<StringListEx*>())
+                    {
+                        StringListEx *lst = qobject_cast<StringListEx*>(obj);
+
+                        if (!lst)
+                            iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_VARIANT_LIST);
+
+                        QVariantList values;
+                        const QStringList &strlist = lst->container();
+
+                        std::transform(strlist.begin(), strlist.end(), std::back_inserter(values),
+                                       [](const QString &str) { return QVariant(str); });
+
+                        (*reinterpret_cast<QVariantList*>(*param)).append(values);
+                    }
+                    else if (metatype == qMetaTypeId<VariantList*>())
+                    {
+                        VariantList *lst = qobject_cast<VariantList*>(obj);
+
+                        if (!lst)
+                            iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_VARIANT_LIST);
+
+                        (*reinterpret_cast<QVariantList*>(*param)).append(lst->container());
+                    }
+                    else
+                        iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_VARIANT_LIST);
+                }
+            }
+            else
+            {
+                (*reinterpret_cast<QVariantList*>(*param)) = QVariantList();
+
+                int size = _LibRslTArraySize(TArrayText);
+                for (int i = 0; i < size; i++)
+                {
+                    VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+
+                    QVariant var = SetFromRslValue(item);
+                    (*reinterpret_cast<QVariantList*>(*param)).append(var);
+                }
             }
         }
         else if (Type == QMetaType::QStringList)
         {
             if (!CnvType(&NewVal, V_GENOBJ))
-                iError(IER_RUNTIME, "Param type missmatch, required TArray");
+                iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_STRING_LIST);
 
             TGenObject *TArrayText = (TGenObject*)_LibRslIsTArray(P_GOBJ(NewVal.value.obj));
 
             if (!TArrayText)
-                iError(IER_RUNTIME, "Param type missmatch, required TArray");
-
-            (*reinterpret_cast<QStringList*>(*param)) = QStringList();
-
-            int size = _LibRslTArraySize(TArrayText);
-            for (int i = 0; i < size; i++)
             {
-                VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+                RegisterInfoBase *info = RegisterObjList::inst()->info((Qt::HANDLE)RSCLSID(NewVal.value.obj));
 
-                QVariant var = SetFromRslValue(item);
+                if (!info)
+                    iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_STRING_LIST);
+                else
+                {
+                    QObject *obj = (QObject*)info->object(NewVal.value.obj);
 
-                if (var.canConvert(QMetaType::QString))
-                    (*reinterpret_cast<QStringList*>(*param)).append(var.toString());
+                    int metatype = info->metaType();
+                    if (metatype == qMetaTypeId<StringListEx*>())
+                    {
+                        StringListEx *lst = qobject_cast<StringListEx*>(obj);
+
+                        if (!lst)
+                            iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_STRING_LIST);
+
+                        (*reinterpret_cast<QStringList*>(*param)) = lst->container();
+                    }
+                    else
+                        iError(IER_RUNTIME, PARAM_TYPE_MISSMATCH_STRING_LIST);
+                }
+            }
+            else
+            {
+                (*reinterpret_cast<QStringList*>(*param)) = QStringList();
+
+                int size = _LibRslTArraySize(TArrayText);
+                for (int i = 0; i < size; i++)
+                {
+                    VALUE *item = (VALUE*)_LibRslTArrayGet(TArrayText, i);
+
+                    QVariant var = SetFromRslValue(item);
+
+                    if (var.canConvert(QMetaType::QString))
+                        (*reinterpret_cast<QStringList*>(*param)).append(var.toString());
+                }
             }
         }
         else if (Type == QMetaType::QObjectStar)

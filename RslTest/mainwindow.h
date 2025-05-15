@@ -46,13 +46,14 @@ class TestObject : public QObject
     Q_OBJECT
     Q_PROPERTY(QString message READ message WRITE setMessage);
     Q_PROPERTY(QStringList stringlist READ stringlist);
+    Q_PROPERTY(QVariantList varlist READ varlist);
     Q_PROPERTY(ChildObject* child READ childObj);
 public:
     Q_INVOKABLE TestObject() :
         QObject()
     {
         _child = new ChildObject();
-        _message = "empty message";
+        _message = "Empty Message";
         _StringList = QStringList{ "один", "два", "три" };
     }
 
@@ -64,6 +65,11 @@ public:
     Q_INVOKABLE int testMethod(QString k)
     {
         return 0;
+    }
+
+    QVariantList varlist()
+    {
+        return _VariantList;
     }
 
     Q_INVOKABLE QVariant testVariant(const QVariant &var)
@@ -108,9 +114,14 @@ public:
         return _StringList;
     }
 
-    void setStringlist(QStringList lst)
+    Q_INVOKABLE void setStringlist(QStringList lst)
     {
         _StringList = lst;
+    }
+
+    Q_INVOKABLE void setVariantlist(QVariantList lst)
+    {
+        _VariantList = lst;
     }
 
 signals:
@@ -120,6 +131,7 @@ private:
     ChildObject *_child;
     QString _message;
     QStringList _StringList;
+    QVariantList _VariantList;
 };
 
 class CodeEditor;
