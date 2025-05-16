@@ -67,6 +67,11 @@ int IterableObjectBase::GetSize() const
     return 0;
 }
 
+bool IterableObjectBase::SetVal(int index, const QVariant &val)
+{
+    return false;
+}
+
 QVariant IterableObjectBase::GetRecord(int index) const
 {
     return QVariant();
@@ -128,6 +133,11 @@ QVariant IterableObjectBase::previous()
 QVariant IterableObjectBase::val(int index) const
 {
     return GetRecord(index);
+}
+
+bool IterableObjectBase::setVal(int index, const QVariant &val)
+{
+    return SetVal(index, val);
 }
 
 QVariantList IterableObjectBase::getRecords() const

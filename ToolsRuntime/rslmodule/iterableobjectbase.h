@@ -45,6 +45,7 @@ public:
     Q_INVOKABLE QVariant previous();
 
     Q_INVOKABLE QVariant val(int index) const;
+    Q_INVOKABLE bool setVal(int index, const QVariant &val);
 
     QVariantList getRecords() const;
     bool empty();
@@ -54,6 +55,7 @@ protected:
     virtual QVariant GetNext();
     virtual QVariant GetPrevious();
     virtual QVariant GetRecord(int index) const;
+    virtual bool SetVal(int index, const QVariant &val);
 
     bool _next();
     bool _previous();
