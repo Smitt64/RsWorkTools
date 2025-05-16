@@ -48,6 +48,8 @@ public:
     Q_INVOKABLE StringListEx *replaceInStrings(const QString &before, const QString &after, int cs = Qt::CaseSensitive);
     Q_INVOKABLE void sort(int cs = Qt::CaseSensitive);
 
+    Q_INVOKABLE void fromOther(const QStringList &other);
+
     const QStringList &container() const;
 
 protected:

@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE void reserve(int alloc);
     Q_INVOKABLE bool startsWith(const QVariant &str);
 
+    Q_INVOKABLE void fromOther(const QVariantList &other);
     const QVariantList &container() const;
 
 protected:

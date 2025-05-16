@@ -29,6 +29,11 @@ const QVariantList &VariantList::container() const
     return m_Container;
 }
 
+void VariantList::fromOther(const QVariantList &other)
+{
+    m_Container = other;
+}
+
 int VariantList::GetSize() const
 {
     return m_Container.size();

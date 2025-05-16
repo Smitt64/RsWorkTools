@@ -28,6 +28,11 @@ const QStringList &StringListEx::container() const
     return m_Container;
 }
 
+void StringListEx::fromOther(const QStringList &other)
+{
+    m_Container = other;
+}
+
 int StringListEx::GetSize() const
 {
     return m_Container.size();
