@@ -183,6 +183,12 @@ protected:
 
         return QVariant::fromValue<T>(rec);
     }
+
+    virtual bool SetVal(int index, const QVariant &val) Q_DECL_OVERRIDE
+    {
+        Container<T>::operator[](index) = val.value<T>();
+        return true;
+    }
 };
 
 template<typename T, typename Deleter = std::default_delete<std::remove_pointer_t<T>>>
