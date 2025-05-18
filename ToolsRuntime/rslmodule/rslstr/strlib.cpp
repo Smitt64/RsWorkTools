@@ -416,13 +416,21 @@ void strSplit()
  */
 void strArg()
 {
-    if (GetFuncParamCount() < 2)
-        ThrowParamCountError(2);
+    enum
+    {
+        prm_Format = 0,
+    };
 
-    QString str = GetFuncParam(0).toString();
-    QString arg = GetFuncParam(1).toString();
+    if (GetFuncParamType(prm_Format) != QVariant::String)
+        ThrowParamTypeError(prm_Format);
 
-    SetReturnVal(str.arg(arg));
+    int size = GetFuncParamCount();
+    QString format = GetFuncParam(prm_Format).toString();
+
+    for (int i = 1; i < size; i++)
+        format = format.arg(GetFuncParam(i).toString());
+
+    SetReturnVal(format);
 }
 
 void strJoin()
