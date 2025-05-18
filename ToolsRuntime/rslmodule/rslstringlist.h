@@ -8,8 +8,8 @@ class TOOLSRUNTIME_EXPORT StringListEx : public IterableObjectBase
     Q_OBJECT
 public:
     Q_INVOKABLE StringListEx();
+    Q_INVOKABLE StringListEx(const QStringList &list);
     Q_INVOKABLE StringListEx(StringListEx *other);
-    StringListEx(const QStringList &list);
     virtual ~StringListEx();
 
     Q_INVOKABLE void append(const QString &str);
