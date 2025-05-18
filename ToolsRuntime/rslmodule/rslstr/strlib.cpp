@@ -444,6 +444,25 @@ void strJoin()
     SetReturnVal(lst.join(separator));
 }
 
+void strCompare()
+{
+    int count = GetFuncParamCount();
+    if (count < 2)
+        ThrowParamCountError(2);
+
+    Qt::CaseSensitivity cs = Qt::CaseSensitive;
+    QString str1 = GetFuncParam(0).toString();
+    QString str2 = GetFuncParam(1).toString();
+
+    if (count > 3)
+    {
+        if (GetFuncParam(2).toBool())
+            cs = Qt::CaseInsensitive;
+    }
+
+    SetReturnVal(str1.compare(str2, cs));
+}
+
 // -----------------------------------------------------------------------------
 
 StrStaticModule::StrStaticModule() :
@@ -483,4 +502,5 @@ void StrStaticModule::Proc()
     RegisterObjList::inst()->AddStdProc("strArg", strArg);
     RegisterObjList::inst()->AddStdProc("strFill", strFill);
     RegisterObjList::inst()->AddStdProc("strJoin", strJoin);
+    RegisterObjList::inst()->AddStdProc("strCompare", strCompare);
 }
