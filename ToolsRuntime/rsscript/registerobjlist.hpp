@@ -32,15 +32,11 @@ public:
     {
         const QMetaObject meta = Obj::staticMetaObject;
 
-        //qDebug() << meta.className() << QTypeInfo<Obj>::isSpecialized;/*&& isQObjectDerived<Obj>()*/
         if constexpr(QTypeInfo<Obj*>::isSpecialized)
         {
             int id = qMetaTypeId<Obj*>();
             setMetatypeId(id);
-            qDebug() << meta.className() << id;
         }
-        //QMetaType type = QMetaType::fromType<Obj>();
-        //qDebug() << meta.className() << type.id();
 
         FillFromMetaObject(flags, meta,
                            RegisterObjInfo<Obj>::GenObjTypeName,

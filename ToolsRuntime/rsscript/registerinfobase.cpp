@@ -75,7 +75,6 @@ public:
         const QMetaObject &meta = MetaObject;
 
         QObjectRsl *obj = new QObjectRsl();
-                //(QObjectRsl *)_alloca(sizeof(QObjectRsl));
         qstrcpy(obj->className, meta.className());
         P_GOBJ(obj)->vtbl = &Table;
 
@@ -214,7 +213,6 @@ public:
 
         return -1;
     }
-
 
     int InitProvider(CLNT_PRVD_HANDLE *clntId)
     {
