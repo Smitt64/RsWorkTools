@@ -2,6 +2,8 @@
 <changelog project="Work Tools Runtime">
     <version ver="1.0.0.7">
         <add>Доработан механизм передачи объектов из rsl;</add>
+        <add>Добавлены контейнеры StringListEx и VariantList в rsl;</add>
+        <add>Добавлены функции для работы со строками;</add>
     </version>
     <version ver="1.0.0.6">
         <add>Добавлен иерархический header view;</add>
