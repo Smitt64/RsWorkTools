@@ -556,22 +556,22 @@ int toolStartProcess(QProcess *exe, const QString &program,
     return fSuccess;
 }*/
 
-UserDomainTuple toolGetCurrentUserAndDomain()
+/*UserDomainTuple toolGetCurrentUserAndDomain()
 {
     UserDomainTuple result;
 
-    /*TCHAR user[1024], domain[1024];
+    TCHAR user[1024], domain[1024];
     DWORD chUser = sizeof(user), chDomain = sizeof(domain);
 
     if (GetCurrentUserAndDomain(user, &chUser, domain, &chDomain))
-        result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));*/
+        result = std::make_tuple(QString::fromWCharArray(user), QString::fromWCharArray(domain));
 
     return result;
-}
+}*/
 
 QString toolGetApiUrl(const QString &method)
 {
-    if (!ApiBaseUrl->isEmpty())
+    /*if (!ApiBaseUrl->isEmpty())
         return QString("%1%2").arg(*ApiBaseUrl, method);
 
     QString hosts = toolFullFileNameFromDir("host.api");
@@ -593,7 +593,8 @@ QString toolGetApiUrl(const QString &method)
     else
         *ApiBaseUrl = API_URL_BASE;
 
-    return QString("%1%2").arg(*ApiBaseUrl, method);
+    return QString("%1%2").arg(*ApiBaseUrl, method);*/
+    return QString();
 }
 
 QNetworkReply *toolGetApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager, bool wait)

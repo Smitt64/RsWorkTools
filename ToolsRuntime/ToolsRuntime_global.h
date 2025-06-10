@@ -15,10 +15,10 @@
 #define API_LOCALHOST
 #endif
 
-#ifdef API_LOCALHOST
+/*#ifdef API_LOCALHOST
 #define API_URL_BASE "http://127.0.0.1:5000"
 #else
 #define API_URL_BASE ""
-#endif
+#endif*/
 
 #endif // TOOLSRUNTIME_GLOBAL_H

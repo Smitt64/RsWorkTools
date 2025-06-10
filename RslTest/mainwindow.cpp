@@ -29,6 +29,7 @@
 #include <QSignalSpy>
 #include "treehadertest.h"
 #include "rsscript/addtemplproc.hpp"
+#include "SARibbon.h"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -75,6 +76,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //QSettings::Format format = (QSettings::Format)registerJsonSettingsFormat();
     //pSettings = new QSettings(format, QSettings::UserScope, "RslTest");
+
+    SAColorMenu *colormenu = new SAColorMenu(this);
+    //menuBar()->addMenu(colormenu);
+    ui->menu->addMenu(colormenu);
 
     //qRegisterMetaType<ChildObject>();
     qApp->setStyle(pSettings->value("Style", "windowsvista").toString());
@@ -167,7 +172,7 @@ MainWindow::MainWindow(QWidget *parent)
     windowActionsRegistry()->printActions();
 #endif
 
-    UserDomainTuple userdomain = toolGetCurrentUserAndDomain();
+    //UserDomainTuple userdomain = toolGetCurrentUserAndDomain();
 
     //qDebug() << std::get<0>(userdomain) << std::get<1>(userdomain);
 

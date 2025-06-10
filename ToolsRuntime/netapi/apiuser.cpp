@@ -49,7 +49,7 @@ ApiUser::ApiUser(bool loadCurrentUser, QObject *parent)
     : QObject{parent},
     d_ptr(new ApiUserPrivate(this))
 {
-    if (loadCurrentUser)
+    /*if (loadCurrentUser)
     {
         UserDomainTuple user = toolGetCurrentUserAndDomain();
         QString _user = std::get<0>(user);
@@ -58,7 +58,7 @@ ApiUser::ApiUser(bool loadCurrentUser, QObject *parent)
         {
             registerUser(_user, _domain);
         }
-    }
+    }*/
 }
 
 ApiUser::ApiUser(const QString &User, QObject *parent)

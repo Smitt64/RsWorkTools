@@ -6,6 +6,7 @@ DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
 CONFIG += c++17
 RC_FILE = res/winfmt.rc
 
+include($$PWD/SARibbon.pri)
 include(../../configtools.pri)
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.

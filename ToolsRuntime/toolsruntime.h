@@ -76,7 +76,7 @@ TOOLSRUNTIME_EXPORT int toolStartProcess(QProcess *exe, const QString &program,
                                              bool waitForReadyRead = false);
 
 typedef std::tuple<QString, QString> UserDomainTuple;
-TOOLSRUNTIME_EXPORT UserDomainTuple toolGetCurrentUserAndDomain();
+//TOOLSRUNTIME_EXPORT UserDomainTuple toolGetCurrentUserAndDomain();
 TOOLSRUNTIME_EXPORT QString toolGetApiUrl(const QString &method);
 TOOLSRUNTIME_EXPORT QNetworkReply *toolGetApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager, bool wait = false);
 TOOLSRUNTIME_EXPORT QNetworkReply *toolPostApiReply(QNetworkRequest *request, QNetworkAccessManager *ApiManager,
