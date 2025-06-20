@@ -38,6 +38,7 @@ SOURCES += \
     optionsdlg/rsloptionspage.cpp \
     optionsdlg/styleoptionspage.cpp \
     optionsdlg/updateoptionspage.cpp \
+    propertywidgetmapper.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
@@ -81,6 +82,7 @@ SOURCES += \
     spelling/spellcheckerdlg.cpp \
     spelling/spellstringsdlg.cpp \
     svn/svnstatusmodel.cpp \
+    toolsqlconverter.cpp \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
@@ -117,6 +119,7 @@ HEADERS += \
     optionsdlg/rsloptionspage.h \
     optionsdlg/styleoptionspage.h \
     optionsdlg/updateoptionspage.h \
+    propertywidgetmapper.h \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \
@@ -155,6 +158,7 @@ HEADERS += \
     spelling/spellcheckerdlg.h \
     spelling/spellstringsdlg.h \
     svn/svnstatusmodel.h \
+    toolsqlconverter.h \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \

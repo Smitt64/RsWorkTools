@@ -30,6 +30,7 @@
 #include "treehadertest.h"
 #include "rsscript/addtemplproc.hpp"
 #include "SARibbon.h"
+#include "toolsqlconverter.h"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -97,6 +98,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     double similarity = toolLevenshteinSimilarity(str1, str2);
     qDebug() << "Процент совпадения:" << similarity << "%";
+
+    SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt");
+    qDebug() << conv.result;
+    qDebug() << conv.error;
 
     pEditor = new CodeEditor();
     pOutput = new CodeEditor();
