@@ -24,9 +24,6 @@ class WorkFmtMainPackage(InstallerPackageInfoBase):
         self.Dependencies.append('com.rs.tools.runtime')
         self.Dependencies.append('com.rs.qt.runtime')
 
-    def copyOverwrite(self, from_path, to_path):
-        shutil.copytree(from_path, to_path, dirs_exist_ok=True)
-
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkFmtSourceDir()
         macdir = os.path.join(datadir, 'mac')

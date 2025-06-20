@@ -89,6 +89,7 @@ class DiffToScriptComponent(InstallerPackageInfoBase):
     def makeData(self, datadir):
         fmtdir = ConfigObj.inst().getWorkFmtSourceDir()
         relationsdir = os.path.join(self.DataPath, 'relations')
+        macdir = os.path.join(datadir, 'mac')
 
         for cpfiletemplate in self.__filesToCopy:
             filetocopy = cpfiletemplate.format(ConfigObj.inst().getBinaryType())
@@ -101,6 +102,11 @@ class DiffToScriptComponent(InstallerPackageInfoBase):
         except OSError as exc:
             pass
 
+        try:
+            os.makedirs(macdir)
+        except:
+            pass
+
         relationssrc = os.path.join(fmtdir, 'DiffToScript\\relations')
         relationsmask = os.path.join(relationssrc, '*.json')
         for file in glob.glob(relationsmask):
@@ -108,6 +114,9 @@ class DiffToScriptComponent(InstallerPackageInfoBase):
             copyfile(file, dstexefile)
 
         self.makeDatInfoFile()
+
+        srcmac = os.path.join(fmtdir, 'DiffToScript/mac')
+        self.copyOverwrite(srcmac, macdir)
 
     def getVersion(self):
         releasedir = os.path.join(ConfigObj.inst().getWorkFmtSourceDir(), self.__filesToCopy[0].format(ConfigObj.inst().getBinaryType()))

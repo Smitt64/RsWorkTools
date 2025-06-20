@@ -8,6 +8,7 @@
 #include "sql/sqlquery.h"
 #include "sql/sqldatabase.h"
 #include "rsscript/registerobjlist.hpp"
+#include "toolsqlconverter.h"
 #include <QRegExp>
 #include <QVariant>
 
@@ -41,6 +42,7 @@ SqlStaticModule::SqlStaticModule() :
 {
     RegisterObjList::inst()->RegisterRslObject<SqlQuery>();
     RegisterObjList::inst()->RegisterRslObject<SqlDatabase>();
+    RegisterObjList::inst()->RegisterRslObject<SqlConverter>();
 }
 
 void SqlStaticModule::Init()
@@ -52,6 +54,7 @@ void SqlStaticModule::Proc()
 {
     RegisterObjList::inst()->AddObject<SqlQuery>();
     RegisterObjList::inst()->AddObject<SqlDatabase>();
+    RegisterObjList::inst()->AddObject<SqlConverter>();
 
     RegisterObjList::inst()->AddStdProc("toolExecuteQuery", Rsl_toolExecuteQuery);
 }
