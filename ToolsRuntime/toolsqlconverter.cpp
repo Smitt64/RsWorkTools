@@ -2,7 +2,7 @@
 #include <QGlobalStatic>
 #include <QLibrary>
 
-typedef void (*ConvertFuncPtr)(const wchar_t* Sql, wchar_t** PgSql, wchar_t** Error, wchar_t** Tail);
+typedef void (*ConvertFuncPtr)(const wchar_t* Sql, const wchar_t* User, wchar_t** PgSql, wchar_t** Error, wchar_t** Tail);
 
 Q_GLOBAL_STATIC_WITH_ARGS(QLibrary, globalPgConvLib, ("PgConvWrapper.dll"))
 
@@ -23,7 +23,7 @@ bool isSqlConverterAvailable()
 
 // ---------------------------------------------------------------------------
 
-SqlConversionResult convertSql(const QString &sql)
+SqlConversionResult convertSql(const QString &sql, const QString &User)
 {
     SqlConversionResult result;
 
@@ -46,7 +46,7 @@ SqlConversionResult convertSql(const QString &sql)
     wchar_t *Error = nullptr;
     wchar_t *Tail = nullptr;
 
-    func(sql.toStdWString().c_str(), &PgSql, &Error, &Tail);
+    func(sql.toStdWString().c_str(), User.toStdWString().c_str(), &PgSql, &Error, &Tail);
 
     result.result = QString::fromWCharArray(PgSql);
     result.error = QString::fromWCharArray(Error);
@@ -64,7 +64,6 @@ SqlConversionResult convertSql(const QString &sql)
 class SqlConverterPrivate
 {
 public:
-    typedef void (*ConvertFuncPtr)(const wchar_t* Sql, wchar_t** PgSql, wchar_t** Error, wchar_t** Tail);
 
     ConvertFuncPtr func = nullptr;
     QString m_lastError;
@@ -113,7 +112,7 @@ QString SqlConverter::tail() const
     return d->m_tail;
 }
 
-QString SqlConverter::convert(const QString &sql)
+QString SqlConverter::convert(const QString &sql, const QString &User)
 {
     Q_D(SqlConverter);
 
@@ -128,7 +127,7 @@ QString SqlConverter::convert(const QString &sql)
     wchar_t *Error = nullptr;
     wchar_t *Tail = nullptr;
 
-    d->func(sql.toStdWString().c_str(), &PgSql, &Error, &Tail);
+    d->func(sql.toStdWString().c_str(), User.toStdWString().c_str(), &PgSql, &Error, &Tail);
 
     QString result = QString::fromWCharArray(PgSql);
     d->m_lastError = QString::fromWCharArray(Error);

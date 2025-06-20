@@ -22,7 +22,7 @@ public:
     Q_INVOKABLE SqlConverter(QObject *parent = nullptr);
     virtual ~SqlConverter();
 
-    Q_INVOKABLE QString convert(const QString &sql);
+    Q_INVOKABLE QString convert(const QString &sql, const QString &User = QString());
     QString lastError() const;
     QString tail() const;
 
@@ -36,6 +36,6 @@ private:
 };
 
 TOOLSRUNTIME_EXPORT bool isSqlConverterAvailable();
-TOOLSRUNTIME_EXPORT SqlConversionResult convertSql(const QString &sql);
+TOOLSRUNTIME_EXPORT SqlConversionResult convertSql(const QString &sql, const QString &User = QString());
 
 #endif // TOOLSQLCONVERTER_H
