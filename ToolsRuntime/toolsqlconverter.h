@@ -35,6 +35,7 @@ private:
     Q_DECLARE_PRIVATE(SqlConverter)
 };
 
+TOOLSRUNTIME_EXPORT bool isSqlConverterAvailable();
 TOOLSRUNTIME_EXPORT SqlConversionResult convertSql(const QString &sql);
 
 #endif // TOOLSQLCONVERTER_H

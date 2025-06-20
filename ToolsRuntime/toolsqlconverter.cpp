@@ -10,8 +10,15 @@ QLibrary* globalPgConvWrapper()
 {
     QLibrary* lib = globalPgConvLib();
     lib->setLoadHints(QLibrary::ResolveAllSymbolsHint);
+    lib->load();
 
     return lib;
+}
+
+bool isSqlConverterAvailable()
+{
+    QLibrary* lib = globalPgConvWrapper();
+    return lib->isLoaded();
 }
 
 // ---------------------------------------------------------------------------
