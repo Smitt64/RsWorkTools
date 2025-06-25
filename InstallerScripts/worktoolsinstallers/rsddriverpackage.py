@@ -8,7 +8,7 @@ class RsdDriverPackage(RsComponentBase):
     def __init__(self):
         super(RsdDriverPackage, self).__init__()
         self.__RsdDllDir = os.path.join(self.FmtDir, 'qrsd/rsd/lib/release')
-        self.__SqlConverterDir = os.path.join(self.FmtDir, 'qrsd/PgConvWrapper/Release')
+        self.__SqlConverterDir = os.path.join(self.FmtDir, 'qrsd/PgConvWrapper/Release/PgConvWrapper.dll')
         self.__releasfile = os.path.join(
             self.FmtDir, 'qrsd/{}/qrsd.dll'.format(ConfigObj.inst().getBinaryType()))
         
