@@ -95,6 +95,7 @@ SOURCES += \
 
 HEADERS += \
     ToolsRuntime_global.h \
+    VarLocker.hpp \
     aboutdlg.h \
     codeeditor/codeeditor.h \
     codeeditor/codehighlighter.h \
