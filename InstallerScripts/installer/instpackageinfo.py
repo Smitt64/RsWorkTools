@@ -42,6 +42,9 @@ class InstallerPackageInfoBase:
         self.DataPath = None
         self.MetaPath = None
 
+    def copyOverwrite(self, from_path, to_path):
+        shutil.copytree(from_path, to_path, dirs_exist_ok=True)
+
     def copyFileToDestrib(self, fromf, tof):
         base = ntpath.basename(fromf)
         print('Copy file \'', base, '\': ', sep='', end=' ')

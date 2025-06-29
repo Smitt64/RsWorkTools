@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     double similarity = toolLevenshteinSimilarity(str1, str2);
     qDebug() << "Процент совпадения:" << similarity << "%";
 
-    SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt");
+    SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt;");
     qDebug() << conv.result;
     qDebug() << conv.error;
 

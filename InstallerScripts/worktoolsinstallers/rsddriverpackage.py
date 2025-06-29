@@ -8,6 +8,7 @@ class RsdDriverPackage(RsComponentBase):
     def __init__(self):
         super(RsdDriverPackage, self).__init__()
         self.__RsdDllDir = os.path.join(self.FmtDir, 'qrsd/rsd/lib/release')
+        self.__SqlConverterDir = os.path.join(self.FmtDir, 'qrsd/PgConvWrapper/Release/PgConvWrapper.dll')
         self.__releasfile = os.path.join(
             self.FmtDir, 'qrsd/{}/qrsd.dll'.format(ConfigObj.inst().getBinaryType()))
         
@@ -53,6 +54,15 @@ class RsdDriverPackage(RsComponentBase):
         srcexefile = self.__releasfile
         basedbfiletoolname = os.path.basename(self.__releasfile)
         dstexefile = os.path.join(self.DataPath, 'sqldrivers/' + os.path.basename(basedbfiletoolname))
+
+        src_conf_file = self.__SqlConverterDir
+        base_conf_filename = os.path.basename(self.__SqlConverterDir)
+        dst_conf_filename = os.path.join(self.DataPath, base_conf_filename)
+
+        try:
+            copyfile(src_conf_file, dst_conf_filename)
+        except:
+            pass
         
         shutil.copytree(self.__installerfiles, datadir, dirs_exist_ok=True)
 
