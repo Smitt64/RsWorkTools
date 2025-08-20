@@ -1763,15 +1763,15 @@ public:
 					   SARibbonPannelItem::RowProportion rp = SARibbonPannelItem::Large);
 
 	// 添加menu
-	void addMenu(QMenu* menu,
+    QAction *addMenu(QMenu* menu,
 				 SARibbonPannelItem::RowProportion rp,
 				 QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
 
 	// 添加普通大菜单
-	void addLargeMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
+    QAction *addLargeMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
 
 	// 添加普通小按钮菜单
-	void addSmallMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
+    QAction *addSmallMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
 
 	// 添加窗口
 	QAction* addWidget(QWidget* w, SARibbonPannelItem::RowProportion rp);

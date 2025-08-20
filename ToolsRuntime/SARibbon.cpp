@@ -8868,7 +8868,7 @@ QAction* SARibbonPannel::addAction(const QString& text,
  * @param popMode,菜单弹出模式，默认InstantPopup模式
  * @return
  */
-void SARibbonPannel::addMenu(QMenu* menu, SARibbonPannelItem::RowProportion rp, QToolButton::ToolButtonPopupMode popMode)
+QAction *SARibbonPannel::addMenu(QMenu* menu, SARibbonPannelItem::RowProportion rp, QToolButton::ToolButtonPopupMode popMode)
 {
 	Q_CHECK_PTR(menu);
 	QAction* action = menu->menuAction();
@@ -8876,16 +8876,18 @@ void SARibbonPannel::addMenu(QMenu* menu, SARibbonPannelItem::RowProportion rp, 
 	action->setText(menu->title());
 	action->setObjectName("action." + menu->objectName());
 	addAction(action, popMode, rp);
+
+    return action;
 }
 
-void SARibbonPannel::addLargeMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode)
+QAction *SARibbonPannel::addLargeMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode)
 {
-	addMenu(menu, SARibbonPannelItem::Large, popMode);
+    return addMenu(menu, SARibbonPannelItem::Large, popMode);
 }
 
-void SARibbonPannel::addSmallMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode)
+QAction *SARibbonPannel::addSmallMenu(QMenu* menu, QToolButton::ToolButtonPopupMode popMode)
 {
-	addMenu(menu, SARibbonPannelItem::Small, popMode);
+    return addMenu(menu, SARibbonPannelItem::Small, popMode);
 }
 
 /**
