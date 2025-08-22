@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTabWidget>
+#include <QTimer>
 #include <QSignalTransition>
 #include <QStateMachine>
 #include "windowactionsregistry.h"
@@ -30,6 +31,7 @@
 #include "treehadertest.h"
 #include "rsscript/addtemplproc.hpp"
 #include "SARibbon.h"
+#include "widgets/doubleprogressdialog.h"
 #include "toolsqlconverter.h"
 
 //QSettings *pSettings;
@@ -99,9 +101,9 @@ MainWindow::MainWindow(QWidget *parent)
     double similarity = toolLevenshteinSimilarity(str1, str2);
     qDebug() << "Процент совпадения:" << similarity << "%";
 
-    SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt;");
-    qDebug() << conv.result;
-    qDebug() << conv.error;
+    //SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt;");
+    //qDebug() << conv.result;
+    //qDebug() << conv.error;
 
     pEditor = new CodeEditor();
     pOutput = new CodeEditor();
@@ -162,6 +164,7 @@ MainWindow::MainWindow(QWidget *parent)
         dlg.exec();
     });
 
+    connect(ui->actionDoubleProgressDialog, &QAction::triggered, this, &MainWindow::TestMultyProgress);
     ui->menu->insertAction(nullptr, exec);
 
     RslExecutor *executor = new RslExecutor();
@@ -255,4 +258,41 @@ void MainWindow::testSlot()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     //toolDestroyApiManager();
+}
+
+void MainWindow::TestMultyProgress()
+{
+    DoubleProgressDialog dialog(this);
+    dialog.setWindowTitle("Double Progress Dialog Example");
+    dialog.setMainLabelText("Processing files:");
+    dialog.setSecondaryLabelText("Current file:");
+    dialog.setMainRange(0, 10);
+    dialog.setSecondaryRange(0, 100);
+    dialog.setCancelButtonText("Cancel");
+    dialog.show();
+    // Имитация прогресса
+    int mainProgress = 0;
+    int secondaryProgress = 0;
+
+    QTimer *timer = new QTimer(&dialog);
+    QObject::connect(timer, &QTimer::timeout, [&]() {
+        if (mainProgress >= 10) {
+            timer->stop();
+            dialog.close();
+            return;
+        }
+
+        secondaryProgress += 10;
+        if (secondaryProgress > 100) {
+            secondaryProgress = 0;
+            mainProgress++;
+            dialog.setMainValue(mainProgress);
+        }
+
+        dialog.setSecondaryValue(secondaryProgress);
+    });
+
+    timer->start(100);
+    //QThread::sleep(10);
+    dialog.exec();
 }

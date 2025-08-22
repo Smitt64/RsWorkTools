@@ -86,6 +86,8 @@ SOURCES += \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
+    widgets/doubleprogressdialog.cpp \
+    widgets/doubleprogressdialogprivate.cpp \
     widgets/selectactiondlg.cpp \
     widgets/stringlisteditor.cpp \
     widgets/treeheadervew/gridtableheadermodel.cpp \
@@ -163,6 +165,8 @@ HEADERS += \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
+    widgets/doubleprogressdialog.h \
+    widgets/doubleprogressdialogprivate.h \
     widgets/selectactiondlg.h \
     widgets/stringlisteditor.h \
     widgets/treeheadervew/gridtableheadermodel.h \

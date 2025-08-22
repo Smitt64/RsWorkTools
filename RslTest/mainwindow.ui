@@ -38,7 +38,7 @@
     <addaction name="actionOptions"/>
     <addaction name="spellCheckerAction"/>
     <addaction name="separator"/>
-    <addaction name="action_7"/>
+    <addaction name="actionDoubleProgressDialog"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -88,9 +88,9 @@
     <string>SpellCheckerDialog</string>
    </property>
   </action>
-  <action name="action_7">
+  <action name="actionDoubleProgressDialog">
    <property name="text">
-    <string>Элемент</string>
+    <string>DoubleProgressDialog</string>
    </property>
   </action>
  </widget>

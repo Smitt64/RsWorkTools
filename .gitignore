@@ -105,3 +105,5 @@ loki/debug/
 rsldbg/debug/
 
 heroes_stats.json
+
+bin/
