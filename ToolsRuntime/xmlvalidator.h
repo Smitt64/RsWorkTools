@@ -18,6 +18,7 @@ public:
     explicit XmlValidator(QObject *parent = nullptr);
     virtual ~XmlValidator();
 
+    void setSchemaFileName(const QString &filename);
     bool validateXmlWithXsd(QIODevice* xmlDevice, ErrorsModel* errorModel = nullptr);
     bool validateXmlWithXsd(const QString& xmlFilePath, ErrorsModel* errorModel = nullptr);
 

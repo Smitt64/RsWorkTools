@@ -121,7 +121,7 @@ public:
         if (schemaLoaded)
             return schema.isValid();
 
-        QFile xsdFile(":/res/reslib.xsd");
+        QFile xsdFile(schemaFilename);//":/res/reslib.xsd"
         if (!xsdFile.open(QIODevice::ReadOnly))
         {
             lastError = QString("Cannot open XSD schema: %1").arg(xsdFile.errorString());
@@ -176,7 +176,7 @@ public:
 
     QXmlSchema schema;
     XmlValidatorErrorHandler* errorHandler;
-    QString lastError;
+    QString lastError, schemaFilename;
     bool isValid;
     bool schemaLoaded;
 };
@@ -193,6 +193,13 @@ XmlValidator::~XmlValidator()
 
 }
 
+void XmlValidator::setSchemaFileName(const QString &filename)
+{
+    Q_D(XmlValidator);
+    d->cleanup();
+    d->schemaFilename = filename;
+}
+
 bool XmlValidator::validateXmlWithXsd(QIODevice* xmlDevice, ErrorsModel* errorModel)
 {
     Q_D(XmlValidator);
@@ -200,16 +207,18 @@ bool XmlValidator::validateXmlWithXsd(QIODevice* xmlDevice, ErrorsModel* errorMo
     emit validationStarted();
     d->lastError.clear();
 
-    if (!xmlDevice) {
+    if (!xmlDevice)
+    {
         d->lastError = "Invalid XML device";
         emit validationFinished(false);
         return false;
     }
 
-    if (!d->loadSchema()) {
-        if (errorModel) {
+    if (!d->loadSchema())
+    {
+        if (errorModel)
             errorModel->addError(d->lastError);
-        }
+
         emit validationFinished(false);
         return false;
     }
