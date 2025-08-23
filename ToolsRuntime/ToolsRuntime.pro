@@ -1,4 +1,4 @@
-QT += gui widgets webengine webenginewidgets xml uitools sql testlib
+QT += gui widgets webengine webenginewidgets xml uitools sql testlib xmlpatterns
 
 TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN
@@ -93,7 +93,8 @@ SOURCES += \
     widgets/treeheadervew/gridtableheadermodel.cpp \
     widgets/treeheadervew/gridtableheaderview.cpp \
     widgets/treeheadervew/tableheaderitem.cpp \
-    windowactionsregistry.cpp
+    windowactionsregistry.cpp \
+    xmlvalidator.cpp
 
 HEADERS += \
     ToolsRuntime_global.h \
@@ -172,7 +173,8 @@ HEADERS += \
     widgets/treeheadervew/gridtableheadermodel.h \
     widgets/treeheadervew/gridtableheaderview.h \
     widgets/treeheadervew/tableheaderitem.h \
-    windowactionsregistry.h
+    windowactionsregistry.h \
+    xmlvalidator.h
 
 # Default rules for deployment.
 unix {

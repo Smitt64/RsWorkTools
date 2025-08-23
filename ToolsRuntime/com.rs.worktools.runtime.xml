@@ -1,7 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
     <version ver="1.0.0.9">
-        <add>Добавлены диалог с двыумя прогресс барами;</add>
+        <add>Добавлены диалог с двумя прогресс барами;</add>
+        <add>Добавлены xsd валидатор;</add>
     </version>
     <version ver="1.0.0.8">
         <add>Добавлены функции для конвертирования sql;</add>
