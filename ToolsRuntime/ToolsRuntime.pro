@@ -86,6 +86,7 @@ SOURCES += \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
+    widgets/codeinputdialog.cpp \
     widgets/doubleprogressdialog.cpp \
     widgets/doubleprogressdialogprivate.cpp \
     widgets/selectactiondlg.cpp \
@@ -166,6 +167,7 @@ HEADERS += \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
+    widgets/codeinputdialog.h \
     widgets/doubleprogressdialog.h \
     widgets/doubleprogressdialogprivate.h \
     widgets/selectactiondlg.h \
@@ -175,6 +177,8 @@ HEADERS += \
     widgets/treeheadervew/tableheaderitem.h \
     windowactionsregistry.h \
     xmlvalidator.h
+
+OTHER_FILES += com.rs.worktools.runtime.xml
 
 # Default rules for deployment.
 unix {

@@ -2,7 +2,8 @@
 <changelog project="Work Tools Runtime">
     <version ver="1.0.0.9">
         <add>Добавлены диалог с двумя прогресс барами;</add>
-        <add>Добавлены xsd валидатор;</add>
+        <add>Добавлен xsd валидатор;</add>
+        <add>Добавлен CodeInputDialog;</add>
     </version>
     <version ver="1.0.0.8">
         <add>Добавлены функции для конвертирования sql;</add>
