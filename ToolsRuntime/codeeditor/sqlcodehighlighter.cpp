@@ -19,12 +19,9 @@ void SqlCodeHighlighter::reset()
     CodeHighlighter::reset();
 
     HighlightingRule rule;
-    QStringList keywordPatterns, keywordPatterns2;
+    QStringList keywordPatterns;
 
     QSharedPointer<StyleItem> style = CodeHighlighter::style();
-    rule.pattern = QRegularExpression("([a-zA-Z_][a-zA-Z0-9_]+)\\s*(?=\\()");
-    rule.format = style->format(FormatFunction);
-    addHighlightingRule(rule);
 
     keywordPatterns << "\\bVARCHAR2\\b"
                     << "\\bNVARCHAR2\\b"
@@ -35,40 +32,49 @@ void SqlCodeHighlighter::reset()
                     << "\\bCHAR\\b";
 
     QFile f(":/highlighter/sql_keys.txt");
-    f.open(QIODevice::ReadOnly);
-    QTextStream stream(&f);
-
-    QString line;
-    do
+    if (f.open(QIODevice::ReadOnly))
     {
-        line = stream.readLine();
-        QStringList l = line.remove(" ").split(",");
-
-        foreach (const QString &pattern, l)
+        QTextStream stream(&f);
+        QString line;
+        while (!stream.atEnd())
         {
-            if (!pattern.isEmpty())
-                keywordPatterns.append(QString("\\b%1\\b").arg(pattern));
+            line = stream.readLine().trimmed();
+            if (!line.isEmpty())
+            {
+                QStringList l = line.remove(" ").split(",");
+                foreach (const QString &pattern, l)
+                {
+                    if (!pattern.isEmpty())
+                        keywordPatterns.append(QString("\\b%1\\b").arg(pattern));
+                }
+            }
         }
-    } while (!line.isNull());
+        f.close();
+    }
 
     foreach (const QString &pattern, keywordPatterns)
     {
         rule.pattern = QRegularExpression(pattern);
         rule.format = style->format(FormatKeyword);
         rule.isNotCaseInsensitive = false;
-
-        addHighlightingRule(rule);
+        addHighlightingRuleToEnd(rule);
     }
 
-    rule.pattern = QRegularExpression("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1"); // \\\".*\\\"
+    QString excludedKeywords = keywordPatterns.join("|").replace("\\b", "");
+    rule.pattern = QRegularExpression(QString("\\b(?!(?:%1)\\b)[a-zA-Z_][a-zA-Z0-9_]*\\s*(?=\\()").arg(excludedKeywords));
+    rule.format = style->format(FormatFunction);
+    rule.isNotCaseInsensitive = false;
+    addHighlightingRuleToEnd(rule);
+
+    rule.pattern = QRegularExpression("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1");
     rule.format = style->format(FormatStrig);
-    addHighlightingRule(rule);
+    addHighlightingRuleToEnd(rule);
 
     if (style->hasFormat(FormatNumber))
     {
         rule.pattern = QRegularExpression("\\b[\\-\\+]?([0-9]+(\\.[0-9]+)?)\\b");
         rule.format = style->format(FormatNumber);
-        addHighlightingRule(rule);
+        addHighlightingRuleToEnd(rule);
     }
 
     setSingleLineCommentStr("--");

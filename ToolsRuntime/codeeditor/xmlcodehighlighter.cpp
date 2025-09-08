@@ -22,27 +22,20 @@ XmlCodeHighlighter::~XmlCodeHighlighter()
 void XmlCodeHighlighter::reset()
 {
     CodeHighlighter::reset();
-
-    /*HighlightingRule rule;
-    rule.pattern = QRegularExpression("<[?\\s]*[/]?[\\s]*([^\\n][^>]*)(?=[\\s/>])");
-    rule.format = style()->format(FormatKeyword);
-    rule.isNotCaseInsensitive = false;
-
-    addHighlightingRule(rule);
-
-    rule.pattern = QRegularExpression("<[?\\s]*[/]?[\\s]*([^\\n][^>]*)(?=[\\s/>])");
-    rule.format = style()->format(FormatKeyword2);
-    addHighlightingRule(rule);*/
 }
 
 void XmlCodeHighlighter::highlightBlock(const QString &text)
 {
+    highlightByRegex(style()->format(FormatComment), m_xmlCommentRegex, text);
+    highlightByRegex(style()->format(FormatStrig), m_xmlValueRegex, text);
+
     int xmlElementIndex = m_xmlElementRegex.indexIn(text);
     while(xmlElementIndex >= 0)
     {
         int matchedPos = m_xmlElementRegex.pos(1);
         int matchedLength = m_xmlElementRegex.cap(1).length();
-        setFormat(matchedPos, matchedLength, style()->format(FormatKeyword));
+
+        if (!isInCommentOrString(matchedPos, text))
 
         xmlElementIndex = m_xmlElementRegex.indexIn(text, matchedPos + matchedLength);
     }
@@ -52,12 +45,28 @@ void XmlCodeHighlighter::highlightBlock(const QString &text)
     for(Iter it = m_xmlKeywordRegexes.begin(); it != xmlKeywordRegexesEnd; ++it)
     {
         const QRegExp & regex = *it;
-        highlightByRegex(style()->format(FormatKeyword), regex, text);
+        int index = regex.indexIn(text);
+        while(index >= 0)
+        {
+            if (!isInCommentOrString(index, text))
+            {
+                int matchedLength = regex.matchedLength();
+                setFormat(index, matchedLength, style()->format(FormatKeyword));
+            }
+            index = regex.indexIn(text, index + regex.matchedLength());
+        }
     }
 
-    highlightByRegex(style()->format(FormatKeyword2), m_xmlAttributeRegex, text);
-    highlightByRegex(style()->format(FormatComment), m_xmlCommentRegex, text);
-    highlightByRegex(style()->format(FormatStrig), m_xmlValueRegex, text);
+    int attrIndex = m_xmlAttributeRegex.indexIn(text);
+    while(attrIndex >= 0)
+    {
+        if (!isInCommentOrString(attrIndex, text))
+        {
+            int matchedLength = m_xmlAttributeRegex.matchedLength();
+            setFormat(attrIndex, matchedLength, style()->format(FormatKeyword2));
+        }
+        attrIndex = m_xmlAttributeRegex.indexIn(text, attrIndex + m_xmlAttributeRegex.matchedLength());
+    }
 }
 
 void XmlCodeHighlighter::highlightByRegex(const QTextCharFormat &format,

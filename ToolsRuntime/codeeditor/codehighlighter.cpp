@@ -47,6 +47,7 @@ public:
     QString m_StyleName;
 
     HighlightingRule singleLineCommentRule;
+    HighlightingRule stringRule;
 
     CodeHighlighter *q_ptr;
 };
@@ -153,6 +154,12 @@ void CodeHighlighter::addHighlightingRules(const GenHighlightingRuleList &ruleLi
         d->highlightingRules.prepend({rule.pattern, d->m_Style->format(rule.alias)});
 }
 
+void CodeHighlighter::addHighlightingRuleToEnd(const HighlightingRule &rule)
+{
+    Q_D(CodeHighlighter);
+    d->highlightingRules.append(rule);
+}
+
 void CodeHighlighter::setSingleLineCommentStr(const QString &value)
 {
     Q_D(CodeHighlighter);
@@ -179,9 +186,8 @@ void CodeHighlighter::reset()
     rule.format = style->format(FormatFunction);
     d->highlightingRules.append(rule);
 
-    rule.pattern = QRegularExpression("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1"); // \\\".*\\\"
-    rule.format = style->format(FormatStrig);
-    d->highlightingRules.append(rule);
+    d->stringRule.pattern = QRegularExpression("((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1");
+    d->stringRule.format = style->format(FormatStrig);
 
     if (style->hasFormat(FormatNumber))
     {
@@ -198,42 +204,8 @@ void CodeHighlighter::highlightBlock(const QString &text)
     Q_D(CodeHighlighter);
 
     QList<qint32> offsets;
-    foreach (const HighlightingRule &rule, d->highlightingRules)
-    {
-        QRegularExpression expression(rule.pattern);
-
-        if (!rule.isNotCaseInsensitive)
-            expression.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-
-        QRegularExpressionMatch match = expression.match(text);
-        while (match.hasMatch())
-        {
-            int offset = match.capturedLength() + match.capturedStart();
-
-            if (!IsInOffsets(offsets, offset))
-            {
-                setFormat(match.capturedStart(), match.capturedLength(), rule.format);
-                match = expression.match(text, offset);
-            }
-        }
-    }
-
-    QRegularExpression singleLineCommentPattern = d->singleLineCommentRule.pattern;
-
-    QRegularExpression singleLineCommentExpression(singleLineCommentPattern);
-    singleLineCommentExpression.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch singleLineCommentMatch = singleLineCommentExpression.match(text);
-
-    while (singleLineCommentMatch.hasMatch())
-    {
-        int offset = singleLineCommentMatch.capturedLength() + singleLineCommentMatch.capturedStart();
-        setFormat(singleLineCommentMatch.capturedStart(), singleLineCommentMatch.capturedLength(), d->singleLineCommentRule.format);
-        singleLineCommentMatch = singleLineCommentExpression.match(text, offset);
-        offsets.append(offset);
-    }
 
     setCurrentBlockState(0);
-
     int startIndex = 0;
     if (previousBlockState() != 1)
         startIndex = d->commentStartExpression.indexIn(text);
@@ -241,16 +213,123 @@ void CodeHighlighter::highlightBlock(const QString &text)
     while (startIndex >= 0) {
         int endIndex = d->commentEndExpression.indexIn(text, startIndex);
         int commentLength;
-        if (endIndex == -1) {
+
+        if (endIndex == -1)
+        {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
-        } else {
-            commentLength = endIndex - startIndex
-                            + d->commentEndExpression.matchedLength();
         }
+        else
+            commentLength = endIndex - startIndex + d->commentEndExpression.matchedLength();
+
         setFormat(startIndex, commentLength, d->multiLineCommentFormat);
         startIndex = d->commentStartExpression.indexIn(text, startIndex + commentLength);
     }
+
+    // Однострочные комментарии
+    QRegularExpressionMatchIterator singleLineCommentIterator = d->singleLineCommentRule.pattern.globalMatch(text);
+    while (singleLineCommentIterator.hasNext())
+    {
+        QRegularExpressionMatch match = singleLineCommentIterator.next();
+        setFormat(match.capturedStart(), match.capturedLength(), d->singleLineCommentRule.format);
+    }
+
+    // Строки
+    QRegularExpressionMatchIterator stringIterator = d->stringRule.pattern.globalMatch(text);
+    while (stringIterator.hasNext())
+    {
+        QRegularExpressionMatch match = stringIterator.next();
+        setFormat(match.capturedStart(), match.capturedLength(), d->stringRule.format);
+    }
+
+    // Ключевые слова, но пропускаем те, что внутри комментариев/строк
+    foreach (const HighlightingRule &rule, d->highlightingRules)
+    {
+        // Пропускаем правило для строк, так как мы уже обработали строки выше
+        if (rule.pattern.pattern() == d->stringRule.pattern.pattern())
+            continue;
+
+        QRegularExpression expression(rule.pattern);
+        if (!rule.isNotCaseInsensitive)
+            expression.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+
+        QRegularExpressionMatchIterator iterator = expression.globalMatch(text);
+        while (iterator.hasNext())
+        {
+            QRegularExpressionMatch match = iterator.next();
+
+            // Проверяем, не находится ли совпадение внутри комментария или строки
+            if (!isInCommentOrString(match.capturedStart(), text))
+            {
+                int offset = match.capturedLength() + match.capturedStart();
+                if (!IsInOffsets(offsets, offset))
+                    setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            }
+        }
+    }
+}
+
+bool CodeHighlighter::isInCommentOrString(int position, const QString &text)
+{
+    Q_D(CodeHighlighter);
+
+    // Проверяем однострочные комментарии
+    QRegularExpressionMatchIterator singleLineCommentIterator = d->singleLineCommentRule.pattern.globalMatch(text);
+    while (singleLineCommentIterator.hasNext())
+    {
+        QRegularExpressionMatch match = singleLineCommentIterator.next();
+        if (position >= match.capturedStart() && position < match.capturedStart() + match.capturedLength())
+            return true;
+    }
+
+    // Проверяем многострочные комментарии
+    int commentStart = -1;
+    int prevBlockState = previousBlockState();
+
+    if (prevBlockState == 1)
+        commentStart = 0; // Комментарий начался в предыдущем блоке
+
+    int index = 0;
+    while (index < text.length())
+    {
+        if (commentStart == -1)
+        {
+            // Ищем начало комментария
+            commentStart = d->commentStartExpression.indexIn(text, index);
+            if (commentStart == -1) break;
+            index = commentStart + d->commentStartExpression.matchedLength();
+        }
+        else
+        {
+            // Ищем конец комментария
+            int commentEnd = d->commentEndExpression.indexIn(text, index);
+            if (commentEnd == -1)
+            {
+                // Комментарий продолжается до конца блока
+                if (position >= commentStart)
+                    return true;
+
+                break;
+            } else
+            {
+                if (position >= commentStart && position < commentEnd + d->commentEndExpression.matchedLength())
+                    return true;
+                index = commentEnd + d->commentEndExpression.matchedLength();
+                commentStart = -1;
+            }
+        }
+    }
+
+    // Проверяем строки
+    QRegularExpressionMatchIterator stringIterator = d->stringRule.pattern.globalMatch(text);
+    while (stringIterator.hasNext())
+    {
+        QRegularExpressionMatch match = stringIterator.next();
+        if (position >= match.capturedStart() && position < match.capturedStart() + match.capturedLength())
+            return true;
+    }
+
+    return false;
 }
 
 // -------------------------------------------------------------------------------

@@ -44,12 +44,15 @@ public:
     void addDefine(const QString &name);
     void addHighlightingRule(const HighlightingRule &name);
     void addHighlightingRules(const GenHighlightingRuleList &ruleList);
+    void addHighlightingRuleToEnd(const HighlightingRule &rule);
 
     void setSingleLineCommentStr(const QString &value);
 
 protected:
     virtual void reset();
     virtual void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+
+    bool isInCommentOrString(int position, const QString &text);
 
 private:
     CodeHighlighterPrivate * const d_ptr;
