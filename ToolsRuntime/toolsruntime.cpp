@@ -707,3 +707,127 @@ SvnInfoMap toolSvnGetRepoInfo(const QString &path)
 
     return info;
 }
+
+SvnInfoMap toolGitGetRepoInfo(const QString &path)
+{
+    SvnInfoMap info;
+
+    QProcess proc;
+    proc.setWorkingDirectory(path);
+
+    // Получаем основную информацию о репозитории
+    toolStartProcess(&proc, "git.exe", {"remote", "get-url", "origin"}, true, true, 30000, true);
+    QString remoteUrl = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    // Получаем текущую ветку
+    toolStartProcess(&proc, "git.exe", {"branch", "--show-current"}, true, true, 30000, true);
+    QString currentBranch = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    // Получаем последний коммит
+    toolStartProcess(&proc, "git.exe", {"log", "-1", "--pretty=format:%H|%an|%ae|%ad|%s", "--date=iso"}, true, true, 30000, true);
+    QString lastCommit = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    // Получаем корневую директорию репозитория
+    toolStartProcess(&proc, "git.exe", {"rev-parse", "--show-toplevel"}, true, true, 30000, true);
+    QString repoRoot = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    // Получаем относительный путь внутри репозитория
+    toolStartProcess(&proc, "git.exe", {"rev-parse", "--show-prefix"}, true, true, 30000, true);
+    QString relativePath = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    // Заполняем информацию в формате, аналогичном SVN
+    info.insert("url", remoteUrl);
+    info.insert("relative-url", relativePath.isEmpty() ? "/" : "/" + relativePath);
+    info.insert("repository-root", repoRoot);
+    info.insert("branch", currentBranch);
+
+    if (!lastCommit.isEmpty())
+    {
+        QStringList commitParts = lastCommit.split('|');
+        if (commitParts.size() >= 5)
+        {
+            info.insert("commit", commitParts[0]); // Хеш коммита
+            info.insert("author", commitParts[1]); // Автор
+            info.insert("last-changed-author", commitParts[1]);
+            info.insert("last-changed-date", commitParts[3]); // Дата
+        }
+    }
+
+    // Получаем информацию о последнем коммите для текущей директории
+    toolStartProcess(&proc, "git.exe", {"log", "-1", "--pretty=format:%H", "--", "."}, true, true, 30000, true);
+    QString lastCommitForPath = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    info.insert("revision", lastCommitForPath); // Используем хеш как ревизию
+
+    return info;
+}
+
+VcsType toolDetectVcsType(const QString &path)
+{
+    QDir dir(path);
+
+    if (dir.exists(".git"))
+        return VcsType::Git;
+
+    // Проверяем родительские каталоги для Git
+    QString currentPath = path;
+    while (!currentPath.isEmpty() && QDir(currentPath).exists())
+    {
+        QDir currentDir(currentPath);
+        if (currentDir.exists(".git"))
+            return VcsType::Git;
+
+        if (currentPath == path && currentDir.exists(".svn"))
+            return VcsType::Svn;
+
+        QString parentPath = QDir(currentPath).absolutePath();
+        if (parentPath == currentPath) break;
+        currentPath = QDir(currentPath).absoluteFilePath("..");
+        if (currentPath == parentPath) break;
+    }
+
+    if (dir.exists(".svn"))
+        return VcsType::Svn;
+
+    return VcsType::None;
+}
+
+SvnInfoMap toolVcsGetRepoInfo(const QString &path)
+{
+    // Сначала проверяем, это Git репозиторий
+    QDir dir(path);
+    if (dir.exists(".git"))
+    {
+        return toolGitGetRepoInfo(path);
+    }
+
+    // Проверяем родительские каталоги для Git
+    QString currentPath = path;
+    while (!currentPath.isEmpty() && QDir(currentPath).exists())
+    {
+        QDir currentDir(currentPath);
+        if (currentDir.exists(".git"))
+        {
+            return toolGitGetRepoInfo(currentPath);
+        }
+
+        // Проверяем SVN в текущем каталоге (только для исходного пути)
+        if (currentPath == path && currentDir.exists(".svn"))
+        {
+            return toolSvnGetRepoInfo(path);
+        }
+
+        QString parentPath = QDir(currentPath).absolutePath();
+        if (parentPath == currentPath) break;
+        currentPath = QDir(currentPath).absoluteFilePath("..");
+        if (currentPath == parentPath) break;
+    }
+
+    // Если это SVN репозиторий
+    if (dir.exists(".svn"))
+    {
+        return toolSvnGetRepoInfo(path);
+    }
+
+    // Если репозиторий не найден, возвращаем пустую карту
+    return SvnInfoMap();
+}

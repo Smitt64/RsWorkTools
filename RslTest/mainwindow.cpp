@@ -101,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent)
     double similarity = toolLevenshteinSimilarity(str1, str2);
     qDebug() << "Процент совпадения:" << similarity << "%";
 
+    //qDebug() << toolVcsGetRepoInfo("d:/svn/gittest");
+
     //SqlConversionResult conv = convertSql("select decode(t_fld, chr(1), '0', '1') as t_alias from dtable_dbt;");
     //qDebug() << conv.result;
     //qDebug() << conv.error;

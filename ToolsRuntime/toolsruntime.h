@@ -83,8 +83,17 @@ TOOLSRUNTIME_EXPORT QNetworkReply *toolPostApiReply(QNetworkRequest *request, QN
                                                     const QByteArray &data,
                                                     bool wait = false);
 
+enum class VcsType
+{
+    None,
+    Svn,
+    Git
+};
 typedef QMap<QString, QString> SvnInfoMap;
 TOOLSRUNTIME_EXPORT SvnInfoMap toolSvnGetRepoInfo(const QString &path);
+TOOLSRUNTIME_EXPORT SvnInfoMap toolGitGetRepoInfo(const QString &path);
+TOOLSRUNTIME_EXPORT SvnInfoMap toolVcsGetRepoInfo(const QString &path);
+TOOLSRUNTIME_EXPORT VcsType toolDetectVcsType(const QString &path);
 
 // Функция для вычисления расстояния Левенштейна
 TOOLSRUNTIME_EXPORT int toolLevenshteinDistance(const QString &s1, const QString &s2);
