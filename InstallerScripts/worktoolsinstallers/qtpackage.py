@@ -32,6 +32,7 @@ class QtPackage(InstallerPackageInfoBase):
             'Qt{}Designer.dll',
             'Qt{}DesignerComponents.dll',
             'Qt{}Network.dll',
+            'Qt{}XmlPatterns.dll',
             'libEGL.dll',
             'QtWebEngineProcess.exe',
             'designer.exe'
@@ -72,7 +73,7 @@ class QtPackage(InstallerPackageInfoBase):
         #self.ForcedInstallation = True
 
     def getVersion(self):
-        return self.__qt_element.getVersion() + '.5'
+        return self.__qt_element.getVersion() + '.6'
 
     def __extract_major(self, version):
         dot = version.find('.')
