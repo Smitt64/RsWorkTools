@@ -192,7 +192,7 @@ HEADERS += \
     windowactionsregistry.h \
     xmlvalidator.h
 
-OTHER_FILES += com.rs.worktools.runtime.xml
+OTHER_FILES += com.rs.worktools.runtime.xml res/winfmt.rc
 
 # Default rules for deployment.
 unix {
