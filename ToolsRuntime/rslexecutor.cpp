@@ -499,6 +499,14 @@ void SetReturnVal(const QVariant &value)
     SetValueFromVariant(SetterFunc, value);
 }
 
+void SetReturnVal(QObject *obj)
+{
+    if (!obj)
+        return;
+
+    SetReturnVal(QVariant::fromValue<QObject*>(obj));
+}
+
 void SetFuncParam(const int &id, const QVariant &value)
 {
     auto SetterFunc = [=](int type, void *ptr) -> void

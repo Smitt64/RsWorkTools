@@ -71,6 +71,7 @@ void TOOLSRUNTIME_EXPORT SetObjectOwnerProp(QObject *obj, const int &owner);
 int TOOLSRUNTIME_EXPORT GetFuncParamCount();
 void TOOLSRUNTIME_EXPORT SetFuncParam(const int &id, const QVariant &value);
 void TOOLSRUNTIME_EXPORT SetReturnVal(const QVariant &value);
+void TOOLSRUNTIME_EXPORT SetReturnVal(QObject *obj);
 int TOOLSRUNTIME_EXPORT GetFuncParamType(const int &id);
 
 void TOOLSRUNTIME_EXPORT AddFunctionToRsl(const QString &name, ToolRslStdProc proc);

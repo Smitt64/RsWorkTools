@@ -258,6 +258,8 @@ TOOLSRUNTIME_EXPORT void rslAddStaticMacroDir(const QString &dir);
 TOOLSRUNTIME_EXPORT QString rslFindMacroFile(const QString &macro);
 TOOLSRUNTIME_EXPORT QMap<QString,QString> rslGetMacroInfo(const QString &macro);
 
+TOOLSRUNTIME_EXPORT void rslSetOwnerRsl(QObject *obj);
+
 void RegisterStringList(void);
 void RslStringList();
 

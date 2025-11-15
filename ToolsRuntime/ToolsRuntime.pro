@@ -54,6 +54,13 @@ SOURCES += \
     rslmodule/iterableobjectbase.cpp \
     rslmodule/regexp/regexp.cpp \
     rslmodule/regexpmodule.cpp \
+    rslmodule/richtext/rttable.cpp \
+    rslmodule/richtext/rttablecell.cpp \
+    rslmodule/richtext/rttextblockformat.cpp \
+    rslmodule/richtext/rttextcharformat.cpp \
+    rslmodule/richtext/rttextcursor.cpp \
+    rslmodule/richtext/rttextdocument.cpp \
+    rslmodule/richtextmodule.cpp \
     rslmodule/rslstringlist.cpp \
     rslmodule/sql/sqldatabase.cpp \
     rslmodule/sql/sqlquery.cpp \
@@ -139,6 +146,13 @@ HEADERS += \
     rslmodule/iterableobjectbase.h \
     rslmodule/regexp/regexp.h \
     rslmodule/regexpmodule.h \
+    rslmodule/richtext/rttable.h \
+    rslmodule/richtext/rttablecell.h \
+    rslmodule/richtext/rttextblockformat.h \
+    rslmodule/richtext/rttextcharformat.h \
+    rslmodule/richtext/rttextcursor.h \
+    rslmodule/richtext/rttextdocument.h \
+    rslmodule/richtextmodule.h \
     rslmodule/rslstringlist.h \
     rslmodule/sql/sqldatabase.h \
     rslmodule/sql/sqlquery.h \

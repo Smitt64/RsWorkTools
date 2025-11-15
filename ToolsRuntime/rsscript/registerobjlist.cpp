@@ -445,3 +445,8 @@ QMap<QString,QString> rslGetMacroInfo(const QString &macro)
     }
     return values;
 }
+
+void rslSetOwnerRsl(QObject *obj)
+{
+    obj->setProperty(OBJECT_PROP_OWNER, RegisterInfoBase::RslOwner);
+}

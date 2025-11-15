@@ -10,10 +10,11 @@
 #include "rslmodule/iostaticmodule.h"
 #include "rslmodule/iostaticmodule.h"
 #include "rslmodule/rslstr/strlib.h"
+#include "rslmodule/richtextmodule.h"
 
 QStringList RslToolsRuntimeModule::staticModules() const
 {
-    return { "ToolsRuntime", "RegExp", "Sql", "StdDialogs", "Ui", "Io", "StrLib" };
+    return { "ToolsRuntime", "RegExp", "Sql", "StdDialogs", "Ui", "Io", "StrLib", "RichText" };
 }
 
 void RslToolsRuntimeModule::registerStaticModules()
@@ -25,4 +26,5 @@ void RslToolsRuntimeModule::registerStaticModules()
     addStaticModule<UiStaticModule>(new UiStaticModule());
     addStaticModule<IoStaticModule>(new IoStaticModule());
     addStaticModule<StrStaticModule>(new StrStaticModule());
+    addStaticModule<RichTextStaticModule>(new RichTextStaticModule());
 }
