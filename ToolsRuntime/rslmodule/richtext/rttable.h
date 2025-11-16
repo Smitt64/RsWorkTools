@@ -2,11 +2,13 @@
 #define RTTABLE_H
 
 #include <QObject>
+#include "rslmodule/iterableobjectbase.h"
 #include "ToolsRuntime_global.h"
 
 class QTextTable;
 class RTTextCursor;
 class RTTableCell;
+class QTextDocument;
 class TOOLSRUNTIME_EXPORT RTTable : public QObject
 {
     Q_OBJECT
@@ -41,5 +43,9 @@ public:
 private:
     QTextTable *m_pTable;
 };
+
+using RTTableList = ListIterableObject<RTTable*>;
+TOOLSRUNTIME_EXPORT void RTGetDocumentTables(QTextDocument *document, RTTableList **tables);
+TOOLSRUNTIME_EXPORT QVariant RTGetDocumentTables(QTextDocument *document);
 
 #endif // RTTABLE_H

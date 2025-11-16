@@ -21,7 +21,6 @@ static void richTextGetDocument()
         prm_Widget = 0,
     };
 
-    QString title, msg, def;
     if (GetFuncParamType(prm_Widget) != QVariant::UserType)
         ThrowParamTypeError(prm_Widget);
 
@@ -44,6 +43,21 @@ static void richTextGetDocument()
         rslSetOwnerRsl(pRtDoc);
         SetReturnVal(pRtDoc);
     }
+}
+
+static void rsl_RTGetDocumentTables()
+{
+    enum
+    {
+        prm_document = 0,
+    };
+
+    if (GetFuncParamType(prm_document) != QVariant::UserType)
+        ThrowParamTypeError<RTTextDocument>(prm_document);
+
+    QTextDocument *pDocument = GetFuncParam<RTTextDocument*>(prm_document)->textDocument();
+    QVariant val = RTGetDocumentTables(pDocument);
+    SetReturnVal(val);
 }
 
 RichTextStaticModule::RichTextStaticModule()
@@ -243,5 +257,6 @@ void RichTextStaticModule::Proc()
     RegisterObjList::inst()->AddObject<RTTableCell>(false);
     RegisterObjList::inst()->AddObject<RTTable>(false);
 
-    AddStdProc(V_GENOBJ, "richTextGetDocument", richTextGetDocument, 0);
+    AddStdProc(V_GENOBJ, "RTGetDocument", richTextGetDocument, 0);
+    AddStdProc(V_GENOBJ, "RTGetDocumentTables", rsl_RTGetDocumentTables, 0);
 }

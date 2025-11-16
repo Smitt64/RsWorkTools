@@ -3,6 +3,8 @@
 #include "rttextcursor.h"
 #include "rsscript/registerobjlist.hpp"
 #include <QTextTable>
+#include <QTextDocument>
+#include <QTextFrame>
 
 RTTable::RTTable(QTextTable *table) :
     QObject()
@@ -100,4 +102,48 @@ void RTTable::resize(int rows, int columns)
 void RTTable::splitCell(int row, int column, int numRows, int numCols)
 {
     m_pTable->splitCell(row, column, numRows, numCols);
+}
+
+// ----------------------------------------------------------------------------------
+
+void findTablesInFrame(QTextFrame* frame, RTTableList *tables)
+{
+    if (!frame)
+        return;
+
+    QTextFrame::iterator it;
+    for (it = frame->begin(); it != frame->end(); ++it)
+    {
+        QTextFrame* childFrame = it.currentFrame();
+        if (childFrame)
+        {
+            QTextTable* table = qobject_cast<QTextTable*>(childFrame);
+            if (table)
+                tables->append(new RTTable(table));
+
+            findTablesInFrame(childFrame, tables);
+        }
+    }
+}
+
+static void getAllTables(QTextDocument* document, RTTableList *tables)
+{
+    if (document)
+        findTablesInFrame(document->rootFrame(), tables);
+}
+
+void RTGetDocumentTables(QTextDocument *document, RTTableList **tables)
+{
+    (*tables) = new RTTableList();
+}
+
+QVariant RTGetDocumentTables(QTextDocument *document)
+{
+    if (!document)
+        return QVariant();
+
+    RTTableList *tables = new RTTableList();
+    findTablesInFrame(document->rootFrame(), tables);
+
+    return QVariant::fromValue<QObject*>(tables);
 }
