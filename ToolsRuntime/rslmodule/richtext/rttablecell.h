@@ -3,10 +3,11 @@
 
 #include <QObject>
 #include <QTextTableCell>
+#include "ToolsRuntime_global.h"
 
 class QTextTableCell;
 class RTTextCursor;
-class RTTableCell : public QObject
+class TOOLSRUNTIME_EXPORT RTTableCell : public QObject
 {
     Q_OBJECT
 

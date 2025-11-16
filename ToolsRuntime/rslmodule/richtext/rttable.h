@@ -2,11 +2,12 @@
 #define RTTABLE_H
 
 #include <QObject>
+#include "ToolsRuntime_global.h"
 
 class QTextTable;
 class RTTextCursor;
 class RTTableCell;
-class RTTable : public QObject
+class TOOLSRUNTIME_EXPORT RTTable : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int columns READ columns CONSTANT)

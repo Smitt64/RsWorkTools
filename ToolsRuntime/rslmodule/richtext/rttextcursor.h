@@ -7,13 +7,14 @@
 #include <QTextBlockFormat>
 #include <QTextCursor>
 #include <QObject>
+#include "ToolsRuntime_global.h"
 
 class QTextFrame;
 class QTextList;
 class QTextTable;
 class RTTextBlockFormat;
 class RTTextCharFormat;
-class RTTextCursor : public QObject
+class TOOLSRUNTIME_EXPORT RTTextCursor : public QObject
 {
     Q_OBJECT
 

@@ -11,9 +11,10 @@
 #include <QUrl>
 #include <QSizeF>
 #include <QPagedPaintDevice>
+#include "ToolsRuntime_global.h"
 
 class RTTextCursor;
-class RTTextDocument : public QObject
+class TOOLSRUNTIME_EXPORT RTTextDocument : public QObject
 {
     Q_OBJECT
 

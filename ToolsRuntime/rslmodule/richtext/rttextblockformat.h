@@ -4,8 +4,9 @@
 #include "RTTextCharFormat.h"
 #include <QTextBlockFormat>
 #include <QTextOption>
+#include "ToolsRuntime_global.h"
 
-class RTTextBlockFormat : public RTTextCharFormat
+class TOOLSRUNTIME_EXPORT RTTextBlockFormat : public RTTextCharFormat
 {
     Q_OBJECT
 

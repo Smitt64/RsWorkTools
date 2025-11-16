@@ -6,8 +6,9 @@
 #include <QFont>
 #include <QPen>
 #include <QColor>
+#include "ToolsRuntime_global.h"
 
-class RTTextCharFormat : public QObject
+class TOOLSRUNTIME_EXPORT RTTextCharFormat : public QObject
 {
     Q_OBJECT
 
