@@ -831,3 +831,8 @@ SvnInfoMap toolVcsGetRepoInfo(const QString &path)
     // Если репозиторий не найден, возвращаем пустую карту
     return SvnInfoMap();
 }
+
+QString toolReplaceUnicodeSymToOem(const QString &text)
+{
+
+}

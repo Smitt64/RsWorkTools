@@ -7,7 +7,8 @@
 #include <QTextFrame>
 
 RTTable::RTTable(QTextTable *table) :
-    QObject()
+    QObject(),
+    m_pTable(table)
 {
 
 }
@@ -135,6 +136,8 @@ static void getAllTables(QTextDocument* document, RTTableList *tables)
 void RTGetDocumentTables(QTextDocument *document, RTTableList **tables)
 {
     (*tables) = new RTTableList();
+
+    getAllTables(document, *tables);
 }
 
 QVariant RTGetDocumentTables(QTextDocument *document)

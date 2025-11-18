@@ -107,4 +107,6 @@ TOOLSRUNTIME_EXPORT QStringList toolGetArchiveFileList(const QString &archivePat
 TOOLSRUNTIME_EXPORT QList<ArchiveFileInfo> toolGetArchiveFileInfoList(const QString &archivePath);
 TOOLSRUNTIME_EXPORT QStandardItemModel* toolCreateArchiveModel(const QList<ArchiveFileInfo> &fileInfoList);
 
+TOOLSRUNTIME_EXPORT QString toolReplaceUnicodeSymToOem(const QString &text);
+
 #endif // TOOLSRUNTIME_H

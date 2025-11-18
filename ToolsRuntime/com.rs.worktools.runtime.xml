@@ -2,6 +2,7 @@
 <changelog project="Work Tools Runtime">
     <version ver="1.0.0.10">
         <add>Добавлены RSL модуть для чтения форматироованных документов;</add>
+        <add>Добавлена функция преобразования некоторых Unicode символов в аналоги в IBM 866;</add>
     </version>
     <version ver="1.0.0.9">
         <add>Добавлены диалог с двумя прогресс барами;</add>
