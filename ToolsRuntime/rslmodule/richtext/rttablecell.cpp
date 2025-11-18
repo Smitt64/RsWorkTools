@@ -1,6 +1,7 @@
 #include "rttablecell.h"
 #include "RTTextCursor.h"
 #include "rsscript/registerobjlist.hpp"
+#include "toolsruntime.h"
 #include <QTextTableCell>
 
 RTTableCell::RTTableCell(const QTextTableCell &cell)
@@ -58,7 +59,7 @@ QString RTTableCell::text() const
     QTextCursor cellCursor = m_QTextTableCell.firstCursorPosition();
     cellCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     QString cellText = cellCursor.selectedText();
-    return cellText;
+    return toolReplaceUnicodeSymToOem(cellText);
 }
 
 void RTTableCell::setText(const QString &value)
