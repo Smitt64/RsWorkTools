@@ -119,12 +119,22 @@ void strEndsWith()
  */
 void strContains()
 {
-    if (GetFuncParamCount() < 2)
+    int count = GetFuncParamCount();
+
+    if (count < 2)
         ThrowParamCountError(2);
 
+    Qt::CaseSensitivity cs = Qt::CaseSensitive;
     QString str = GetFuncParam(0).toString();
     QString substring = GetFuncParam(1).toString();
-    SetReturnVal(str.contains(substring));
+
+    if (count > 3)
+    {
+        if (GetFuncParam(2).toBool())
+            cs = Qt::CaseInsensitive;
+    }
+
+    SetReturnVal(str.contains(substring, cs));
 }
 
 /**
