@@ -450,3 +450,8 @@ void rslSetOwnerRsl(QObject *obj)
 {
     obj->setProperty(OBJECT_PROP_OWNER, RegisterInfoBase::RslOwner);
 }
+
+void rslSetOwnerCpp(QObject *obj)
+{
+    obj->setProperty(OBJECT_PROP_OWNER, RegisterInfoBase::CppOwner);
+}

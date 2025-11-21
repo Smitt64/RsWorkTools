@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "statvars.h"
 #include "rsl/isymbol.h"
 #include "playrep.h"
@@ -7,6 +7,7 @@
 #include "registerinfobase.h"
 #include "typeinfo_p.h"
 #include "registerobjlist.hpp"
+#include <QObject>
 
 unsigned short GenObjRelease(TGenObject *o)
 {
@@ -14,7 +15,8 @@ unsigned short GenObjRelease(TGenObject *o)
     unsigned short refCount = --obj->refCount;
 
     if(!obj->refCount && obj->owner == RegisterInfoBase::RslOwner)
-        delete obj->object;
+        obj->object->deleteLater();
+    //delete obj->object;
 
     return refCount;
 }
@@ -80,7 +82,7 @@ int SetObjectGeneration(QObjectRsl *obj, unsigned short gen)
     }*/
 
     //if(obj->extObj)
-        //RslSetGenerationToObject(obj->extObj, gen);
+    //RslSetGenerationToObject(obj->extObj, gen);
 
     return curGen;
 }

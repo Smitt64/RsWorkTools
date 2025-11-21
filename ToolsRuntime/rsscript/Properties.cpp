@@ -81,11 +81,11 @@ int GetFuncParamType(const int &id)
 
     case V_DATE:
         result = QVariant::Date;
-    break;
+        break;
 
     case V_TIME:
         result = QVariant::Time;
-    break;
+        break;
 
     case V_R2M:
         result = QVariantR2M;
@@ -130,7 +130,7 @@ int GetFuncParamType(const int &id)
                 result = QVariant::UserType;
         }
     }
-        break;
+    break;
     }
 
     return result;
@@ -166,14 +166,14 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
         bdate dt = val->value.date;
         result = QVariant::fromValue(QDate(dt.year, dt.mon, dt.day));
     }
-        break;
+    break;
 
     case V_TIME:
     {
         btime dt = val->value.time;
         result = QVariant::fromValue(QTime(dt.hour, dt.min, dt.sec));
     }
-        break;
+    break;
 
     case V_R2M:
     {
@@ -182,7 +182,7 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
         r2m.id = val->value.r2m.id;
         result = QVariant::fromValue(r2m);
     }
-        break;
+    break;
 
     case V_GENOBJ:
     {
@@ -243,7 +243,10 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
                         result = QVariant::fromValue(lst->container());
                 }
                 else
-                    result = QVariant::fromValue<QObject*>((QObject*)info->object(val->value.obj));
+                {
+                    QObject *object = (QObject*)info->object(val->value.obj);
+                    result = QVariant::fromValue(object);
+                }
             }
             else
             {
@@ -258,7 +261,7 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
             }
         }
     }
-        break;
+    break;
     }
 
     return result;
@@ -504,7 +507,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         if (meta && obj)
         {
             RegisterInfoBase *info = infoFromMeta(meta);
-                //RegisterObjList::inst()->info(meta->className());
+            //RegisterObjList::inst()->info(meta->className());
 
             if (info)
             {
@@ -535,21 +538,21 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         long v = value.toInt();
         Setter(V_INTEGER, &v);
     }
-        break;
+    break;
     case QVariant::LongLong:
     case QVariant::ULongLong:
     {
         qint64 v = value.value<qint64>();
         Setter(V_BIGINT, &v);
     }
-        break;
+    break;
 
     case QVariant::Double:
     {
         qreal v = value.value<qreal>();
         Setter(V_DOUBLE, &v);
     }
-        break;
+    break;
 
     case QVariant::Date:
     {
@@ -560,7 +563,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         rsldt.year = dt.year();
         Setter(V_DATE, &rsldt);
     }
-        break;
+    break;
 
     case QVariant::Time:
     {
@@ -572,14 +575,14 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         rsldt.sec = dt.second();
         Setter(V_TIME, &rsldt);
     }
-        break;
+    break;
 
     case QVariant::Bool:
     {
         bool b = value.toBool();
         Setter(V_BOOL, &b);
     }
-        break;
+    break;
 
     case QVariant::StringList:
     {
@@ -596,7 +599,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         }
         Setter(V_GENOBJ, ValueArray);
     }
-        break;
+    break;
 
     case QMetaType::QVariantList:
     {
@@ -617,14 +620,14 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         }
         Setter(V_GENOBJ, ValueArray);
     }
-        break;
+    break;
 
     case QMetaType::QRect:
     {
         TGenObject *obj = (TGenObject*)CreateRectRsl(value.toRect());
         Setter(V_GENOBJ, obj);
     }
-        break;
+    break;
 
     case QMetaType::QSize:
     {
@@ -645,7 +648,7 @@ int SetValueFromVariant(std::function<void(int,void*)> Setter, const QVariant &v
         TGenObject *obj = (TGenObject*)CreateByteArrayRsl(value.toByteArray());
         Setter(V_GENOBJ, obj);
     }
-        break;
+    break;
 
     case QMetaType::QObjectStar:
         SetFromObjectStar(value);
