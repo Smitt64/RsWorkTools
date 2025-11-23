@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "errordlg.h"
 #include "ui_errordlg.h"
 #include "errorsmodel.h"
@@ -91,10 +91,18 @@ public:
     ErrorDlg *q_ptr;
 };
 
+ErrorDlg::ErrorDlg(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::ErrorDlg),
+    d_ptr(new ErrorDlgPrivate(this))
+{
+
+}
+
 ErrorDlg::ErrorDlg(const qint16 &mode, QWidget *parent) :
     QDialog(parent),
-    d_ptr(new ErrorDlgPrivate(this)),
-    ui(new Ui::ErrorDlg)
+    ui(new Ui::ErrorDlg),
+    d_ptr(new ErrorDlgPrivate(this))
 {
     Q_D(ErrorDlg);
     d->pErrors = Q_NULLPTR;
@@ -104,14 +112,7 @@ ErrorDlg::ErrorDlg(const qint16 &mode, QWidget *parent) :
     ui->tableView->verticalHeader()->setDefaultSectionSize(30);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    d->m_Mode = mode;
-    if (mode == ModeInformation)
-        ui->buttonBox->setStandardButtons(QDialogButtonBox::Ok);
-    else if (mode == ModeMessageBox)
-        ui->buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Abort);
-    else if (mode == ModeWidget)
-        ui->buttonBox->setVisible(false);
-
+    setMode(mode);
     setWindowIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation));
 
     ui->toolButtonMsg->setIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation));
@@ -130,6 +131,19 @@ ErrorDlg::~ErrorDlg()
 {
     delete d_ptr;
     delete ui;
+}
+
+void ErrorDlg::setMode(const qint16 &mode)
+{
+    Q_D(ErrorDlg);
+
+    d->m_Mode = mode;
+    if (mode == ModeInformation)
+        ui->buttonBox->setStandardButtons(QDialogButtonBox::Ok);
+    else if (mode == ModeMessageBox)
+        ui->buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Abort);
+    else if (mode == ModeWidget)
+        ui->buttonBox->setVisible(false);
 }
 
 void ErrorDlg::setErrors(ErrorsModel *e)

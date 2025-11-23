@@ -35,6 +35,7 @@ public:
         ModeMessageBox,
         ModeWidget
     };
+    ErrorDlg(QWidget *parent = Q_NULLPTR);
     Q_INVOKABLE ErrorDlg(const qint16 &mode, QWidget *parent = Q_NULLPTR);
 
     /**
@@ -59,6 +60,8 @@ public:
      * @return
      */
     QDialogButtonBox *buttons();
+
+    void setMode(const qint16 &mode);
 
 private slots:
     void onActivated(const QModelIndex &index);
