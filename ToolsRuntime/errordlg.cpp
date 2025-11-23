@@ -96,7 +96,26 @@ ErrorDlg::ErrorDlg(QWidget *parent) :
     ui(new Ui::ErrorDlg),
     d_ptr(new ErrorDlgPrivate(this))
 {
+    Q_D(ErrorDlg);
+    d->pErrors = Q_NULLPTR;
+    ui->setupUi(this);
 
+    d->pFilterModel = new ErrorFilterModel(this);
+    ui->tableView->verticalHeader()->setDefaultSectionSize(30);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    setWindowIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation));
+
+    ui->toolButtonMsg->setIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation));
+    ui->toolButtonWarning->setIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    ui->toolButtonError->setIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
+
+    connect(ui->tableView, SIGNAL(clicked(QModelIndex)), SLOT(onActivated(QModelIndex)));
+    connect(ui->tableView, SIGNAL(activated(QModelIndex)), SLOT(onActivated(QModelIndex)));
+
+    connect(ui->toolButtonMsg, SIGNAL(toggled(bool)), d->pFilterModel, SLOT(setShowInformation(bool)));
+    connect(ui->toolButtonError, SIGNAL(toggled(bool)), d->pFilterModel, SLOT(setShowErrors(bool)));
+    connect(ui->toolButtonWarning, SIGNAL(toggled(bool)), d->pFilterModel, SLOT(setShowWarnings(bool)));
 }
 
 ErrorDlg::ErrorDlg(const qint16 &mode, QWidget *parent) :
