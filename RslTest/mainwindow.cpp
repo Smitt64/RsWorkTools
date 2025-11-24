@@ -33,6 +33,8 @@
 #include "SARibbon.h"
 #include "widgets/doubleprogressdialog.h"
 #include "toolsqlconverter.h"
+#include "errordlg.h"
+#include "errorsmodel.h"
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -133,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent)
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
 
     connect(exec, &QAction::triggered, this, &MainWindow::on_pushButton_clicked);
+    connect(ui->actionTest_errors_dlg, &QAction::triggered, this, &MainWindow::TestErrorsDlg);
 
     connect(ui->actionOptions, &QAction::triggered, [=]()
     {
@@ -297,4 +300,15 @@ void MainWindow::TestMultyProgress()
     timer->start(100);
     //QThread::sleep(10);
     dialog.exec();
+}
+
+void MainWindow::TestErrorsDlg()
+{
+    ErrorsModel model;
+    model.addError("error");
+    model.addMessage("message");
+
+    ErrorDlg dlg(this);
+    dlg.setErrors(&model);
+    dlg.exec();
 }

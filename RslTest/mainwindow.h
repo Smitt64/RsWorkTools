@@ -152,6 +152,7 @@ private slots:
     void on_pushButton_clicked();
     void testSlot();
     void TestMultyProgress();
+    void TestErrorsDlg();
 
 private:
     Ui::MainWindow *ui;

@@ -39,6 +39,7 @@
     <addaction name="spellCheckerAction"/>
     <addaction name="separator"/>
     <addaction name="actionDoubleProgressDialog"/>
+    <addaction name="actionTest_errors_dlg"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -91,6 +92,11 @@
   <action name="actionDoubleProgressDialog">
    <property name="text">
     <string>DoubleProgressDialog</string>
+   </property>
+  </action>
+  <action name="actionTest_errors_dlg">
+   <property name="text">
+    <string>Test errors dlg</string>
    </property>
   </action>
  </widget>

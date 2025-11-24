@@ -25,6 +25,7 @@ SOURCES += \
     codeeditor/xmlcodehighlighter.cpp \
     errordlg.cpp \
     errorsmodel.cpp \
+    errorwidget.cpp \
     iconlibdlg.cpp \
     levenshtein.cpp \
     netapi/apiuser.cpp \
@@ -119,6 +120,7 @@ HEADERS += \
     errordlg.h \
     errorfiltermodel_p.h \
     errorsmodel.h \
+    errorwidget.h \
     iconlibdlg.h \
     netapi/apiuser.h \
     optionsdlg/OptionsPage.h \
@@ -203,6 +205,7 @@ unix {
 FORMS += \
     aboutdlg.ui \
     errordlg.ui \
+    errorwidget.ui \
     iconlibdlg.ui \
     optionsdlg/codeeditoroptionspage.ui \
     optionsdlg/commandsoptions.ui \
