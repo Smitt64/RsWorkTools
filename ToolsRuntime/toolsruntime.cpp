@@ -23,6 +23,7 @@
 #include <QStandardPaths>
 #include <QDirIterator>
 #include <QDomDocument>
+#include <QAction>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -879,4 +880,33 @@ QString toolReplaceUnicodeSymToOem(const QString &text)
     result.replace("‚", "'");
 
     return result;
+}
+
+QString toolGetActionDescription(const QString& actionName, const QKeySequence& shortcut, const QString& description)
+{
+    // Стиль как в MS Word: жирное название, серый шрифт для описания
+    QString tooltip = QString("<html><head><style>"
+                              ".description { color: #606060; margin-top: 4px; }"
+                              "</style></head><body style='font-family: Segoe UI; font-size: 9pt;'>"
+                              "<b>%1").arg(actionName);
+
+    if (!shortcut.isEmpty())
+        tooltip += QString(" (%1)").arg(shortcut.toString(QKeySequence::NativeText));
+
+    tooltip += "</b>";
+
+    if (!description.isEmpty())
+        tooltip += QString("<div class='description'>%1</div>").arg(description);
+
+    tooltip += "</body></html>";
+
+    return tooltip;
+}
+
+void toolAddActionWithTooltip(QAction* action, const QString& description, const QKeySequence& shortcut)
+{
+    QString tooltip = toolGetActionDescription(action->text(), shortcut, description);
+
+    action->setToolTip(tooltip);
+    action->setStatusTip(description.isEmpty() ? action->text() : description);
 }

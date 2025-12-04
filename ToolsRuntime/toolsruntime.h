@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QDateTime>
+#include <QKeySequence>
 #include "ToolsRuntime_global.h"
 
 typedef struct ArchiveFileInfo
@@ -16,6 +17,7 @@ typedef struct ArchiveFileInfo
     bool isDirectory;      // Является ли директорией
 } ArchiveFileInfo;
 
+class QAction;
 class QSqlQuery;
 class QSqlDatabase;
 class QProcess;
@@ -108,5 +110,8 @@ TOOLSRUNTIME_EXPORT QList<ArchiveFileInfo> toolGetArchiveFileInfoList(const QStr
 TOOLSRUNTIME_EXPORT QStandardItemModel* toolCreateArchiveModel(const QList<ArchiveFileInfo> &fileInfoList);
 
 TOOLSRUNTIME_EXPORT QString toolReplaceUnicodeSymToOem(const QString &text);
+
+TOOLSRUNTIME_EXPORT QString toolGetActionDescription(const QString& actionName, const QKeySequence& shortcut, const QString& description);
+TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QAction* action, const QString& description, const QKeySequence& shortcut = QKeySequence());
 
 #endif // TOOLSRUNTIME_H
