@@ -17,6 +17,7 @@ typedef struct ArchiveFileInfo
     bool isDirectory;      // Является ли директорией
 } ArchiveFileInfo;
 
+class QMenu;
 class QAction;
 class QSqlQuery;
 class QSqlDatabase;
@@ -25,6 +26,7 @@ class QNetworkAccessManager;
 class QNetworkRequest;
 class QNetworkReply;
 class QStandardItemModel;
+class QToolButton;
 
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
@@ -112,6 +114,9 @@ TOOLSRUNTIME_EXPORT QStandardItemModel* toolCreateArchiveModel(const QList<Archi
 TOOLSRUNTIME_EXPORT QString toolReplaceUnicodeSymToOem(const QString &text);
 
 TOOLSRUNTIME_EXPORT QString toolGetActionDescription(const QString& actionName, const QKeySequence& shortcut, const QString& description);
+TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QObject* object, const QString& description, const QKeySequence& shortcut = QKeySequence());
 TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QAction* action, const QString& description, const QKeySequence& shortcut = QKeySequence());
+TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QMenu* menu, const QString& description, const QKeySequence& shortcut = QKeySequence());
+TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QToolButton* button, const QString& description, const QKeySequence& shortcut = QKeySequence());
 
 #endif // TOOLSRUNTIME_H

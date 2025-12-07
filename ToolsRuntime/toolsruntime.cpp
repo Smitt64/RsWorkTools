@@ -24,6 +24,8 @@
 #include <QDirIterator>
 #include <QDomDocument>
 #include <QAction>
+#include <QMenu>
+#include <QToolButton>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -903,10 +905,88 @@ QString toolGetActionDescription(const QString& actionName, const QKeySequence& 
     return tooltip;
 }
 
+void toolAddActionWithTooltip(QObject* object, const QString& description, const QKeySequence& shortcut)
+{
+    if (!object)
+        return;
+
+    QString actionName;
+    QAction* action = nullptr;
+    QMenu* menu = nullptr;
+    QToolButton* button = nullptr;
+
+    if ((action = qobject_cast<QAction*>(object)))
+    {
+        actionName = action->text();
+        actionName = actionName.remove('&');
+    }
+    else if ((menu = qobject_cast<QMenu*>(object)))
+    {
+        actionName = menu->title();
+        actionName = actionName.remove('&');
+        action = menu->menuAction();
+    }
+    else if ((button = qobject_cast<QToolButton*>(object)))
+    {
+        actionName = button->text();
+        actionName = actionName.remove('&');
+        action = button->defaultAction();
+    }
+    else
+        return;
+
+    QString tooltip = toolGetActionDescription(actionName, shortcut, description);
+
+    if (action)
+    {
+        action->setToolTip(tooltip);
+        action->setStatusTip(description.isEmpty() ? actionName : description);
+    }
+
+    if (menu)
+    {
+        menu->setToolTip(tooltip);
+
+        QList<QAction*> menuActions = menu->actions();
+        for (QAction* menuAction : menuActions)
+        {
+            if (!menuAction->toolTip().isEmpty())
+                continue;
+
+            QString menuActionName = menuAction->text().remove('&');
+            QString menuActionDescription = menuAction->statusTip().isEmpty() ?
+                                                menuActionName : menuAction->statusTip();
+
+            QString menuActionTooltip = toolGetActionDescription(menuActionName,
+                                                                 menuAction->shortcut(), menuActionDescription);
+
+            menuAction->setToolTip(menuActionTooltip);
+        }
+    }
+
+    if (button)
+    {
+        button->setToolTip(tooltip);
+
+        if (action)
+        {
+            action->setToolTip(tooltip);
+            action->setStatusTip(description.isEmpty() ? actionName : description);
+        }
+    }
+}
+
 void toolAddActionWithTooltip(QAction* action, const QString& description, const QKeySequence& shortcut)
 {
-    QString tooltip = toolGetActionDescription(action->text(), shortcut, description);
+    toolAddActionWithTooltip(static_cast<QObject*>(action), description, shortcut);
+}
 
-    action->setToolTip(tooltip);
-    action->setStatusTip(description.isEmpty() ? action->text() : description);
+void toolAddActionWithTooltip(QMenu* menu, const QString& description, const QKeySequence& shortcut)
+{
+    toolAddActionWithTooltip(static_cast<QObject*>(menu), description, shortcut);
+}
+
+void toolAddActionWithTooltip(QToolButton* button, const QString& description, const QKeySequence& shortcut)
+{
+    toolAddActionWithTooltip(static_cast<QObject*>(button), description, shortcut);
 }
