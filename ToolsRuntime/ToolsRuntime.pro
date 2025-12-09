@@ -1,4 +1,4 @@
-QT += gui widgets webengine webenginewidgets xml uitools sql testlib xmlpatterns
+QT += gui widgets webengine webenginewidgets xml uitools sql testlib xmlpatterns svg
 
 TEMPLATE = lib
 DEFINES += TOOLSRUNTIME_LIBRARY Q_WS_WIN

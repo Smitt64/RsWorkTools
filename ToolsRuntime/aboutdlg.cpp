@@ -1,5 +1,5 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "aboutdlg.h"
 #include "ui_aboutdlg.h"
 #include "toolsruntime.h"
@@ -12,6 +12,65 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QDir>
+#include <QSvgRenderer>
+
+QPixmap loadAndScaleImage(const QString& filePath, int width, int height, Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio)
+{
+    if (filePath.endsWith(".svg", Qt::CaseInsensitive) ||
+        filePath.endsWith(".svgz", Qt::CaseInsensitive))
+    {
+        // Для SVG используем QSvgRenderer
+        QSvgRenderer renderer(filePath);
+        if (renderer.isValid())
+        {
+            QPixmap pixmap(width, height);
+            pixmap.fill(Qt::transparent);
+
+            QPainter painter(&pixmap);
+            if (aspectRatioMode == Qt::KeepAspectRatio)
+            {
+                // Сохраняем пропорции SVG
+                QRectF viewBox = renderer.viewBoxF();
+                qreal aspect = viewBox.width() / viewBox.height();
+
+                int targetWidth, targetHeight;
+                if (width / height > aspect)
+                {
+                    targetHeight = height;
+                    targetWidth = height * aspect;
+                }
+                else
+                {
+                    targetWidth = width;
+                    targetHeight = width / aspect;
+                }
+
+                int x = (width - targetWidth) / 2;
+                int y = (height - targetHeight) / 2;
+                renderer.render(&painter, QRectF(x, y, targetWidth, targetHeight));
+            }
+            else
+            {
+                // Заполняем весь прямоугольник
+                renderer.render(&painter, QRectF(0, 0, width, height));
+            }
+
+            painter.end();
+            return pixmap;
+        }
+    }
+
+    // Для растровых изображений используем QPixmap
+    QPixmap pixmap(filePath);
+    if (!pixmap.isNull())
+    {
+        return pixmap.scaled(width, height,
+                             aspectRatioMode,
+                             Qt::SmoothTransformation);
+    }
+
+    return QPixmap();
+}
 
 class AboutDlgPrivate
 {
@@ -49,10 +108,10 @@ public:
         if (VerQueryValueA(pVersion, "\\", (LPVOID*)&pFixInfo, &length))
         {
             versionNumberString = QString("%1.%2.%3.%4")
-                                      .arg((pFixInfo->dwFileVersionMS >> 16) & 0xffff)
-                                      .arg((pFixInfo->dwFileVersionMS >>  0) & 0xffff)
-                                      .arg((pFixInfo->dwFileVersionLS >> 16) & 0xffff)
-                                      .arg((pFixInfo->dwFileVersionLS >>  0) & 0xffff);
+            .arg((pFixInfo->dwFileVersionMS >> 16) & 0xffff)
+                .arg((pFixInfo->dwFileVersionMS >>  0) & 0xffff)
+                .arg((pFixInfo->dwFileVersionLS >> 16) & 0xffff)
+                .arg((pFixInfo->dwFileVersionLS >>  0) & 0xffff);
         }
         free(pVersion);
 
@@ -267,11 +326,11 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
     d->currentLocale = QLocale::system();
     d->pComponentsModel = new QStandardItemModel(this);
     d->pComponentsModel->setHorizontalHeaderLabels(QStringList()
-                                                << tr("Компонент")
-                                                << tr("ID")
-                                                << tr("Версия")
-                                                << tr("Размер")
-                                                << tr("Установлен/Обновлен"));
+                                                   << tr("Компонент")
+                                                   << tr("ID")
+                                                   << tr("Версия")
+                                                   << tr("Размер")
+                                                   << tr("Установлен/Обновлен"));
 
     QHBoxLayout *pLayout = new QHBoxLayout(ui->tab);
     pLayout->setMargin(0);
@@ -290,8 +349,8 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
 
     d->ReadComponents();
     d->ReadVersionsTitles();
-    QFile file(config);
 
+    QFile file(config);
     if (file.open(QIODevice::ReadOnly))
     {
         QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
@@ -306,8 +365,9 @@ AboutDlg::AboutDlg(const QString &config, QWidget *parent) :
         title = title.arg("");
 #endif
 
+        QPixmap scaledLogo = loadAndScaleImage(obj["logo"].toString(), 128, 128);
         ui->applicationTitle->setText(title);
-        ui->label->setPixmap(QPixmap(obj["logo"].toString()));
+        ui->label->setPixmap(scaledLogo);
         ui->description->setText(obj["description"].toString());
         d->RenderHtmlForProject(obj["initalproject"].toString());
 
