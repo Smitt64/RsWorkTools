@@ -44,10 +44,7 @@ QStringList IconThemeManager::getIconSearchPaths()
     // 2. Пути рабочего каталога
     paths.append(getWorkingDirectoryIconPaths());
 
-    // 3. Пользовательские пути (ваш специфический путь)
-    addIfExists(paths, "d:\\Work\\ResEditor\\RsResEditor\\res\\icons");
-
-    // 4. Системные пути (низший приоритет)
+    // 3. Системные пути (низший приоритет)
     paths.append(getSystemIconPaths());
 
     // Удаляем дубликаты
