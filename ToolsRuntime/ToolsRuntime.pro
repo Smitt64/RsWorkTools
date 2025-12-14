@@ -27,6 +27,7 @@ SOURCES += \
     errorsmodel.cpp \
     errorwidget.cpp \
     iconlibdlg.cpp \
+    iconthememanager.cpp \
     levenshtein.cpp \
     netapi/apiuser.cpp \
     optionsdlg/OptionsPage.cpp \
@@ -122,6 +123,7 @@ HEADERS += \
     errorsmodel.h \
     errorwidget.h \
     iconlibdlg.h \
+    iconthememanager.h \
     netapi/apiuser.h \
     optionsdlg/OptionsPage.h \
     optionsdlg/codeeditoroptionspage.h \
