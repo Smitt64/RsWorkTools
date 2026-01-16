@@ -240,17 +240,18 @@ bool toolSaveResourceToFile(const QString &resname, const QString &filename)
  
         return true; 
     } 
-    return false; 
-} 
+    return false;
+}
 
 bool toolGetPostgreSQLInstallLocation(QDir &dir)
 {
+    // 1. Поиск в реестре
     QSettings settings64("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", QSettings::NativeFormat);
     QStringList childKeys = settings64.childGroups();
 
     for (const QString &key : childKeys)
     {
-        if (key.contains("PostgreSQL"))
+        if (key.contains("PostgreSQL", Qt::CaseInsensitive))
         {
             settings64.beginGroup(key);
             QString InstallLocation = settings64.value("InstallLocation").toString();
@@ -259,6 +260,7 @@ bool toolGetPostgreSQLInstallLocation(QDir &dir)
             {
                 QDir tmp(InstallLocation);
 
+                // Проверка в подкаталоге bin
                 if (tmp.cd("bin"))
                 {
                     if (QFile::exists(tmp.absoluteFilePath("pg_dump.exe")) &&
@@ -269,10 +271,89 @@ bool toolGetPostgreSQLInstallLocation(QDir &dir)
                         return true;
                     }
                 }
+                // Проверка в основном каталоге
+                else if (QFile::exists(tmp.absoluteFilePath("pg_dump.exe")) &&
+                         QFile::exists(tmp.absoluteFilePath("psql.exe")))
+                {
+                    dir = tmp;
+                    settings64.endGroup();
+                    return true;
+                }
             }
             settings64.endGroup();
         }
     }
+
+    // 2. Поиск в переменной окружения PATH
+    QString pathEnv = qEnvironmentVariable("PATH");
+    QStringList pathDirs = pathEnv.split(';', Qt::SkipEmptyParts);
+
+    for (const QString &pathDir : pathDirs)
+    {
+        QDir tmp(pathDir);
+
+        // Проверяем наличие файлов в текущем каталоге PATH
+        if (QFile::exists(tmp.absoluteFilePath("pg_dump.exe")) &&
+            QFile::exists(tmp.absoluteFilePath("psql.exe")))
+        {
+            dir = tmp;
+            return true;
+        }
+
+        // Проверяем в подкаталоге bin (если текущий путь не bin)
+        QDir tmpBin = tmp;
+        if (tmpBin.cd("bin"))
+        {
+            if (QFile::exists(tmpBin.absoluteFilePath("pg_dump.exe")) &&
+                QFile::exists(tmpBin.absoluteFilePath("psql.exe")))
+            {
+                dir = tmpBin;
+                return true;
+            }
+        }
+    }
+
+    // 3. Прямой поиск в распространенных путях
+    QStringList commonPaths = {
+        "C:/Program Files/PostgreSQL",
+        "C:/Program Files (x86)/PostgreSQL",
+        "C:/PostgreSQL"
+    };
+
+    for (const QString &basePath : commonPaths)
+    {
+        QDir baseDir(basePath);
+        if (baseDir.exists())
+        {
+            // Ищем во всех подкаталогах (версиях PostgreSQL)
+            QDirIterator it(basePath, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+            while (it.hasNext())
+            {
+                it.next();
+                QDir currentDir(it.filePath());
+
+                // Проверка в подкаталоге bin
+                QDir binDir = currentDir;
+                if (binDir.cd("bin"))
+                {
+                    if (QFile::exists(binDir.absoluteFilePath("pg_dump.exe")) &&
+                        QFile::exists(binDir.absoluteFilePath("psql.exe")))
+                    {
+                        dir = binDir;
+                        return true;
+                    }
+                }
+                // Проверка в текущем каталоге
+                else if (QFile::exists(currentDir.absoluteFilePath("pg_dump.exe")) &&
+                         QFile::exists(currentDir.absoluteFilePath("psql.exe")))
+                {
+                    dir = currentDir;
+                    return true;
+                }
+            }
+        }
+    }
+
     return false;
 }
 
