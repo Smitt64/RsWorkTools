@@ -286,8 +286,8 @@ void SvnStatusModel::setPathGit(const QString &path, const QString &revision)
                 QString filePath = match.captured(2);
 
                 element.action = gitStatusToAction(status);
-                element.path = filePath;
-                element.fullpath = main.absoluteFilePath(filePath);
+                element.path = QDir::toNativeSeparators(filePath);
+                element.fullpath = QDir::toNativeSeparators(main.absoluteFilePath(filePath));
 
                 QFileInfo fi(element.fullpath);
                 element.filename = fi.completeBaseName();
@@ -307,8 +307,8 @@ void SvnStatusModel::setPathGit(const QString &path, const QString &revision)
                 if (status == "M" || status == "MM") // Modified
                 {
                     element.action = "modified";
-                    element.path = filePath;
-                    element.fullpath = main.absoluteFilePath(filePath);
+                    element.path = QDir::toNativeSeparators(filePath);
+                    element.fullpath = QDir::toNativeSeparators(main.absoluteFilePath(filePath));
 
                     QFileInfo fi(element.fullpath);
                     element.filename = fi.completeBaseName();

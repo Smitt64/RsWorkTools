@@ -1,5 +1,8 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <changelog project="Work Tools Runtime">
+    <version ver="1.0.0.12">
+        <add>Добавлена поддержка указания ревизии для git репозаториев;</add>
+    </version>
     <version ver="1.0.0.11">
         <add>Добавлена функция улучшен алгоритм для поиска расположения PostgreSQL в системе (реестр, переменные окружения PATH, стандартные пути установки);</add>
     </version>
