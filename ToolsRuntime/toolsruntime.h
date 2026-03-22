@@ -119,4 +119,6 @@ TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QAction* action, const QString
 TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QMenu* menu, const QString& description, const QKeySequence& shortcut = QKeySequence());
 TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QToolButton* button, const QString& description, const QKeySequence& shortcut = QKeySequence());
 
+TOOLSRUNTIME_EXPORT QString toolDecodeRussianText(const QByteArray &data);
+
 #endif // TOOLSRUNTIME_H

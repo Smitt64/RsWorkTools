@@ -3731,6 +3731,7 @@ public:
 protected:
 	// 创建ribbonbar的工厂函数
 	SARibbonBar* createRibbonBar();
+
 private Q_SLOTS:
 	void onPrimaryScreenChanged(QScreen* screen);
 };

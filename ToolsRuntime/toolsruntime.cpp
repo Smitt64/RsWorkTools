@@ -26,6 +26,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QToolButton>
+#include <QTextCodec>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
@@ -995,10 +996,11 @@ void toolAddActionWithTooltip(QObject* object, const QString& description, const
     QAction* action = nullptr;
     QMenu* menu = nullptr;
     QToolButton* button = nullptr;
+    QWidget *widget = nullptr;
 
     if ((action = qobject_cast<QAction*>(object)))
     {
-        actionName = action->text();
+        actionName = action->text().replace("\n", " ").simplified();
         actionName = actionName.remove('&');
     }
     else if ((menu = qobject_cast<QMenu*>(object)))
@@ -1013,6 +1015,10 @@ void toolAddActionWithTooltip(QObject* object, const QString& description, const
         actionName = actionName.remove('&');
         action = button->defaultAction();
     }
+    else if ((widget = qobject_cast<QWidget*>(object)))
+    {
+        //actionName = button->text();
+    }
     else
         return;
 
@@ -1023,8 +1029,7 @@ void toolAddActionWithTooltip(QObject* object, const QString& description, const
         action->setToolTip(tooltip);
         action->setStatusTip(description.isEmpty() ? actionName : description);
     }
-
-    if (menu)
+    else if (menu)
     {
         menu->setToolTip(tooltip);
 
@@ -1044,8 +1049,7 @@ void toolAddActionWithTooltip(QObject* object, const QString& description, const
             menuAction->setToolTip(menuActionTooltip);
         }
     }
-
-    if (button)
+    else if (button)
     {
         button->setToolTip(tooltip);
 
@@ -1054,6 +1058,11 @@ void toolAddActionWithTooltip(QObject* object, const QString& description, const
             action->setToolTip(tooltip);
             action->setStatusTip(description.isEmpty() ? actionName : description);
         }
+    }
+    else if (widget)
+    {
+        widget->setToolTip(tooltip);
+        widget->setStatusTip(description);
     }
 }
 
@@ -1070,4 +1079,114 @@ void toolAddActionWithTooltip(QMenu* menu, const QString& description, const QKe
 void toolAddActionWithTooltip(QToolButton* button, const QString& description, const QKeySequence& shortcut)
 {
     toolAddActionWithTooltip(static_cast<QObject*>(button), description, shortcut);
+}
+
+QString toolDecodeRussianText(const QByteArray &data)
+{
+    if (data.isEmpty())
+        return QString();
+
+    const char* codecs[] =
+    {
+        "Windows-1251",  // Windows Russian (самый вероятный для ODBC ошибок)
+        "IBM 866",       // DOS Russian
+        "UTF-8",
+        "KOI8-R",        // Unix Russian
+        "UTF-16LE",
+        "UTF-16BE",
+        "ISO-8859-5",    // Latin/Cyrillic
+        nullptr
+    };
+
+    // Функция проверки, что текст выглядит нормально
+    auto looksLikeValidText = [](const QString &text) -> bool
+    {
+        if (text.isEmpty())
+            return false;
+
+        if (text.contains("���") || text.contains(QChar(0xFFFD)))
+            return false;
+
+        int cyrillicCount = 0;
+        int asciiCount = 0;
+        int totalChars = 0;
+
+        for (const QChar &ch : text)
+        {
+            ushort code = ch.unicode();
+            totalChars++;
+
+            // Кириллические символы (основной блок)
+            if ((code >= 0x0400 && code <= 0x04FF))
+                cyrillicCount++;
+
+            // ASCII символы (буквы, цифры, пунктуация)
+            else if ((code >= 0x20 && code <= 0x7E) ||
+                     code == 0x0A || code == 0x0D || // LF, CR
+                     code == 0x09)
+            {
+                asciiCount++;
+            }
+            else if (code < 0x20 && code != 0x0A && code != 0x0D && code != 0x09)
+            {
+                // Недопустимые управляющие символы (кроме стандартных)
+                return false;
+            }
+        }
+
+        // Текст считается валидным если:
+        // 1. Есть кириллица ИЛИ нормальные ASCII символы
+        // 2. И нет слишком много непонятных символов
+        if (totalChars > 0)
+        {
+            float validRatio = (float)(cyrillicCount + asciiCount) / totalChars;
+            return validRatio > 0.7f; // Хотя бы 70% символов должны быть понятными
+        }
+
+        return false;
+    };
+
+    // 1. Сначала пробуем Windows-1251 (самая вероятная кодировка для Windows)
+    QTextCodec *codec1251 = QTextCodec::codecForName("Windows-1251");
+    if (codec1251)
+    {
+        QTextCodec::ConverterState state1251;
+        QString decoded1251 = codec1251->toUnicode(data.constData(), data.size(), &state1251);
+
+        if (looksLikeValidText(decoded1251) || state1251.invalidChars == 0)
+            return decoded1251;
+    }
+
+    // 2. Пробуем UTF-8
+    QTextCodec *codecUtf8 = QTextCodec::codecForName("UTF-8");
+    if (codecUtf8)
+    {
+        QTextCodec::ConverterState stateUtf8;
+        QString decodedUtf8 = codecUtf8->toUnicode(data.constData(), data.size(), &stateUtf8);
+
+        if (stateUtf8.invalidChars == 0 && looksLikeValidText(decodedUtf8))
+            return decodedUtf8;
+    }
+
+    // 3. Пробуем другие кодировки из списка
+    for (int i = 0; codecs[i] != nullptr; i++)
+    {
+        QTextCodec *codec = QTextCodec::codecForName(codecs[i]);
+        if (codec)
+        {
+            QTextCodec::ConverterState state;
+            QString decoded = codec->toUnicode(data.constData(), data.size(), &state);
+
+            if (state.invalidChars == 0 && looksLikeValidText(decoded))
+                return decoded;
+        }
+    }
+
+    // 4. Пробуем системную локаль
+    QString localDecoded = QString::fromLocal8Bit(data);
+    if (looksLikeValidText(localDecoded))
+        return localDecoded;
+
+    // 5. Если ничего не помогло, возвращаем UTF-8 с игнорированием ошибок
+    return QString::fromUtf8(data);
 }

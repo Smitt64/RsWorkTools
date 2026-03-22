@@ -12315,8 +12315,8 @@ void SARibbonGallery::paintEvent(QPaintEvent* event)
 #include <QTimer>
 #include <QVariant>
 
-#ifdef SA_RIBBON_DEBUG_HELP_DRAW
-#ifndef SARIBBONBAR_HELP_DRAW_RECT
+/*#ifdef SA_RIBBON_DEBUG_HELP_DRAW
+#ifndef SARIBBONBAR_HELP_DRAW_RECT*/
 #define SARIBBONBAR_HELP_DRAW_RECT(p, rect)                                                                            \
 	do {                                                                                                               \
 		p.save();                                                                                                      \
@@ -12327,8 +12327,8 @@ void SARibbonGallery::paintEvent(QPaintEvent* event)
 		p.drawRect(rect);                                                                                              \
 		p.restore();                                                                                                   \
 	} while (0)
-#endif
-#endif
+/*#endif
+#endif*/
 class _SAContextCategoryManagerData
 {
 public:
@@ -14568,12 +14568,25 @@ void SARibbonBar::paintEvent(QPaintEvent* e)
 		paintInLooseStyle();
 	} else {
 		paintInCompactStyle();
-	}
+    }
+
+//#define SA_RIBBON_DEBUG_HELP_DRAW
 #ifdef SA_RIBBON_DEBUG_HELP_DRAW
+
 	QPainter p(this);
-	SARIBBONBAR_HELP_DRAW_RECT(p, m_d->quickAccessBar->geometry());
-	SARIBBONBAR_HELP_DRAW_RECT(p, m_d->ribbonTabBar->geometry());
-	SARIBBONBAR_HELP_DRAW_RECT(p, m_d->stackedContainerWidget->geometry());
+    SARibbonButtonGroupWidget* rightButtonGroup = d_ptr->mRightButtonGroup.data();
+    SARibbonQuickAccessBar* quickAccessBar      = d_ptr->mQuickAccessBar.data();
+    QAbstractButton* applicationButton          = d_ptr->mApplicationButton.data();
+    SARibbonTabBar* ribbonTabBar                = d_ptr->mRibbonTabBar.data();
+    SARibbonStackedWidget *stackedContainerWidget = d_ptr->mStackedContainerWidget;
+
+    SARIBBONBAR_HELP_DRAW_RECT(p, e->rect().adjusted(1,1,-1,-1));
+
+    //SARIBBONBAR_HELP_DRAW_RECT(p, quickAccessBar->geometry());
+    //SARIBBONBAR_HELP_DRAW_RECT(p, ribbonTabBar->geometry());
+    //SARIBBONBAR_HELP_DRAW_RECT(p, stackedContainerWidget->geometry());
+    //SARIBBONBAR_HELP_DRAW_RECT(p, rightButtonGroup->geometry());
+    //SARIBBONBAR_HELP_DRAW_RECT(p, applicationButton->geometry());
 #endif
 }
 
@@ -14582,7 +14595,7 @@ void SARibbonBar::paintInLooseStyle()
 	QPainter p(this);
 
 	//! 1.绘制tabbar下的基线，这个函数仅仅对office2013主题有用，大部分主题都不绘制基线
-	paintTabbarBaseLine(p);
+    paintTabbarBaseLine(p);
 
 	//! 2.显示上下文标签
 	const QList< _SAContextCategoryManagerData >& contextCategoryDataList = d_ptr->mCurrentShowingContextCategory;
@@ -14603,7 +14616,7 @@ void SARibbonBar::paintInLooseStyle()
 		if (parWindow) {
 			paintWindowTitle(p, toDisplayTitleText(parWindow->windowTitle()), d_ptr->mTitleRect);
 		}
-	}
+    }
 }
 
 void SARibbonBar::paintInCompactStyle()
@@ -14692,7 +14705,7 @@ void SARibbonBar::paintContextCategoryTab(QPainter& painter, const QString& titl
 {
 	// 绘制上下文标签
 	// 首先有5像素的实体粗线位于顶部
-	QMargins border = contentsMargins();
+    QMargins border = contentsMargins();
 	painter.save();
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(color);
@@ -14714,7 +14727,7 @@ void SARibbonBar::paintContextCategoryTab(QPainter& painter, const QString& titl
 			painter.drawText(textRect, Qt::AlignCenter, fontMetrics.elidedText(title, Qt::ElideRight, textRect.width()));
 		}
 	}
-	painter.restore();
+    painter.restore();
 }
 
 void SARibbonBar::resizeEvent(QResizeEvent* e)
@@ -14794,7 +14807,7 @@ void SARibbonBar::resizeInLooseStyle()
 	QAbstractButton* applicationButton          = d_ptr->mApplicationButton.data();
 	SARibbonTabBar* ribbonTabBar                = d_ptr->mRibbonTabBar.data();
 
-	QMargins border = contentsMargins();
+    QMargins border = contentsMargins();
 	int x           = border.left();
 	int y           = border.top();
 
@@ -14870,7 +14883,7 @@ void SARibbonBar::resizeInLooseStyle()
 	// 最后确定tabbar宽度
 	int tabBarAllowedWidth = endX - x;
 	if (ribbonAlignment() == SARibbonAlignment::AlignLeft) {
-		ribbonTabBar->setGeometry(x, y, tabBarAllowedWidth, tabH);
+        ribbonTabBar->setGeometry(x, y, tabBarAllowedWidth, tabH);
 	} else {
 		// 居中对齐的情况下，Tab要居中显示
 		// 得到tab的推荐尺寸
@@ -17696,7 +17709,7 @@ SARibbonMainWindow::SARibbonMainWindow(QWidget* parent, SARibbonMainWindowStyles
 		}
 		setRibbonBar(createRibbonBar());
 		setRibbonTheme(ribbonTheme());
-	}
+    }
 	connect(qApp, &QApplication::primaryScreenChanged, this, &SARibbonMainWindow::onPrimaryScreenChanged);
 }
 
@@ -17819,6 +17832,18 @@ bool SARibbonMainWindow::eventFilter(QObject* obj, QEvent* e)
 		case QEvent::MouseButtonDblClick: {
 			QApplication::sendEvent(this, e);
 		} break;
+        /*case QEvent::Resize:
+        {
+            QMargins border = ribbonBar()->parentWidget()->contentsMargins();
+
+            QResizeEvent *old = (QResizeEvent*)e;
+            QSize barSize = old->size();
+            barSize.setWidth(geometry().width() - border.right() - border.left() * 10);
+            QResizeEvent *newEvent = new QResizeEvent(old->oldSize(), barSize);
+            QApplication::postEvent(obj, newEvent);
+            return true;
+            break;
+        }*/
 		default:
 			break;
 		}
@@ -17952,7 +17977,7 @@ bool SARibbonMainWindow::isUseRibbon() const
 SARibbonBar* SARibbonMainWindow::createRibbonBar()
 {
 	SARibbonBar* bar = RibbonSubElementFactory->createRibbonBar(this);
-	bar->setContentsMargins(3, 0, 3, 0);
+    bar->setContentsMargins(2, 0, 2, 0);
 	return bar;
 }
 
@@ -17987,7 +18012,11 @@ bool SARibbonMainWindowEventFilter::eventFilter(QObject* obj, QEvent* e)
 		if (e->type() == QEvent::Resize) {
 			if (SARibbonMainWindow* m = qobject_cast< SARibbonMainWindow* >(obj)) {
 				if (SARibbonBar* ribbon = m->ribbonBar()) {
-					ribbon->setFixedWidth(m->size().width());
+                    QMargins margin = m->contentsMargins();
+
+                    QSize sz = m->size();
+                    sz.setWidth(sz.width() - margin.left() - margin.right());
+                    ribbon->setFixedWidth(sz.width());
 				}
 			}
 		}
