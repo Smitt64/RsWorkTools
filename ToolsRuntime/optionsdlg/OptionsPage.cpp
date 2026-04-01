@@ -7,11 +7,13 @@ class OptionsPagePrivate
 {
     Q_DECLARE_PUBLIC(OptionsPage)
 public:
-    OptionsPagePrivate(OptionsPage *parent)
+    OptionsPagePrivate(OptionsPage *parent) :
+        m_pSettings(nullptr)
     {
         q_ptr = parent;
     }
 
+    QSettings *m_pSettings;
     OptionsDlg *m_pDlg;
     OptionsPage *q_ptr;
 };
@@ -32,6 +34,7 @@ void OptionsPage::setOptionsDlg(OptionsDlg *dlg)
 {
     Q_D(OptionsPage);
     d->m_pDlg = dlg;
+    d->m_pSettings = dlg->settings();
 }
 
 OptionsDlg *OptionsPage::options()
@@ -43,7 +46,13 @@ OptionsDlg *OptionsPage::options()
 QSettings *OptionsPage::settings()
 {
     Q_D(OptionsPage);
-    return d->m_pDlg->settings();
+    return d->m_pSettings;
+}
+
+void OptionsPage::setSettings(QSettings *_settings)
+{
+    Q_D(OptionsPage);
+    d->m_pSettings = _settings;
 }
 
 int OptionsPage::save()

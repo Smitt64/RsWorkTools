@@ -9,21 +9,28 @@ namespace Ui {
 class StringListEditor;
 }
 
+class QStyleOptionViewItem;
 class StringListEditorHandler
 {
 public:
-    virtual QIcon buttonIcon() const { return QIcon(); }
+    virtual QIcon buttonIcon() const { return _buttonIcon; }
+    virtual QIcon rowIcon(const QModelIndex &index) const { return QIcon(); }
     virtual bool click(QString &text, QWidget *parent) = 0;
+    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) { return _size; }
+
+    QIcon _buttonIcon;
+    QSize _size;
 };
 
 class TOOLSRUNTIME_EXPORT StdFolderListHandler : public StringListEditorHandler
 {
 public:
-    StdFolderListHandler() = default;
+    StdFolderListHandler();
     virtual ~StdFolderListHandler() = default;
-
-    QIcon buttonIcon() const Q_DECL_OVERRIDE;
     bool click(QString &text, QWidget *parent) Q_DECL_OVERRIDE;
+    virtual QIcon rowIcon(const QModelIndex &index) const Q_DECL_OVERRIDE { return _rowIcon; }
+
+    QIcon _rowIcon;
 };
 
 class QComboBox;
@@ -54,6 +61,7 @@ public:
     void addList(const QStringList &lst);
 
     void setHandler(StringListEditorHandler *handler);
+    StringListEditorHandler *handler();
 
     QStringList stringList();
     QComboBox *categoryWidget();

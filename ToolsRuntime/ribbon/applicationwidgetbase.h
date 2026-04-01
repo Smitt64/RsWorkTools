@@ -15,6 +15,7 @@
 #include <QMap>
 #include <QSpacerItem>
 
+class AppOptionsContentWidget;
 class TOOLSRUNTIME_EXPORT ApplicationWidgetBase : public SARibbonApplicationWidget
 {
     Q_OBJECT
@@ -43,6 +44,8 @@ public:
     QString tabTitle(int index) const;
     QWidget* tabContent(int index) const;
     int tabCount() const;
+
+    AppOptionsContentWidget *optionsWidget();
 
 signals:
     void currentTabChanged(int index);
@@ -82,6 +85,8 @@ private:
     // Данные для кнопки
     QPixmap m_backButtonNormalPixmap;
     QPixmap m_backButtonHoverPixmap;
+
+    AppOptionsContentWidget *m_pOptionsWidget;
 };
 
 #endif // APPLICATIONWIDGETBASE_H

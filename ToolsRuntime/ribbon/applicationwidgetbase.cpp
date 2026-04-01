@@ -1,4 +1,6 @@
 #include "ApplicationWidgetBase.h"
+#include "ribbon/appoptionscontentwidget.h"
+#include "ribbon/categorycontentwidget.h"
 #include "toolsruntime.h"
 #include <QSvgRenderer>
 #include <QStyleOption>
@@ -12,11 +14,12 @@ ApplicationWidgetBase::ApplicationWidgetBase(SARibbonMainWindow *parent)
     : SARibbonApplicationWidget(parent)
     , m_menuPanelColor(QColor(52, 73, 94))
     , m_currentIndex(-1)
+    , m_pOptionsWidget(nullptr)
 {
     setupUI();
     setupBackButton();
 
-    setStyleSheet("background-color: #F5F5F5;");
+    setStyleSheet("ApplicationWidgetBase {background-color: #F5F5F5;}");
     setAutoFillBackground(true);
 }
 
@@ -73,20 +76,21 @@ void ApplicationWidgetBase::setupUI()
     m_menuLayout->addStretch();
 
     mainLayout->addWidget(m_menuPanel);
+    //mainLayout->addStretch(64);
 
     // Разделитель между панелью меню и контентом
-    QFrame *mainSeparator = new QFrame(this);
+    /*QFrame *mainSeparator = new QFrame(this);
     mainSeparator->setFrameShape(QFrame::VLine);
     mainSeparator->setFrameShadow(QFrame::Plain);
     mainSeparator->setFixedWidth(1);
     mainSeparator->setStyleSheet("background-color: rgba(0, 0, 0, 0.05);");
-    mainLayout->addWidget(mainSeparator);
+    mainLayout->addWidget(mainSeparator);*/
 
     // Правая область с контентом
     m_contentArea = new QWidget(this);
     m_contentArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QVBoxLayout *contentLayout = new QVBoxLayout(m_contentArea);
-    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setContentsMargins(32, 0, 32, 32);
     contentLayout->setSpacing(0);
 
     // Заголовок категории с верхним отступом для выравнивания
@@ -97,16 +101,17 @@ void ApplicationWidgetBase::setupUI()
         "    font-size: 36px;"
         "    font-weight: normal;"
         "    color: #444444;"
-        "    padding: 0px 20px 10px 20px;"
+        "    padding: 0px 20px 10px 0px;"
         "    background-color: #F5F5F5;"
         "    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;"
         "}"
         );
     m_categoryTitle->setText("");
     // Добавляем верхний отступ равный высоте кнопки назад (64px)
-    //m_categoryTitle->setContentsMargins(0, 64, 0, 0);
+    m_categoryTitle->setContentsMargins(0, 0, 0, 0);
     contentLayout->addSpacing(60);
     contentLayout->addWidget(m_categoryTitle);
+    contentLayout->addSpacing(24);
 
     // Стек для контента
     m_stackedWidget = new QStackedWidget(m_contentArea);
@@ -232,6 +237,7 @@ void ApplicationWidgetBase::updateCategoryTitle()
 {
     if (m_categoryTitle && m_currentIndex >= 0 && m_currentIndex < m_tabTitles.size())
     {
+        //qDebug() << m_tabTitles;
         m_categoryTitle->setText(m_tabTitles[m_currentIndex]);
         // Сохраняем верхний отступ
         m_categoryTitle->setContentsMargins(0, 0, 0, 0);
@@ -358,6 +364,10 @@ void ApplicationWidgetBase::insertTab(int index, const QString &title, QWidget *
     m_tabList->insertItem(index, item);
 
     m_stackedWidget->insertWidget(index, content);
+
+    CategoryContentWidget *pCateg = qobject_cast<CategoryContentWidget*>(content);
+    if (pCateg)
+        pCateg->updateListStyle();
 
     if (m_tabTitles.size() == 1)
     {
@@ -495,6 +505,14 @@ void ApplicationWidgetBase::setMenuPanelColor(const QColor &color)
 {
     m_menuPanelColor = color;
     updateMenuPanelStyle();
+
+    // Обновляем стили всех дочерних CategoryContentWidget
+    for (int i = 0; i < m_stackedWidget->count(); ++i)
+    {
+        CategoryContentWidget *widget = qobject_cast<CategoryContentWidget*>(m_stackedWidget->widget(i));
+        if (widget)
+            widget->updateStyle();
+    }
 }
 
 void ApplicationWidgetBase::onTabItemClicked(QListWidgetItem *item)
@@ -506,4 +524,12 @@ void ApplicationWidgetBase::onTabItemClicked(QListWidgetItem *item)
 void ApplicationWidgetBase::onBackButtonClicked()
 {
     emit backButtonClicked();
+}
+
+AppOptionsContentWidget *ApplicationWidgetBase::optionsWidget()
+{
+    if (!m_pOptionsWidget)
+        m_pOptionsWidget = new AppOptionsContentWidget();
+
+    return m_pOptionsWidget;
 }

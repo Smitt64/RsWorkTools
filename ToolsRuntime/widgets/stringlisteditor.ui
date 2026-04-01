@@ -17,12 +17,44 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QComboBox" name="categoryCombo">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>0</height>
-        </size>
+      <widget class="QToolButton" name="newBtn">
+       <property name="toolTip">
+        <string>Новая строка</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../FmtLib/res/fmt.qrc">
+         <normaloff>:/img/new.png</normaloff>:/img/new.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="addFilesBtn">
+       <property name="statusTip">
+        <string>Добавить несколько файлов</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../FmtLib/res/fmt.qrc">
+         <normaloff>:/img/openfolderHS.png</normaloff>:/img/openfolderHS.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="remBtn">
+       <property name="statusTip">
+        <string>Удалить запись</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../FmtLib/res/fmt.qrc">
+         <normaloff>:/img/remove.png</normaloff>:/img/remove.png</iconset>
        </property>
       </widget>
      </item>
@@ -40,44 +72,12 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="newBtn">
-       <property name="toolTip">
-        <string>Новая строка</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../res/res.qrc">
-         <normaloff>:/img/new.png</normaloff>:/img/new.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="addFilesBtn">
-       <property name="statusTip">
-        <string>Добавить несколько файлов</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../res/res.qrc">
-         <normaloff>:/img/openfolderHS.png</normaloff>:/img/openfolderHS.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="remBtn">
-       <property name="statusTip">
-        <string>Удалить запись</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../res/res.qrc">
-         <normaloff>:/img/remove.png</normaloff>:/img/remove.png</iconset>
+      <widget class="QComboBox" name="categoryCombo">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -96,7 +96,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../res/res.qrc"/>
+  <include location="../../../FmtLib/res/fmt.qrc"/>
  </resources>
  <connections/>
 </ui>

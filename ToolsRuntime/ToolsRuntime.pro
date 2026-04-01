@@ -42,6 +42,9 @@ SOURCES += \
     optionsdlg/updateoptionspage.cpp \
     propertywidgetmapper.cpp \
     ribbon/applicationwidgetbase.cpp \
+    ribbon/appoptionscontentwidget.cpp \
+    ribbon/categorycontentwidget.cpp \
+    ribbon/categorycontentwidgetstyle.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
@@ -138,6 +141,9 @@ HEADERS += \
     optionsdlg/updateoptionspage.h \
     propertywidgetmapper.h \
     ribbon/applicationwidgetbase.h \
+    ribbon/appoptionscontentwidget.h \
+    ribbon/categorycontentwidget.h \
+    ribbon/categorycontentwidgetstyle.h \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \

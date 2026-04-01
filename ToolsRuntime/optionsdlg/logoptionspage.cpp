@@ -28,6 +28,11 @@ void LogOptionsPage::UpdateDailog()
     QFileInfo fi(toolLogginFileName());
     ui->lineEdit->setToolTip(toolLogginFileName());
     ui->lineEdit->setText(fi.fileName());
+
+    ui->lineEdit->setEnabled(ui->checkBox->isChecked());
+    ui->label->setEnabled(ui->checkBox->isChecked());
+    ui->toolButton->setEnabled(ui->checkBox->isChecked());
+    ui->treeWidget->setEnabled(ui->checkBox->isChecked());
 }
 
 void LogOptionsPage::setPrefix(const QString &value)
@@ -62,7 +67,7 @@ void LogOptionsPage::OnLoggingChack(bool on)
     else
     {
         if (!toolInitLogging(m_Prefix, CreateRules()))
-            ui->groupBox->setChecked(false);
+            ui->checkBox->setChecked(false);
     }
     UpdateDailog();
 }
@@ -121,8 +126,8 @@ void LogOptionsPage::restore()
         }
     }
 
-    ui->groupBox->setChecked(toolIsLoggingEnabled());
+    ui->checkBox->setChecked(toolIsLoggingEnabled());
     UpdateDailog();
 
-    connect(ui->groupBox, SIGNAL(toggled(bool)), SLOT(OnLoggingChack(bool)));
+    connect(ui->checkBox, SIGNAL(toggled(bool)), SLOT(OnLoggingChack(bool)));
 }

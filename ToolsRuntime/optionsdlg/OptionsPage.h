@@ -19,6 +19,7 @@ public:
 
     OptionsDlg *options();
     QSettings *settings();
+    void setSettings(QSettings *_settings);
 
     virtual int save();
     virtual void restore();

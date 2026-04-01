@@ -10,9 +10,9 @@
 #include <QFileDialog>
 #include <QDir>
 
-QIcon StdFolderListHandler::buttonIcon() const
+StdFolderListHandler::StdFolderListHandler()
 {
-    return QIcon(":/img/openfolderHS.png");
+    _buttonIcon = QIcon(":/img/openfolderHS.png");
 }
 
 bool StdFolderListHandler::click(QString &text, QWidget *parent)
@@ -23,7 +23,7 @@ bool StdFolderListHandler::click(QString &text, QWidget *parent)
         return false;
 
     QDir appdir(qApp->applicationDirPath());
-    text = appdir.relativeFilePath(path);
+    text = QDir::toNativeSeparators(appdir.relativeFilePath(path));
 
     return true;
 }
@@ -37,6 +37,16 @@ public:
         m_IsOpenDialog(false)
     {
         m_pHandler = nullptr;
+    }
+
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE
+    {
+        QStyleOptionViewItem opt = option;
+
+        if (m_pHandler)
+            opt.icon = m_pHandler->rowIcon(index);
+
+        QStyledItemDelegate::paint(painter, opt, index);
     }
 
     virtual QWidget *createEditor(QWidget *parent,
@@ -129,6 +139,14 @@ public:
             return;
 
         edit->setText(index.data().toString());
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        if (!m_pHandler || !m_pHandler->_size.isValid())
+            return QStyledItemDelegate::sizeHint(option, index);
+
+        return m_pHandler->_size;
     }
 
     QWidget *m_pCurrent;
@@ -326,6 +344,12 @@ void StringListEditor::setHandler(StringListEditorHandler *handler)
     Q_D(StringListEditor);
     d->m_pHandler = handler;
     d->m_pDelegate->m_pHandler = handler;
+}
+
+StringListEditorHandler *StringListEditor::handler()
+{
+    Q_D(StringListEditor);
+    return d->m_pHandler;
 }
 
 QComboBox *StringListEditor::categoryWidget()
