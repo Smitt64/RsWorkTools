@@ -28,8 +28,13 @@ public:
     void setStyle(const QString &style);
     void rehighlight();
 
+    void showSearchWidget();
+    void hideSearchWidget();
+    bool isSearchWidgetVisible() const;
+
 protected:
     void setCodeHighlighter(CodeHighlighter *highlighter);
+    virtual void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
 signals:

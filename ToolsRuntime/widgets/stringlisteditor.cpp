@@ -17,7 +17,7 @@ StdFolderListHandler::StdFolderListHandler()
 
 bool StdFolderListHandler::click(QString &text, QWidget *parent)
 {
-    QString path = QFileDialog::getExistingDirectory(parent);
+    QString path = QFileDialog::getExistingDirectory(parent, QObject::tr("Выбор каталога"), text);
 
     if (path.isEmpty())
         return false;

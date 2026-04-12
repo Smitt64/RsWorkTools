@@ -10,6 +10,8 @@
 #include <QApplication>
 #include <QGroupBox>
 
+static CategoryContentWidgetStyle *m_customStyle = nullptr;
+
 CategoryContentWidget::CategoryContentWidget(QWidget *parent)
     : QWidget(parent)
     , m_layoutType(LayoutGroups)
@@ -29,7 +31,6 @@ CategoryContentWidget::CategoryContentWidget(QWidget *parent)
     , m_leftPanelContainer(nullptr)
     , m_leftPanelWidth(300)
     , m_leftPanelVisible(true)
-    , m_customStyle(nullptr)
     , m_showDetailHeader(true)
     , m_detailHeaderIconSize(24, 24)
     , m_detailHeaderWidget(nullptr)
@@ -38,10 +39,11 @@ CategoryContentWidget::CategoryContentWidget(QWidget *parent)
 {
     setupUI();
 
-    // Создаем кастомный стиль только для этого виджета
-    m_customStyle = new CategoryContentWidgetStyle(QApplication::style());
+    // Создаем кастомный стиль
+    if (!m_customStyle)
+        m_customStyle = new CategoryContentWidgetStyle(QApplication::style());
 
-    // Применяем стиль к этому виджету и всем его дочерним
+    // Применяем стиль к этому виджету и всем дочерним
     setStyle(m_customStyle);
     applyStyleRecursively(this);
 }
@@ -49,7 +51,6 @@ CategoryContentWidget::CategoryContentWidget(QWidget *parent)
 CategoryContentWidget::~CategoryContentWidget()
 {
     clearGroups();
-    delete m_customStyle;
 }
 
 void CategoryContentWidget::setupUI()
@@ -60,17 +61,29 @@ void CategoryContentWidget::setupUI()
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    // Устанавливаем фон #F0F0F0
+    QPalette pal = palette();
+    pal.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+    setPalette(pal);
+    setAutoFillBackground(true);
+
     m_scrollArea = new QScrollArea(this);
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setFrameShape(QFrame::NoFrame);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_scrollArea->setStyleSheet("QScrollArea { border: none; background-color: #F5F5F5; }");
     m_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_scrollArea->setStyleSheet("");
 
     m_contentWidget = new QWidget();
-    m_contentWidget->setStyleSheet("background-color: #F5F5F5;");
     m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_contentWidget->setStyleSheet("");
+
+    // Устанавливаем фон для contentWidget
+    QPalette contentPalette = m_contentWidget->palette();
+    contentPalette.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+    m_contentWidget->setPalette(contentPalette);
+    m_contentWidget->setAutoFillBackground(true);
 
     m_contentLayout = new QVBoxLayout(m_contentWidget);
     m_contentLayout->setContentsMargins(0, 0, 0, 0);
@@ -187,8 +200,15 @@ void CategoryContentWidget::updateLayout()
         // Устанавливаем фиксированный размер элементов
         m_listView->setGridSize(QSize(300, 60));
         m_listView->setUniformItemSizes(true);
-        m_listView->setIconSize(QSize(0, 0));
+        m_listView->setIconSize(QSize(28, 28));
         m_listView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        QPalette listPalette = m_listView->palette();
+        listPalette.setColor(QPalette::Base, QColor(0xF5F5F5));
+        listPalette.setColor(QPalette::Window, QColor(0xF5F5F5));
+        listPalette.setColor(QPalette::Text, Qt::black);
+        m_listView->setPalette(listPalette);
+        m_listView->setAutoFillBackground(false);
 
         // Применяем стиль списка
         updateListStyle();
@@ -481,11 +501,48 @@ void CategoryContentWidget::updateListStyle()
         parent = parent->parentWidget();
     }
 
-    // Обновляем цвета в стиле
-    if (m_customStyle)
-    {
-        m_customStyle->setBaseColor(baseColor);
-    }
+    // Используем QPalette для цвета текста и выделения
+    QPalette palette = m_listView->palette();
+    palette.setColor(QPalette::Text, Qt::black);  // Черный текст
+    palette.setColor(QPalette::Highlight, baseColor.lighter(120));  // Цвет выделения
+    palette.setColor(QPalette::HighlightedText, Qt::white);  // Белый текст на выделении
+    palette.setColor(QPalette::Base, QColor(0xF0F0F0));  // Белый фон
+    palette.setColor(QPalette::AlternateBase, QColor(0xFA, 0xFA, 0xFA));  // Альтернативный фон
+    m_listView->setPalette(palette);
+
+    // QSS только для отступов и размера элементов
+    QString styleSheet =
+        "QListWidget {"
+        "    border: none;"
+        "    outline: none;"
+        "    font-size: 13px;"
+        "    padding: 0px;"
+        "    margin: 0px;"
+        "    background-color: #F0F0F0;"
+        "}"
+        "QListWidget::item {"
+        "    padding: 10px 12px;"
+        "    border: none;"
+        "    margin: 0px;"
+        "}"
+        "QListWidget::item:selected {"
+        "    background-color: %1;"
+        "}"
+        "QListWidget::item:selected:hover {"
+        "    background-color: %2;"
+        "}"
+        "QListWidget::item:hover:!selected {"
+        "    background-color: %3;"
+        "}"
+        "QListWidget::item:focus {"
+        "    outline: none;"
+        "}";
+
+    styleSheet = styleSheet.arg(baseColor.lighter(120).name())
+                     .arg(baseColor.lighter(110).name())
+                     .arg(baseColor.lighter(150).name());
+
+    m_listView->setStyleSheet(styleSheet);
 }
 
 // Вспомогательная функция для смешивания с белым
@@ -526,35 +583,15 @@ void CategoryContentWidget::updateOfficeStyle()
     if (m_customStyle)
     {
         m_customStyle->setBaseColor(baseColor);
+        m_customStyle->setBackgroundColor(QColor(0xF5, 0xF5, 0xF5));
+        m_customStyle->setTextColor(QColor(0x33, 0x33, 0x33));
     }
 
-    // Обновляем цвет заголовка
+    // Обновляем заголовок (QSS остается только для него)
     if (m_detailHeaderTitleLabel)
     {
         m_detailHeaderTitleLabel->setStyleSheet(QString("color: %1; font-weight: bold;").arg(baseColor.name()));
     }
-
-    // Обновляем стили для всех кнопок
-    QList<QPushButton*> buttons = findChildren<QPushButton*>();
-    for (QPushButton *button : buttons)
-    {
-        applyButtonStyle(button);
-    }
-
-    QList<QGroupBox*> groupBoxes = findChildren<QGroupBox*>();
-    for (QGroupBox *groupBox : groupBoxes)
-    {
-        applyGroupBoxStyle(groupBox/*, groupBox->isFlat()*/);
-    }
-
-    QList<QToolButton*> toolbuttons = findChildren<QToolButton*>();
-    for (QToolButton *button : toolbuttons)
-    {
-        applyButtonStyle(button);
-    }
-
-    // Обновляем стиль для всех виджетов
-    applyStyleRecursively(this);
 }
 
 void CategoryContentWidget::updateStyle()
@@ -594,7 +631,7 @@ void CategoryContentWidget::setReadOnly(bool readOnly)
 
 // ==================== Для LayoutListDetail ====================
 
-void CategoryContentWidget::addListItem(const QString &text, const QVariant &data)
+QListWidgetItem *CategoryContentWidget::addListItem(const QString &text, const QVariant &data)
 {
     if (m_listView)
     {
@@ -610,10 +647,14 @@ void CategoryContentWidget::addListItem(const QString &text, const QVariant &dat
             m_currentDetailIcon = QIcon();
             updateDetailHeader();
         }
+
+        return item;
     }
+
+    return nullptr;
 }
 
-void CategoryContentWidget::addListItem(const QString &text, const QIcon &icon, const QVariant &data)
+QListWidgetItem *CategoryContentWidget::addListItem(const QString &text, const QIcon &icon, const QVariant &data)
 {
     if (m_listView)
     {
@@ -630,10 +671,14 @@ void CategoryContentWidget::addListItem(const QString &text, const QIcon &icon, 
             m_currentDetailIcon = icon;
             updateDetailHeader();
         }
+
+        return item;
     }
+
+    return nullptr;
 }
 
-void CategoryContentWidget::addListGroup(const QString &groupTitle)
+QListWidgetItem *CategoryContentWidget::addListGroup(const QString &groupTitle)
 {
     if (m_listView && !groupTitle.isEmpty())
     {
@@ -653,7 +698,11 @@ void CategoryContentWidget::addListGroup(const QString &groupTitle)
             m_currentDetailIcon = QIcon();
             updateDetailHeader();
         }
+
+        return item;
     }
+
+    return nullptr;
 }
 
 void CategoryContentWidget::clearList()
@@ -686,7 +735,7 @@ void CategoryContentWidget::setDetailWidget(QWidget *detailWidget)
             }
 
             // Создаем заголовок
-            createDetailHeader();
+            //createDetailHeader();
 
             // Добавляем заголовок
             if (m_showDetailHeader && m_detailHeaderWidget)
@@ -1151,22 +1200,23 @@ void CategoryContentWidget::applyStyleRecursively(QWidget *widget)
     if (!widget)
         return;
 
-    // Применяем кастомный стиль
-    widget->setStyle(m_customStyle);
+    // Для QToolButton не применяем кастомный стиль, они используют QSS
+    if (!qobject_cast<QToolButton*>(widget))
+    {
+        widget->setStyle(m_customStyle);
+    }
 
-    // Устанавливаем атрибуты
     widget->setAttribute(Qt::WA_StyledBackground, true);
     widget->setMouseTracking(true);
 
-    // Для кнопок применяем специальный QSS стиль
-    if (QPushButton *button = qobject_cast<QPushButton*>(widget))
-        applyButtonStyle(button);
-
-    if (QToolButton *button = qobject_cast<QToolButton*>(widget))
-        applyButtonStyle(button);
-
-    if (QGroupBox *groupBox = qobject_cast<QGroupBox*>(widget))
-        applyGroupBoxStyle(groupBox/*, groupBox->isFlat()*/);
+    // Для кнопок отключаем авто-заливку фона
+    if (QAbstractButton *button = qobject_cast<QAbstractButton*>(widget))
+    {
+        if (!qobject_cast<QToolButton*>(button))
+        {
+            button->setAutoFillBackground(false);
+        }
+    }
 
     // Рекурсивно применяем ко всем дочерним виджетам
     for (QObject *child : widget->children())

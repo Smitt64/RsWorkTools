@@ -27,8 +27,10 @@
 #include <QMenu>
 #include <QToolButton>
 #include <QTextCodec>
+#include <QFontDatabase>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
+Q_LOGGING_CATEGORY(logCommon, "Common")
 Q_LOGGING_CATEGORY(logHighlighter, "HighlighterStyle")
 Q_LOGGING_CATEGORY(logRsl, "Rsl")
 Q_LOGGING_CATEGORY(logSql, "Sql")
@@ -50,6 +52,7 @@ static std::map<QString, LoggingCategoryRef> InitCategoryList()
     _map.insert(LoggingCategoryPair("Sql", std::cref(logSql())));
     _map.insert(LoggingCategoryPair("Process", std::cref(logProcess())));
     _map.insert(LoggingCategoryPair("Update", std::cref(logUpdate())));
+    _map.insert(LoggingCategoryPair("Common", std::cref(logCommon())));
     return _map;
 }
 
@@ -356,6 +359,68 @@ bool toolGetPostgreSQLInstallLocation(QDir &dir)
     }
 
     return false;
+}
+
+void loadFontsFromDirectory(const QString& directoryPath, QFontDatabase& fontDb, int& loadedCount)
+{
+    QDir dir(directoryPath);
+    if (!dir.exists()) {
+        return;
+    }
+
+    // Фильтры для файлов шрифтов
+    QStringList filters;
+    filters << "*.ttf" << "*.TTF" << "*.otf" << "*.OTF"
+            << "*.ttc" << "*.TTC" << "*.dfont";
+
+    // Рекурсивно обходим все подкаталоги
+    QDirIterator it(directoryPath, filters, QDir::Files, QDirIterator::Subdirectories);
+
+    while (it.hasNext())
+    {
+        QString fontPath = it.next();
+        int fontId = QFontDatabase::addApplicationFont(fontPath);
+
+        if (fontId != -1) {
+            loadedCount++;
+            QStringList families = fontDb.applicationFontFamilies(fontId);
+            if (!families.isEmpty()) {
+                qDebug() << "Loaded font:" << families.first()
+                << "from" << fontPath;
+            }
+        } else {
+            qDebug() << "Failed to load font:" << fontPath;
+        }
+    }
+}
+
+void toolLoadFonts()
+{
+    QStringList searchPaths;
+
+    // 1. Рабочий каталог
+    QString workingDir = QDir::currentPath();
+    searchPaths << workingDir;
+
+    // 2. Каталог, где находится exe файл
+    QString exeDir = QCoreApplication::applicationDirPath();
+    if (exeDir != workingDir) {
+        searchPaths << exeDir;
+    }
+
+    QFontDatabase fontDb;
+    int loadedCount = 0;
+
+    // Проходим по всем путям поиска
+    for (const QString& basePath : searchPaths) {
+        QString fontsPath = basePath + "/resources/fonts";
+        loadFontsFromDirectory(fontsPath, fontDb, loadedCount);
+    }
+
+    if (loadedCount > 0)
+        qDebug() << "Successfully loaded" << loadedCount << "font(s)";
+    else
+        qDebug() << "No fonts found in resources/fonts directories";
 }
 
 QString toolGetRuntimeVersion()
@@ -968,6 +1033,9 @@ QString toolReplaceUnicodeSymToOem(const QString &text)
 
 QString toolGetActionDescription(const QString& actionName, const QKeySequence& shortcut, const QString& description)
 {
+    if (actionName == "...")
+        return description;
+
     // Стиль как в MS Word: жирное название, серый шрифт для описания
     QString tooltip = QString("<html><head><style>"
                               ".description { color: #606060; margin-top: 4px; }"

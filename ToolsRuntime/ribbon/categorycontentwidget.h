@@ -48,9 +48,9 @@ public:
     QColor mixWithBlack(const QColor &base, int percent);
 
     // Для LayoutListDetail
-    void addListItem(const QString &text, const QVariant &data = QVariant());
-    void addListItem(const QString &text, const QIcon &icon, const QVariant &data = QVariant());
-    void addListGroup(const QString &groupTitle);
+    QListWidgetItem *addListItem(const QString &text, const QVariant &data = QVariant());
+    QListWidgetItem *addListItem(const QString &text, const QIcon &icon, const QVariant &data = QVariant());
+    QListWidgetItem *addListGroup(const QString &groupTitle);
     void clearList();
     void setDetailWidget(QWidget *detailWidget);
     void setListHeaderVisible(bool visible);
@@ -108,6 +108,8 @@ public:
     void scrollToTop();
 
     void updateStyle();
+
+    //static CategoryContentWidgetStyle *m_customStyle;
 
 signals:
     void listItemSelected(const QVariant &data);
@@ -187,9 +189,6 @@ private:
     QLabel *m_detailHeaderTitleLabel;
     QIcon m_currentDetailIcon;
     QString m_currentDetailTitle;
-
-    // Кастомный стиль
-    CategoryContentWidgetStyle *m_customStyle;
 };
 
 #endif // CATEGORYCONTENTWIDGET_H

@@ -17,6 +17,7 @@ SOURCES += \
     aboutdlg.cpp \
     codeeditor/codeeditor.cpp \
     codeeditor/codehighlighter.cpp \
+    codeeditor/codesearchwidget.cpp \
     codeeditor/cppcodehighlighter.cpp \
     codeeditor/highlighteditmodel.cpp \
     codeeditor/highlighterstyle.cpp \
@@ -116,6 +117,7 @@ HEADERS += \
     aboutdlg.h \
     codeeditor/codeeditor.h \
     codeeditor/codehighlighter.h \
+    codeeditor/codesearchwidget.h \
     codeeditor/cppcodehighlighter.h \
     codeeditor/highlighteditmodel.h \
     codeeditor/highlighterstyle.h \

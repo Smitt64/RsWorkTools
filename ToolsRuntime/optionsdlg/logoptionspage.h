@@ -17,6 +17,7 @@ public:
     ~LogOptionsPage();
 
     void setPrefix(const QString &value);
+    void setLogButtonIcon(const QIcon &icon);
 
     virtual int save() Q_DECL_OVERRIDE;
     virtual void restore() Q_DECL_OVERRIDE;

@@ -34,5 +34,11 @@
         <file>icons/inetcpl.cpl_14_4487-3.png</file>
         <file alias="7z">../7zip/7zr.exe</file>
         <file>img/back-button.svg</file>
+        <file>img/CaseSensitive.svg</file>
+        <file>img/RegularExpression.svg</file>
+        <file>img/String.svg</file>
+        <file>img/Close.svg</file>
+        <file>img/FindNext.svg</file>
+        <file>img/FindPrevious.svg</file>
     </qresource>
 </RCC>

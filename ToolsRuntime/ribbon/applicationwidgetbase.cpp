@@ -41,6 +41,7 @@ void ApplicationWidgetBase::setupUI()
     m_menuPanel->setFixedWidth(160);
     m_menuPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     m_menuPanel->setContentsMargins(0, 0, 0, 0);
+    m_menuPanel->setStyleSheet("");
 
     // Layout для панели меню
     m_menuLayout = new QVBoxLayout(m_menuPanel);
@@ -49,14 +50,6 @@ void ApplicationWidgetBase::setupUI()
 
     // Кнопка возврата будет создана в setupBackButton()
     m_backButton = nullptr;
-
-    // Разделитель
-    QFrame *separator = new QFrame(m_menuPanel);
-    separator->setFrameShape(QFrame::HLine);
-    separator->setFrameShadow(QFrame::Plain);
-    separator->setFixedHeight(1);
-    separator->setStyleSheet("background-color: rgba(255, 255, 255, 0.1);");
-    m_menuLayout->addWidget(separator);
 
     // Список вкладок
     m_tabList = new QListWidget(m_menuPanel);
@@ -67,48 +60,46 @@ void ApplicationWidgetBase::setupUI()
     m_tabList->setFrameShape(QFrame::NoFrame);
     m_tabList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_tabList->setAttribute(Qt::WA_StyledBackground, true);
+    m_tabList->setStyleSheet("");
+    m_tabList->setMouseTracking(true);
 
     connect(m_tabList, &QListWidget::itemClicked, this, &ApplicationWidgetBase::onTabItemClicked);
 
     m_menuLayout->addWidget(m_tabList);
-
-    // Добавляем растяжку внизу
     m_menuLayout->addStretch();
 
     mainLayout->addWidget(m_menuPanel);
-    //mainLayout->addStretch(64);
-
-    // Разделитель между панелью меню и контентом
-    /*QFrame *mainSeparator = new QFrame(this);
-    mainSeparator->setFrameShape(QFrame::VLine);
-    mainSeparator->setFrameShadow(QFrame::Plain);
-    mainSeparator->setFixedWidth(1);
-    mainSeparator->setStyleSheet("background-color: rgba(0, 0, 0, 0.05);");
-    mainLayout->addWidget(mainSeparator);*/
 
     // Правая область с контентом
     m_contentArea = new QWidget(this);
     m_contentArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_contentArea->setStyleSheet("");
+
+    // Устанавливаем цвет фона #F0F0F0
+    QPalette contentPalette = m_contentArea->palette();
+    contentPalette.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+    m_contentArea->setPalette(contentPalette);
+    m_contentArea->setAutoFillBackground(true);
+
     QVBoxLayout *contentLayout = new QVBoxLayout(m_contentArea);
     contentLayout->setContentsMargins(32, 0, 32, 32);
     contentLayout->setSpacing(0);
 
-    // Заголовок категории с верхним отступом для выравнивания
+    // Заголовок категории
     m_categoryTitle = new QLabel(m_contentArea);
     m_categoryTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_categoryTitle->setContentsMargins(0, 0, 0, 0);
     m_categoryTitle->setStyleSheet(
         "QLabel {"
         "    font-size: 36px;"
         "    font-weight: normal;"
         "    color: #444444;"
         "    padding: 0px 20px 10px 0px;"
-        "    background-color: #F5F5F5;"
         "    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;"
+        "    background-color: #F0F0F0;"
         "}"
         );
-    m_categoryTitle->setText("");
-    // Добавляем верхний отступ равный высоте кнопки назад (64px)
-    m_categoryTitle->setContentsMargins(0, 0, 0, 0);
+
     contentLayout->addSpacing(60);
     contentLayout->addWidget(m_categoryTitle);
     contentLayout->addSpacing(24);
@@ -117,12 +108,13 @@ void ApplicationWidgetBase::setupUI()
     m_stackedWidget = new QStackedWidget(m_contentArea);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_stackedWidget->setContentsMargins(0, 0, 0, 0);
-    m_stackedWidget->setStyleSheet(
-        "QStackedWidget {"
-        "    background-color: #F5F5F5;"
-        "    border: none;"
-        "}"
-        );
+    m_stackedWidget->setStyleSheet("");
+
+    // Устанавливаем фон для стекового виджета
+    QPalette stackedPalette = m_stackedWidget->palette();
+    stackedPalette.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+    m_stackedWidget->setPalette(stackedPalette);
+    m_stackedWidget->setAutoFillBackground(true);
 
     contentLayout->addWidget(m_stackedWidget);
 
@@ -130,7 +122,6 @@ void ApplicationWidgetBase::setupUI()
 
     setLayout(mainLayout);
 
-    // Применяем стили
     updateMenuPanelStyle();
 }
 
@@ -253,14 +244,24 @@ void ApplicationWidgetBase::updateMenuPanelStyle()
 {
     if (m_menuPanel)
     {
-        m_menuPanel->setStyleSheet(
-            QString("QWidget { background-color: %1; border: none; }")
-                .arg(m_menuPanelColor.name())
-            );
+        QPalette palette = m_menuPanel->palette();
+        palette.setColor(QPalette::Window, m_menuPanelColor);
+        m_menuPanel->setPalette(palette);
+        m_menuPanel->setAutoFillBackground(true);
+
+        if (m_tabList)
+        {
+            QPalette listPalette = m_tabList->palette();
+            listPalette.setColor(QPalette::Text, Qt::white);
+            listPalette.setColor(QPalette::Highlight, m_menuPanelColor.lighter(120));
+            listPalette.setColor(QPalette::HighlightedText, Qt::white);
+            listPalette.setColor(QPalette::Base, m_menuPanelColor);
+            listPalette.setColor(QPalette::Window, m_menuPanelColor);
+            m_tabList->setPalette(listPalette);
+        }
 
         updateTabListStyle();
 
-        // Обновляем цвет иконки при наведении
         if (m_backButton && !m_backButtonNormalPixmap.isNull())
         {
             QByteArray svgData = toolReadFileContent("://img/back-button.svg");
@@ -276,6 +277,21 @@ void ApplicationWidgetBase::updateMenuPanelStyle()
             }
         }
     }
+
+    // Синхронизируем цвет правой области
+    if (m_contentArea)
+    {
+        QPalette contentPalette = m_contentArea->palette();
+        contentPalette.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+        m_contentArea->setPalette(contentPalette);
+    }
+
+    if (m_stackedWidget)
+    {
+        QPalette stackedPalette = m_stackedWidget->palette();
+        stackedPalette.setColor(QPalette::Window, QColor(0xF0, 0xF0, 0xF0));
+        m_stackedWidget->setPalette(stackedPalette);
+    }
 }
 
 void ApplicationWidgetBase::updateTabListStyle()
@@ -283,48 +299,46 @@ void ApplicationWidgetBase::updateTabListStyle()
     if (!m_tabList)
         return;
 
-    QColor baseColor = m_menuPanelColor;
-    QColor selectedColor = baseColor.lighter(120);
-    QColor hoverColor = baseColor.lighter(110);
+    // Используем QPalette для цветов
+    QPalette palette = m_tabList->palette();
+    palette.setColor(QPalette::Text, Qt::white);
+    palette.setColor(QPalette::Highlight, m_menuPanelColor.lighter(120));
+    palette.setColor(QPalette::HighlightedText, Qt::white);
+    palette.setColor(QPalette::Base, m_menuPanelColor);
+    m_tabList->setPalette(palette);
 
-    QString styleSheet = QString(
-                             "QListWidget {"
-                             "    border: none;"
-                             "    background-color: %1;"
-                             "    outline: none;"
-                             "    color: white;"
-                             "    font-size: 13px;"
-                             "    padding: 0px;"
-                             "    margin: 0px;"
-                             "}"
-                             "QListWidget::item {"
-                             "    padding: 10px 12px;"
-                             "    border: none;"
-                             "    color: white;"
-                             "    background-color: transparent;"
-                             "    margin: 0px;"
-                             "}"
-                             "QListWidget::item:hover {"
-                             "    background-color: %2;"
-                             "    color: white;"
-                             "}"
-                             "QListWidget::item:selected {"
-                             "    background-color: %3;"
-                             "    color: white;"
-                             "}"
-                             "QListWidget::item:selected:hover {"
-                             "    background-color: %3;"
-                             "    color: white;"
-                             "}"
-                             "QListWidget::item:focus {"
-                             "    outline: none;"
-                             "}"
-                             "QListWidget::item:!selected {"
-                             "    background-color: transparent;"
-                             "}"
-                             ).arg(baseColor.name())
-                             .arg(hoverColor.name())
-                             .arg(selectedColor.name());
+    // QSS только для отступов и hover эффектов
+    QString styleSheet =
+        "QListWidget {"
+        "    border: none;"
+        "    outline: none;"
+        "    font-size: 13px;"
+        "    padding: 0px;"
+        "    margin: 0px;"
+        "    background-color: %1;"
+        "}"
+        "QListWidget::item {"
+        "    padding: 10px 12px;"
+        "    border: none;"
+        "    margin: 0px;"
+        "    color: white;"
+        "}"
+        "QListWidget::item:hover {"
+        "    background-color: %2;"
+        "}"
+        "QListWidget::item:selected {"
+        "    background-color: %3;"
+        "}"
+        "QListWidget::item:selected:hover {"
+        "    background-color: %3;"
+        "}"
+        "QListWidget::item:focus {"
+        "    outline: none;"
+        "}";
+
+    styleSheet = styleSheet.arg(m_menuPanelColor.name())
+                     .arg(m_menuPanelColor.lighter(110).name())
+                     .arg(m_menuPanelColor.lighter(120).name());
 
     m_tabList->setStyleSheet(styleSheet);
 }

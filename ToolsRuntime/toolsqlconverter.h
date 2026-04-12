@@ -11,6 +11,15 @@ typedef struct
     QString tail;
 } SqlConversionResult;
 
+typedef struct
+{
+    QString expected;      // Что ожидалось
+    QString found;         // Что найдено
+    QString position;      // Позиция ошибки
+    QString context;       // Контекст
+    bool isValid;
+}ParsedSqlError;
+
 class SqlConverterPrivate;
 class TOOLSRUNTIME_EXPORT SqlConverter : public QObject
 {
@@ -37,5 +46,8 @@ private:
 
 TOOLSRUNTIME_EXPORT bool isSqlConverterAvailable();
 TOOLSRUNTIME_EXPORT SqlConversionResult convertSql(const QString &sql, const QString &User = QString());
+
+TOOLSRUNTIME_EXPORT ParsedSqlError parseAntlrError(const QString &error);
+TOOLSRUNTIME_EXPORT QString formatSqlErrorMessage(const QString &error);
 
 #endif // TOOLSQLCONVERTER_H

@@ -27,7 +27,9 @@ class QNetworkRequest;
 class QNetworkReply;
 class QStandardItemModel;
 class QToolButton;
+class QFontDatabase;
 
+TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logCommon)
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logUnknown);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logHighlighter);
 TOOLSRUNTIME_EXPORT Q_DECLARE_LOGGING_CATEGORY(logRsl);
@@ -48,6 +50,8 @@ TOOLSRUNTIME_EXPORT QStringList toolLoggingCategoryList();
 TOOLSRUNTIME_EXPORT void toolSetLoggingRules(const QString &rules);
 TOOLSRUNTIME_EXPORT const QLoggingCategory &toolLoggingCategory(const QString &name);
 
+TOOLSRUNTIME_EXPORT void toolLoadFonts();
+TOOLSRUNTIME_EXPORT void loadFontsFromDirectory(const QString& directoryPath, QFontDatabase& fontDb, int& loadedCount);
 TOOLSRUNTIME_EXPORT QString toolGetRuntimeVersion();
 TOOLSRUNTIME_EXPORT QString toolFullFileNameFromDir(const QString &file);
 TOOLSRUNTIME_EXPORT bool toolCopyDirectory(const QString &sourceDir, const QString &destinationDir);

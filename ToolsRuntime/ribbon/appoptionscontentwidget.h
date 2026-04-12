@@ -6,6 +6,7 @@
 
 class OptionsPage;
 class QSettings;
+class StringListEditor;
 class AppOptionsContentWidgetPrivate;
 class TOOLSRUNTIME_EXPORT AppOptionsContentWidget : public CategoryContentWidget
 {
@@ -19,6 +20,9 @@ public:
     int addPage(const QString &title, const QIcon &icon, OptionsPage *page);
     int addRslPage(const QIcon &icon);
     int addLogPage(const QIcon &icon, const QString &prefix);
+
+    void configureStringListEditor(StringListEditor *_editor);
+    void configureStringListEditors(QWidget *container);
 
 private:
     AppOptionsContentWidgetPrivate * const d_ptr;

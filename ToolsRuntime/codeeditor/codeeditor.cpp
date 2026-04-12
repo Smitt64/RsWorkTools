@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 #include "codeeditor.h"
 #include "codeeditor/codehighlighter.h"
+#include "codeeditor/codesearchwidget.h"
 #include "codeeditor/highlighterstyle.h"
 #include <QPaintEvent>
 #include <QPainter>
@@ -9,6 +10,7 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QApplication>
+#include <QKeyEvent>
 #include <QDebug>
 
 class LineNumberArea : public QWidget
@@ -41,6 +43,7 @@ class CodeEditorPrivate
 public:
     CodeEditorPrivate(CodeEditor *obj)
     {
+        Q_Q(CodeEditor);
         q_ptr = obj;
         m_CurrentWordColor = QColor("#9BFF9B");
 
@@ -165,6 +168,7 @@ public:
             q->setViewportMargins(q->lineNumberAreaWidth(), 0, 0, 0);
     }
 
+    CodeSearchWidget *m_searchWidget;
     QWidget *lineNumberArea;
     QTextEdit::ExtraSelection selectionCurrentLine;
     QList<QTextEdit::ExtraSelection> Selections, applyExtraSelections;
@@ -182,6 +186,8 @@ CodeEditor::CodeEditor(QWidget *parent) :
     d_ptr(new CodeEditorPrivate(this))
 {
     Q_D(CodeEditor);
+    d->m_searchWidget = new CodeSearchWidget(this, viewport());
+
     QFont font("Courier New", 10);
     document()->setDefaultFont(font);
 
@@ -224,6 +230,9 @@ CodeEditor::~CodeEditor()
 
     if (d->m_pCodeHighlighter)
         delete d->m_pCodeHighlighter;
+
+    if (d->m_searchWidget)
+        delete d->m_searchWidget;
 
     delete d_ptr;
 }
@@ -272,6 +281,11 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
     QRect cr = contentsRect();
     d->lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+
+    // Обновляем позицию виджета поиска при изменении размера
+    if (d->m_searchWidget && d->m_searchWidget->isVisible()) {
+        d->m_searchWidget->updatePosition();
+    }
 }
 
 void CodeEditor::setCodeHighlighter(CodeHighlighter *highlighter)
@@ -325,4 +339,59 @@ void CodeEditor::setStyle(const QString &style)
 
     if (d->m_pCodeHighlighter)
         d->m_pCodeHighlighter->setStyle(style);
+}
+
+void CodeEditor::showSearchWidget()
+{
+    Q_D(CodeEditor);
+
+    if (!d->m_searchWidget)
+        d->m_searchWidget = new CodeSearchWidget(this, viewport());
+
+    // Position widget in top-right corner
+    QRect viewportRect = viewport()->rect();
+    QSize widgetSize = d->m_searchWidget->sizeHint();
+    int x = viewportRect.width() - widgetSize.width() - 10;
+    int y = 10;
+
+    d->m_searchWidget->setGeometry(x, y, widgetSize.width(), widgetSize.height());
+    d->m_searchWidget->show();
+}
+
+void CodeEditor::hideSearchWidget()
+{
+    Q_D(CodeEditor);
+
+    if (d->m_searchWidget)
+        d->m_searchWidget->hide();
+}
+
+bool CodeEditor::isSearchWidgetVisible() const
+{
+    Q_D(const CodeEditor);
+
+    return d->m_searchWidget && d->m_searchWidget->isVisible();
+}
+
+void CodeEditor::keyPressEvent(QKeyEvent *event)
+{
+    Q_D(CodeEditor);  // Уберите const, так как мы будем изменять состояние
+
+    if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier) {
+        showSearchWidget();
+    }
+    else if (event->key() == Qt::Key_F3) {
+        if (d->m_searchWidget && d->m_searchWidget->isVisible()) {
+            if (event->modifiers() & Qt::ShiftModifier)
+                d->m_searchWidget->findPrevious();
+            else
+                d->m_searchWidget->findNext();
+        }
+    }
+    else if (event->key() == Qt::Key_Escape && d->m_searchWidget && d->m_searchWidget->isVisible()) {
+        hideSearchWidget();
+    }
+    else {
+        QPlainTextEdit::keyPressEvent(event);
+    }
 }

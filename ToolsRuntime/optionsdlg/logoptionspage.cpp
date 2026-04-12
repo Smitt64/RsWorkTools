@@ -40,6 +40,14 @@ void LogOptionsPage::setPrefix(const QString &value)
     m_Prefix = value;
 }
 
+void LogOptionsPage::setLogButtonIcon(const QIcon &icon)
+{
+    if (icon.isNull())
+        return;
+
+    ui->toolButton->setIcon(icon);
+}
+
 QString LogOptionsPage::CreateRules()
 {
     QString rules;
