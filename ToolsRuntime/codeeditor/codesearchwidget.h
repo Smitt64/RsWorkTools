@@ -19,6 +19,8 @@ public:
     explicit CodeSearchWidget(CodeEditor *editor, QWidget *parent = nullptr);
     ~CodeSearchWidget();
 
+    void setSearchText(const QString &text);
+
     void show();
     void hide();
     void setFocusToSearch();

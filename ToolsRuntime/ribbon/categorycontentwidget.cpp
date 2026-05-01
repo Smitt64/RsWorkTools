@@ -678,6 +678,57 @@ QListWidgetItem *CategoryContentWidget::addListItem(const QString &text, const Q
     return nullptr;
 }
 
+QListWidgetItem *CategoryContentWidget::insertListItem(int row, const QString &text, const QIcon &icon, const QVariant &data)
+{
+    if (m_listView)
+    {
+        QListWidgetItem *item = new QListWidgetItem(text);
+        item->setIcon(icon);
+        item->setData(Qt::UserRole, data);
+        item->setSizeHint(QSize(m_listView->gridSize().width(), 60));
+        m_listView->insertItem(row, item);
+
+        if (m_listView->count() == 1 && m_listView->currentItem() == nullptr)
+        {
+            m_listView->setCurrentItem(item);
+            m_currentDetailTitle = text;
+            m_currentDetailIcon = icon;
+            updateDetailHeader();
+        }
+
+        return item;
+    }
+
+    return nullptr;
+}
+
+QListWidgetItem *CategoryContentWidget::findListItem(const QString &text)
+{
+    QList<QListWidgetItem*> result = m_listView->findItems(text, Qt::MatchExactly);
+
+    if (result.isEmpty())
+        return nullptr;
+
+    return result.at(0);
+}
+
+void CategoryContentWidget::deleteListItem(const int &index)
+{
+    QListWidgetItem *item = m_listView->takeItem(index);
+    delete item;
+}
+
+void CategoryContentWidget::deleteListItem(const QString &text)
+{
+    QListWidgetItem *item = findListItem(text);
+
+    if (item)
+    {
+        m_listView->takeItem(m_listView->row(item));
+        delete item;
+    }
+}
+
 QListWidgetItem *CategoryContentWidget::addListGroup(const QString &groupTitle)
 {
     if (m_listView && !groupTitle.isEmpty())

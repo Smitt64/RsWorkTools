@@ -50,6 +50,7 @@ public:
     // Для LayoutListDetail
     QListWidgetItem *addListItem(const QString &text, const QVariant &data = QVariant());
     QListWidgetItem *addListItem(const QString &text, const QIcon &icon, const QVariant &data = QVariant());
+    QListWidgetItem *insertListItem(int row, const QString &text, const QIcon &icon, const QVariant &data = QVariant());
     QListWidgetItem *addListGroup(const QString &groupTitle);
     void clearList();
     void setDetailWidget(QWidget *detailWidget);
@@ -57,6 +58,10 @@ public:
     void setListGroups(const QStringList &groups);
     QWidget* detailWidget() const;
     QListWidget* listWidget() const;
+
+    QListWidgetItem *findListItem(const QString &text);
+    void deleteListItem(const int &index);
+    void deleteListItem(const QString &text);
 
     void setShowDetailHeader(bool show);
     bool showDetailHeader() const;

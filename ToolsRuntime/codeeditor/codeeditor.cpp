@@ -222,6 +222,14 @@ CodeEditor::CodeEditor(QWidget *parent) :
     });
 
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+
+    connect(this, &CodeEditor::updateRequest, [=](const QRect &rect, int dy)
+    {
+        d->updateLineNumberArea(rect, dy);
+
+        if (d->m_searchWidget && d->m_searchWidget->isVisible())
+            d->m_searchWidget->updatePosition();
+    });
 }
 
 CodeEditor::~CodeEditor()
@@ -356,6 +364,17 @@ void CodeEditor::showSearchWidget()
 
     d->m_searchWidget->setGeometry(x, y, widgetSize.width(), widgetSize.height());
     d->m_searchWidget->show();
+
+    // Получаем выделенный текст и подставляем его в поле поиска
+    QString selectedText = textCursor().selectedText();
+    if (!selectedText.isEmpty()) {
+        // Убираем лишние символы перевода строки, которые могут быть в selectedText
+        selectedText.replace(QChar::ParagraphSeparator, QLatin1String(" "));
+        selectedText.replace(QChar::LineSeparator, QLatin1String(" "));
+        d->m_searchWidget->setSearchText(selectedText);
+    } else {
+        d->m_searchWidget->setFocusToSearch();
+    }
 }
 
 void CodeEditor::hideSearchWidget()

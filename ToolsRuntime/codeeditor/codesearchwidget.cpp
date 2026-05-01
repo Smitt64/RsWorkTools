@@ -148,6 +148,17 @@ CodeSearchWidget::~CodeSearchWidget()
 {
 }
 
+void CodeSearchWidget::setSearchText(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    m_searchLineEdit->setText(text);
+    m_searchLineEdit->selectAll();
+
+    performSearch();
+}
+
 void CodeSearchWidget::updatePosition()
 {
     if (!m_editor || !isVisible())

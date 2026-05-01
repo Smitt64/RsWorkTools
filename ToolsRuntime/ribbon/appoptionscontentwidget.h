@@ -18,8 +18,13 @@ public:
     void setSettings(QSettings *pSettings);
 
     int addPage(const QString &title, const QIcon &icon, OptionsPage *page);
+    int addPage(int row, const QString &title, const QIcon &icon, OptionsPage *page);
+
     int addRslPage(const QIcon &icon);
     int addLogPage(const QIcon &icon, const QString &prefix);
+
+    void deletePage(const int &row);
+    QList<OptionsPage*> pages();
 
     void configureStringListEditor(StringListEditor *_editor);
     void configureStringListEditors(QWidget *container);

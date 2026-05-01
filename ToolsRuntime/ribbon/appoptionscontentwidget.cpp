@@ -160,6 +160,21 @@ void AppOptionsContentWidget::setSettings(QSettings *pSettings)
     }
 }
 
+void AppOptionsContentWidget::deletePage(const int &row)
+{
+    Q_D(AppOptionsContentWidget);
+    OptionsPage *page = d->m_Pages.takeAt(row);
+    delete page;
+
+    deleteListItem(row);
+}
+
+QList<OptionsPage*> AppOptionsContentWidget::pages()
+{
+    Q_D(AppOptionsContentWidget);
+    return d->m_Pages;
+}
+
 int AppOptionsContentWidget::addPage(const QString &title, const QIcon &icon, OptionsPage *page)
 {
     Q_D(AppOptionsContentWidget);
@@ -168,6 +183,23 @@ int AppOptionsContentWidget::addPage(const QString &title, const QIcon &icon, Op
 
     addListItem(title, icon);
     d->m_Pages.append(page);
+
+    if (!listWidget()->currentItem())
+        listWidget()->setCurrentRow(0);
+
+    d->itemClicked(listWidget()->currentItem(), 0);
+
+    return pos;
+}
+
+int AppOptionsContentWidget::addPage(int row, const QString &title, const QIcon &icon, OptionsPage *page)
+{
+    Q_D(AppOptionsContentWidget);
+
+    int pos = d->m_Pages.size();
+
+    insertListItem(row, title, icon);
+    d->m_Pages.insert(row, page);
 
     if (!listWidget()->currentItem())
         listWidget()->setCurrentRow(0);
