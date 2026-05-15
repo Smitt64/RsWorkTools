@@ -1,6 +1,7 @@
 #ifndef CATEGORYCONTENTWIDGETSTYLE_H
 #define CATEGORYCONTENTWIDGETSTYLE_H
 
+#include "ToolsRuntime_global.h"
 #include <QProxyStyle>
 #include <QStyleOption>
 #include <QPainter>
@@ -19,7 +20,7 @@
 #include <QTreeView>
 #include <QHeaderView>
 
-class CategoryContentWidgetStyle : public QProxyStyle
+class TOOLSRUNTIME_EXPORT CategoryContentWidgetStyle : public QProxyStyle
 {
 public:
     explicit CategoryContentWidgetStyle(QStyle *style = nullptr);
