@@ -20,6 +20,8 @@ class QToolButton;
 class QGroupBox;
 class CategoryContentWidgetStyle;
 
+TOOLSRUNTIME_EXPORT CategoryContentWidgetStyle *getCategoryContentStyle();
+
 class TOOLSRUNTIME_EXPORT CategoryContentWidget : public QWidget
 {
     Q_OBJECT

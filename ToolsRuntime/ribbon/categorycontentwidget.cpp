@@ -12,6 +12,11 @@
 
 static CategoryContentWidgetStyle *m_customStyle = nullptr;
 
+CategoryContentWidgetStyle *getCategoryContentStyle()
+{
+    return m_customStyle;
+}
+
 CategoryContentWidget::CategoryContentWidget(QWidget *parent)
     : QWidget(parent)
     , m_layoutType(LayoutGroups)
