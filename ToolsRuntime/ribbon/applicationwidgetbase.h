@@ -47,6 +47,8 @@ public:
 
     AppOptionsContentWidget *optionsWidget();
 
+    virtual void exec();
+
 signals:
     void currentTabChanged(int index);
     void backButtonClicked();

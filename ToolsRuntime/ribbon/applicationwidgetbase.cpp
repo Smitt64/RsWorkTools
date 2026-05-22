@@ -29,6 +29,14 @@ ApplicationWidgetBase::~ApplicationWidgetBase()
     m_tabTitles.clear();
 }
 
+void ApplicationWidgetBase::exec()
+{
+    if (m_pOptionsWidget)
+        m_pOptionsWidget->prepareExec();
+
+    show();
+}
+
 void ApplicationWidgetBase::setupUI()
 {
     // Основной горизонтальный layout

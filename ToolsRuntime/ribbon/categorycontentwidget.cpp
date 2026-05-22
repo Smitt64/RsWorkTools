@@ -46,7 +46,7 @@ CategoryContentWidget::CategoryContentWidget(QWidget *parent)
 
     // Создаем кастомный стиль
     if (!m_customStyle)
-        m_customStyle = new CategoryContentWidgetStyle(QApplication::style());
+        m_customStyle = new CategoryContentWidgetStyle(/*QApplication::style()*/);
 
     // Применяем стиль к этому виджету и всем дочерним
     setStyle(m_customStyle);

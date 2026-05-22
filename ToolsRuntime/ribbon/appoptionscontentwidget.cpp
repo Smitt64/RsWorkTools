@@ -160,6 +160,22 @@ void AppOptionsContentWidget::setSettings(QSettings *pSettings)
     }
 }
 
+void AppOptionsContentWidget::prepareExec()
+{
+    Q_D(AppOptionsContentWidget);
+
+    for (OptionsPage* page : qAsConst(d->m_Pages))
+    {
+        if (d->m_pSettings)
+        {
+            d->m_pSettings->sync();
+            page->setSettings(d->m_pSettings);
+            page->restore();
+            d->m_pSettings->sync();
+        }
+    }
+}
+
 void AppOptionsContentWidget::deletePage(const int &row)
 {
     Q_D(AppOptionsContentWidget);

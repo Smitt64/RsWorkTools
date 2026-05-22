@@ -16,6 +16,7 @@ public:
     virtual ~AppOptionsContentWidget();
 
     void setSettings(QSettings *pSettings);
+    void prepareExec();
 
     int addPage(const QString &title, const QIcon &icon, OptionsPage *page);
     int addPage(int row, const QString &title, const QIcon &icon, OptionsPage *page);
