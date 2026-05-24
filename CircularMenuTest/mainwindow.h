@@ -25,6 +25,8 @@ private slots:
     void onMenuTriggered(QAction *action);
 
 private:
+    void onShowBlockingMenu();
+    void customizeMenuStyle();
     CircularMenu *m_circularMenu;
 };
 

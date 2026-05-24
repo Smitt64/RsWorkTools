@@ -1,3 +1,4 @@
+// CircularMenu.cpp (обновленные методы)
 #include "CircularMenu.h"
 #include <QApplication>
 #include <QMouseEvent>
@@ -15,6 +16,69 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+// ---------------------------------------------------------------
+
+class CircularMenuEventLoop : public QEventLoop
+{
+public:
+    CircularMenuEventLoop(CircularMenu *menu, int timeoutMs = 0)
+        : m_menu(menu), m_timeoutMs(timeoutMs)
+    {
+        // Подключаем сигналы для завершения цикла
+        connect(menu, &CircularMenu::triggered, this, &CircularMenuEventLoop::onActionTriggered);
+        connect(menu, &CircularMenu::aboutToHide, this, &CircularMenuEventLoop::onMenuHidden);
+
+        if (m_timeoutMs > 0)
+        {
+            QTimer::singleShot(m_timeoutMs, this, [this]() {
+                if (isRunning())
+                {
+                    m_selectedAction = nullptr;
+                    quit();
+                }
+            });
+        }
+    }
+
+    QAction *exec(const QPoint &globalPos)
+    {
+        if (!m_menu || m_menu->m_items.isEmpty())
+            return nullptr;
+
+        m_selectedAction = nullptr;
+        m_menu->showAt(globalPos);
+
+        // Запускаем блокирующий цикл событий
+        QEventLoop::exec();
+
+        // Скрываем меню если оно еще видимо
+        if (m_menu && m_menu->isVisible())
+            m_menu->hide();
+
+        return m_selectedAction;
+    }
+
+private slots:
+    void onActionTriggered(QAction *action)
+    {
+        m_selectedAction = action;
+        quit();
+    }
+
+    void onMenuHidden()
+    {
+        if (m_selectedAction == nullptr)
+            quit();
+    }
+
+private:
+    CircularMenu *m_menu;
+    QAction *m_selectedAction = nullptr;
+    int m_timeoutMs = 0;
+};
+
+// ---------------------------------------------------------------
 
 // Пользовательская: 0° = вверх (12 часов), ↻ по часовой
 // Qt/экранная: 0° = вправо (3 часа), ↺ против часовой, единицы = 1/16°
@@ -37,7 +101,8 @@ void CircularMenu::drawSector(QPainter &painter, double userAngleStart, double u
     if (userAngleEnd <= userAngleStart)
         return;
 
-    QRectF ellipseRect(m_center.x() - m_radius, m_center.y() - m_radius,m_radius * 2, m_radius * 2);
+    QRectF ellipseRect(m_center.x() - m_radius, m_center.y() - m_radius,
+                       m_radius * 2, m_radius * 2);
 
     // Прямое преобразование: для Qt угол 0° = 3 часа
     // Нам нужно: 0° = 12 часов, поэтому вычитаем из 90
@@ -57,7 +122,7 @@ bool CircularMenu::pointInSector(const QPoint &pos, double userAngleStart, doubl
     QPointF rel = pos - m_center;
     double dist = std::hypot(rel.x(), rel.y());
 
-    if (dist < m_radius * 0.2 || dist > m_radius)
+    if (dist < m_centerRadius || dist > m_radius)
         return false;
 
     double screenAngle = std::atan2(rel.y(), rel.x()) * 180.0 / M_PI;
@@ -101,6 +166,103 @@ CircularMenu::CircularMenu(QWidget *parent)
 CircularMenu::~CircularMenu()
 {
     clear();
+}
+
+// QSS сеттеры
+void CircularMenu::setBackgroundColor(const QColor &color)
+{
+    m_backgroundColor = color;
+    update();
+}
+
+void CircularMenu::setHoverColor(const QColor &color)
+{
+    m_hoverColor = color;
+    update();
+}
+
+void CircularMenu::setBorderColor(const QColor &color)
+{
+    m_borderColor = color;
+    update();
+}
+
+void CircularMenu::setTextColor(const QColor &color)
+{
+    m_textColor = color;
+    update();
+}
+
+void CircularMenu::setTextHoverColor(const QColor &color)
+{
+    m_textHoverColor = color;
+    update();
+}
+
+void CircularMenu::setCenterBgColor(const QColor &color)
+{
+    m_centerBgColor = color;
+    update();
+}
+
+void CircularMenu::setCenterBorderColor(const QColor &color)
+{
+    m_centerBorderColor = color;
+    update();
+}
+
+void CircularMenu::setCenterTextColor(const QColor &color)
+{
+    m_centerTextColor = color;
+    update();
+}
+
+void CircularMenu::setSeparatorColor(const QColor &color)
+{
+    m_separatorColor = color;
+    update();
+}
+
+void CircularMenu::setShadowColor(const QColor &color)
+{
+    m_shadowColor = color;
+    update();
+}
+
+void CircularMenu::setCenterRadius(int radius)
+{
+    m_centerRadius = qBound(20, radius, 60);
+    updateGeometry();
+}
+
+void CircularMenu::setIconSize(int size)
+{
+    m_iconSize = qBound(16, size, 48);
+    updateGeometry();
+}
+
+void CircularMenu::setTextDistance(double distance)
+{
+    m_textDistance = qBound(0.3, distance, 0.95);
+    updateGeometry();
+}
+
+void CircularMenu::setIconDistance(double distance)
+{
+    m_iconDistance = qBound(0.3, distance, 0.8);
+    updateGeometry();
+}
+
+void CircularMenu::setTextFont(const QFont &font)
+{
+    m_textFont = font;
+    updateGeometry();
+}
+
+void CircularMenu::setCenterFont(const QFont &font)
+{
+    m_centerFont = font;
+    update();
 }
 
 void CircularMenu::addAction(QAction *action)
@@ -171,18 +333,22 @@ void CircularMenu::updateGeometry()
         // Позиции контента
         double midAngle = item.angleStart + step * 0.5;
 
-        // Иконка (45% радиуса)
-        QPointF iconPos = positionFromUserAngle(midAngle, m_radius * 0.45, m_center);
-        item.iconRect = QRectF(iconPos.x() - 14, iconPos.y() - 14, 28, 28);
+        // Иконка с использованием m_iconDistance и m_iconSize
+        QPointF iconPos = positionFromUserAngle(midAngle, m_radius * m_iconDistance, m_center);
+        item.iconRect = QRectF(iconPos.x() - m_iconSize / 2,
+                               iconPos.y() - m_iconSize / 2,
+                               m_iconSize, m_iconSize);
 
-        // Текст (75% радиуса)
-        QPointF textPos = positionFromUserAngle(midAngle, m_radius * 0.75, m_center);
+        // Текст с использованием m_textDistance
+        QPointF textPos = positionFromUserAngle(midAngle, m_radius * m_textDistance, m_center);
         QString txt = item.action->text().remove('&');
-        QFont font("Segoe UI", 9);
-        QFontMetrics fm(font);
-        item.textRect = QRectF(textPos.x() - fm.horizontalAdvance(txt) / 2.0 - 6,
-                               textPos.y() - fm.height() / 2.0 - 3,
-                               fm.horizontalAdvance(txt) + 12, fm.height() + 6);
+        QFontMetrics fm(m_textFont);
+        int textWidth = fm.horizontalAdvance(txt);
+        int textHeight = fm.height();
+
+        item.textRect = QRectF(textPos.x() - textWidth / 2.0 - 6,
+                               textPos.y() - textHeight / 2.0 - 3,
+                               textWidth + 12, textHeight + 6);
     }
 }
 
@@ -215,11 +381,11 @@ void CircularMenu::paintEvent(QPaintEvent *event)
 
     if (m_items.isEmpty())
     {
-        painter.setBrush(QColor(50, 50, 50, 240));
-        painter.setPen(QPen(QColor(150, 150, 150), 2));
-        painter.drawEllipse(m_center, 30, 30);
-        painter.setPen(Qt::white);
-        painter.setFont(QFont("Arial", 10, QFont::Bold));
+        painter.setBrush(m_centerBgColor);
+        painter.setPen(QPen(m_centerBorderColor, 2));
+        painter.drawEllipse(m_center, m_centerRadius, m_centerRadius);
+        painter.setPen(m_centerTextColor);
+        painter.setFont(m_centerFont);
         painter.drawText(QRect(m_center.x() - 25, m_center.y() - 12, 50, 24),
                          Qt::AlignCenter, "Menu");
         return;
@@ -228,35 +394,34 @@ void CircularMenu::paintEvent(QPaintEvent *event)
     // Тень
     QPainterPath shadowPath;
     shadowPath.addEllipse(m_center, m_radius + 5, m_radius + 5);
-    painter.fillPath(shadowPath, QColor(0, 0, 0, 60));
+    painter.fillPath(shadowPath, m_shadowColor);
 
     // Внешнее кольцо (рамка)
     QPainterPath outerPath;
     outerPath.addEllipse(m_center, m_radius + 2, m_radius + 2);
-    painter.fillPath(outerPath, QColor(30, 30, 30, 180));
+    painter.fillPath(outerPath, m_backgroundColor.darker(120));
 
     // Основное кольцо с градиентом
     QPainterPath mainPath;
     mainPath.addEllipse(m_center, m_radius, m_radius);
 
     QRadialGradient gradient(m_center, m_radius);
-    gradient.setColorAt(0.0, QColor(80, 80, 80, 240));
-    gradient.setColorAt(0.7, QColor(60, 60, 60, 240));
-    gradient.setColorAt(1.0, QColor(40, 40, 40, 240));
+    gradient.setColorAt(0.0, m_backgroundColor.lighter(110));
+    gradient.setColorAt(0.7, m_backgroundColor);
+    gradient.setColorAt(1.0, m_backgroundColor.darker(110));
     painter.fillPath(mainPath, gradient);
 
-    painter.setPen(QPen(QColor(150, 150, 150, 200), 2));
+    painter.setPen(QPen(m_borderColor, 2));
     painter.drawPath(mainPath);
 
     if (m_hoveredIndex >= 0 && m_hoveredIndex < m_items.size())
     {
         const auto &item = m_items[m_hoveredIndex];
-        drawSector(painter, item.angleStart, item.angleEnd, QBrush(QColor(60, 130, 220, 150)), Qt::NoPen);
+        drawSector(painter, item.angleStart, item.angleEnd, QBrush(m_hoverColor), Qt::NoPen);
     }
 
     // Разделительные линии
-    //painter.setPen(QPen(QColor(60, 60, 70, 140), 1));
-    painter.setPen(QPen(QColor(200, 200, 200, 120), 1.5));
+    painter.setPen(QPen(m_separatorColor, 1.5));
     for (const auto &item : qAsConst(m_items))
     {
         QPointF end = positionFromUserAngle(item.angleStart, m_radius - 2, m_center);
@@ -271,23 +436,38 @@ void CircularMenu::paintEvent(QPaintEvent *event)
 
         if (!item.action->icon().isNull())
         {
-            QPixmap pix = item.action->icon().pixmap(28, 28);
-            if (!pix.isNull()) painter.drawPixmap(item.iconRect.toRect(), pix);
+            QPixmap pix = item.action->icon().pixmap(m_iconSize, m_iconSize);
+            if (!pix.isNull())
+                painter.drawPixmap(item.iconRect.toRect(), pix);
         }
 
-        painter.setFont(QFont("Segoe UI", isHovered ? 10 : 9, isHovered ? QFont::Bold : QFont::Normal));
-        painter.setPen(isHovered ? Qt::white : QColor(200, 200, 205));
-        painter.drawText(item.textRect.toRect(), Qt::AlignCenter, item.action->text().remove('&'));
+        painter.setFont(m_textFont);
+        if (isHovered)
+        {
+            QFont boldFont = m_textFont;
+            boldFont.setBold(true);
+            painter.setFont(boldFont);
+            painter.setPen(m_textHoverColor);
+        }
+        else
+        {
+            painter.setPen(m_textColor);
+        }
+
+        painter.drawText(item.textRect.toRect(), Qt::AlignCenter,
+                         item.action->text().remove('&'));
     }
 
-    // Центральная кнопка (верхний слой)
-    painter.setBrush(QColor(50, 50, 50, 240));
-    painter.setPen(QPen(QColor(150, 150, 150), 2));
-    painter.drawEllipse(m_center, 30, 30);
+    // Центральная кнопка
+    painter.setBrush(m_centerBgColor);
+    painter.setPen(QPen(m_centerBorderColor, 2));
+    painter.drawEllipse(m_center, m_centerRadius, m_centerRadius);
 
-    painter.setPen(Qt::white);
-    painter.setFont(QFont("Arial", 10, QFont::Bold));
-    painter.drawText(QRect(m_center.x() - 25, m_center.y() - 12, 50, 24),
+    painter.setPen(m_centerTextColor);
+    painter.setFont(m_centerFont);
+    painter.drawText(QRect(m_center.x() - m_centerRadius,
+                           m_center.y() - m_centerRadius / 2,
+                           m_centerRadius * 2, m_centerRadius),
                      Qt::AlignCenter, m_Title);
 }
 
@@ -312,8 +492,10 @@ void CircularMenu::showAt(const QPoint &globalPos)
     m_hoveredIndex = -1;
     m_opacity = 0.0;
 
-    show(); raise();
+    show();
+    raise();
 
+    m_animation->disconnect();
     m_animation->stop();
     m_animation->setStartValue(0.0);
     m_animation->setEndValue(1.0);
@@ -325,6 +507,7 @@ void CircularMenu::showAt(const QPoint &globalPos)
 
 void CircularMenu::hide()
 {
+    qDebug() << "hide()";
     if (!isVisible())
         return;
 
@@ -339,14 +522,14 @@ void CircularMenu::startHideAnimation()
     m_animation->setStartValue(m_opacity);
     m_animation->setEndValue(0.0);
 
-    m_animation->disconnect();
     connect(m_animation, &QPropertyAnimation::finished, this, [this]()
-    {
-        QWidget::hide();
-        emit aboutToHide();
-        m_hoveredIndex = -1;
-        m_opacity = 0.0;
-    });
+            {
+                QWidget::hide();
+                emit aboutToHide();
+                m_hoveredIndex = -1;
+                m_opacity = 0.0;
+                m_animation->stop();
+            }, Qt::UniqueConnection);
 
     m_animation->start();
 }
@@ -423,15 +606,14 @@ void CircularMenu::keyPressEvent(QKeyEvent *event)
 
 void CircularMenu::showEvent(QShowEvent *event)
 {
-    QWidget::showEvent(event); m_center = QPoint(width() / 2, height() / 2);
+    QWidget::showEvent(event);
+    m_center = QPoint(width() / 2, height() / 2);
 }
 
 void CircularMenu::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-
     m_center = QPoint(width() / 2, height() / 2);
-
     if (!m_items.isEmpty())
         updateGeometry();
 }
@@ -439,4 +621,82 @@ void CircularMenu::resizeEvent(QResizeEvent *event)
 void CircularMenu::setTitle(const QString &str)
 {
     m_Title = str;
+    update();
+}
+
+QAction *CircularMenu::exec(const QPoint &globalPos)
+{
+    if (m_items.isEmpty())
+        return nullptr;
+
+    QEventLoop loop;
+    QAction *selectedAction = nullptr;
+
+    auto triggeredConnection = connect(this, &CircularMenu::triggered, [&](QAction *action)
+    {
+        selectedAction = action;
+        loop.quit();
+    });
+
+    auto aboutToHideConnection = connect(this, &CircularMenu::aboutToHide, [&]()
+    {
+        loop.quit();
+    });
+
+    showAt(globalPos);
+    loop.exec();
+
+    disconnect(triggeredConnection);
+    disconnect(aboutToHideConnection);
+
+    if (isVisible())
+        hide();
+
+    return selectedAction;
+}
+
+QAction *CircularMenu::exec(const QPoint &globalPos, int timeoutMs)
+{
+    if (m_items.isEmpty())
+        return nullptr;
+
+    QEventLoop loop;
+    QAction *selectedAction = nullptr;
+
+    QTimer timeoutTimer;
+    if (timeoutMs > 0)
+    {
+        timeoutTimer.setSingleShot(true);
+        connect(&timeoutTimer, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeoutTimer.start(timeoutMs);
+    }
+
+    auto triggeredConnection = connect(this, &CircularMenu::triggered, [&](QAction *action)
+    {
+       selectedAction = action;
+       loop.quit();
+    });
+
+    auto aboutToHideConnection = connect(this, &CircularMenu::aboutToHide, [&]()
+    {
+        loop.quit();
+    });
+
+    showAt(globalPos);
+    loop.exec();
+
+    disconnect(triggeredConnection);
+    disconnect(aboutToHideConnection);
+
+    if (isVisible())
+        hide();
+
+    return selectedAction;
+}
+
+QAction *CircularMenu::exec(const QPoint &globalPos, const QList<QAction *> &actions, QWidget *parent)
+{
+    CircularMenu menu(parent);
+    menu.addActions(actions);
+    return menu.exec(globalPos);
 }
