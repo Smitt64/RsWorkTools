@@ -100,6 +100,7 @@ SOURCES += \
     toolsruntime.cpp \
     updatechecker.cpp \
     updatecheckermessagebox.cpp \
+    widgets/circularmenu.cpp \
     widgets/codeinputdialog.cpp \
     widgets/doubleprogressdialog.cpp \
     widgets/doubleprogressdialogprivate.cpp \
@@ -195,6 +196,7 @@ HEADERS += \
     toolsruntime.h \
     updatechecker.h \
     updatecheckermessagebox.h \
+    widgets/circularmenu.h \
     widgets/codeinputdialog.h \
     widgets/doubleprogressdialog.h \
     widgets/doubleprogressdialogprivate.h \
