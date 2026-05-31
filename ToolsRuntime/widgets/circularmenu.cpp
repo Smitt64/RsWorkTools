@@ -475,6 +475,7 @@ void CircularMenu::showAt(const QPoint &globalPos)
 {
     if (m_items.isEmpty()) return;
 
+    //m_opacity = 0.0;
     m_isShowing = true;
     updateGeometry();
 
@@ -490,18 +491,19 @@ void CircularMenu::showAt(const QPoint &globalPos)
     move(x, y);
     m_center = QPoint(width() / 2, height() / 2);
     m_hoveredIndex = -1;
-    m_opacity = 0.0;
+    m_opacity = 1.0;
 
     show();
     raise();
+    setFocus(Qt::MouseFocusReason);
 
-    m_animation->disconnect();
-    m_animation->stop();
+    //m_animation->disconnect();
+    /*m_animation->stop();
     m_animation->setStartValue(0.0);
     m_animation->setEndValue(1.0);
-    m_animation->start();
+    m_animation->start();*/
+    //setOpacity()
 
-    setFocus(Qt::MouseFocusReason);
     QTimer::singleShot(150, this, [this]() { m_isShowing = false; });
 }
 
@@ -516,22 +518,24 @@ void CircularMenu::hide()
 
 void CircularMenu::startHideAnimation()
 {
-    if (m_animation->state() == QPropertyAnimation::Running)
+    /*if (m_animation->state() == QPropertyAnimation::Running)
         m_animation->stop();
 
     m_animation->setStartValue(m_opacity);
     m_animation->setEndValue(0.0);
 
     connect(m_animation, &QPropertyAnimation::finished, this, [this]()
-            {
-                QWidget::hide();
-                emit aboutToHide();
-                m_hoveredIndex = -1;
-                m_opacity = 0.0;
-                m_animation->stop();
-            }, Qt::UniqueConnection);
+    {
+        QWidget::hide();
+        emit aboutToHide();
+        m_hoveredIndex = -1;
+        m_opacity = 0.0;
+        m_animation->stop();
+    }, Qt::UniqueConnection);
 
-    m_animation->start();
+    m_animation->start();*/
+    emit aboutToHide();
+    QWidget::hide();
 }
 
 void CircularMenu::mousePressEvent(QMouseEvent *event)
@@ -606,8 +610,17 @@ void CircularMenu::keyPressEvent(QKeyEvent *event)
 
 void CircularMenu::showEvent(QShowEvent *event)
 {
+    qDebug() << "CircularMenu::showEvent";
     QWidget::showEvent(event);
     m_center = QPoint(width() / 2, height() / 2);
+}
+
+void CircularMenu::hideEvent(QHideEvent *event)
+{
+    emit aboutToHide();
+    qDebug() << "CircularMenu::hideEvent";
+    m_pCurrentEventLoop->quit();
+    QWidget::hideEvent(event);
 }
 
 void CircularMenu::resizeEvent(QResizeEvent *event)
@@ -629,22 +642,25 @@ QAction *CircularMenu::exec(const QPoint &globalPos)
     if (m_items.isEmpty())
         return nullptr;
 
-    QEventLoop loop;
+    //QEventLoop loop;
+    m_pCurrentEventLoop = new QEventLoop(this);
     QAction *selectedAction = nullptr;
 
     auto triggeredConnection = connect(this, &CircularMenu::triggered, [&](QAction *action)
     {
         selectedAction = action;
-        loop.quit();
+        qDebug() << "1 m_pCurrentEventLoop->quit();";
+        m_pCurrentEventLoop->quit();
     });
 
     auto aboutToHideConnection = connect(this, &CircularMenu::aboutToHide, [&]()
     {
-        loop.quit();
+        qDebug() << "2 m_pCurrentEventLoop->quit();";
+        m_pCurrentEventLoop->quit();
     });
 
     showAt(globalPos);
-    loop.exec();
+    m_pCurrentEventLoop->exec();
 
     disconnect(triggeredConnection);
     disconnect(aboutToHideConnection);

@@ -63,9 +63,14 @@ protected:
 private slots:
     void onTabItemClicked(QListWidgetItem *item);
     void onBackButtonClicked();
+    void onMinimizeClicked();
+    void onMaximizeClicked();
+    void onCloseClicked();
 
 private:
     void setupBackButton();
+    void setupWindowButtons();
+    void updateMaximizeButtonIcon();
     QPixmap createColoredPixmap(const QByteArray &svgData, const QColor &color);
 
     // UI компоненты
@@ -76,6 +81,12 @@ private:
     QLabel *m_categoryTitle;
     QStackedWidget *m_stackedWidget;
     QVBoxLayout *m_menuLayout;
+
+    // Кнопки окна
+    QWidget *m_windowButtonWidget;
+    QToolButton *m_minimizeButton;
+    QToolButton *m_maximizeButton;
+    QToolButton *m_closeButton;
 
     // Данные
     QMap<int, QString> m_tabTitles;

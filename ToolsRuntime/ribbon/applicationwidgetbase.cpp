@@ -15,9 +15,14 @@ ApplicationWidgetBase::ApplicationWidgetBase(SARibbonMainWindow *parent)
     , m_menuPanelColor(QColor(52, 73, 94))
     , m_currentIndex(-1)
     , m_pOptionsWidget(nullptr)
+    , m_windowButtonWidget(nullptr)
+    , m_minimizeButton(nullptr)
+    , m_maximizeButton(nullptr)
+    , m_closeButton(nullptr)
 {
     setupUI();
     setupBackButton();
+    setupWindowButtons();
 
     setStyleSheet("ApplicationWidgetBase {background-color: #F5F5F5;}");
     setAutoFillBackground(true);
@@ -39,12 +44,12 @@ void ApplicationWidgetBase::exec()
 
 void ApplicationWidgetBase::setupUI()
 {
-    // Основной горизонтальный layout
+    // Основной горизонтальный layout: меню слева, контент справа (на всю высоту)
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    // Левая панель меню
+    // Левая панель меню (на всю высоту)
     m_menuPanel = new QWidget(this);
     m_menuPanel->setFixedWidth(160);
     m_menuPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -90,32 +95,50 @@ void ApplicationWidgetBase::setupUI()
     m_contentArea->setAutoFillBackground(true);
 
     QVBoxLayout *contentLayout = new QVBoxLayout(m_contentArea);
-    contentLayout->setContentsMargins(32, 0, 32, 32);
+    contentLayout->setContentsMargins(0, 0, 0, 32);
     contentLayout->setSpacing(0);
 
-    // Заголовок категории
-    m_categoryTitle = new QLabel(m_contentArea);
+    // === Строка 0: Контейнер для кнопок окна (прижат к правому краю) ===
+    m_windowButtonWidget = new QWidget(m_contentArea);
+    m_windowButtonWidget->setFixedHeight(25);
+    m_windowButtonWidget->setStyleSheet("background-color: transparent;");
+
+    QHBoxLayout *windowBtnOuterLayout = new QHBoxLayout(m_windowButtonWidget);
+    windowBtnOuterLayout->setContentsMargins(0, 0, 0, 0);
+    windowBtnOuterLayout->addStretch();
+
+    contentLayout->addWidget(m_windowButtonWidget);
+    contentLayout->addSpacing(16);
+
+    // === Строка 1: заголовок категории ===
+    QWidget *titleRow = new QWidget(m_contentArea);
+    titleRow->setStyleSheet("background-color: transparent;");
+
+    QHBoxLayout *titleRowLayout = new QHBoxLayout(titleRow);
+    titleRowLayout->setContentsMargins(32, 0, 32, 0);
+    titleRowLayout->setSpacing(0);
+
+    m_categoryTitle = new QLabel(titleRow);
     m_categoryTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    m_categoryTitle->setContentsMargins(0, 0, 0, 0);
     m_categoryTitle->setStyleSheet(
         "QLabel {"
         "    font-size: 36px;"
         "    font-weight: normal;"
         "    color: #444444;"
-        "    padding: 0px 20px 10px 0px;"
+        "    padding: 0px;"
         "    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;"
-        "    background-color: #F0F0F0;"
+        "    background-color: transparent;"
         "}"
         );
 
-    contentLayout->addSpacing(60);
-    contentLayout->addWidget(m_categoryTitle);
+    titleRowLayout->addWidget(m_categoryTitle);
+    contentLayout->addWidget(titleRow);
     contentLayout->addSpacing(24);
 
-    // Стек для контента
+    // === Строка 2: стек для контента ===
     m_stackedWidget = new QStackedWidget(m_contentArea);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_stackedWidget->setContentsMargins(0, 0, 0, 0);
+    m_stackedWidget->setContentsMargins(32, 0, 32, 0);
     m_stackedWidget->setStyleSheet("");
 
     // Устанавливаем фон для стекового виджета
@@ -136,27 +159,23 @@ void ApplicationWidgetBase::setupUI()
 void ApplicationWidgetBase::setupBackButton()
 {
     m_backButton = new QPushButton(m_menuPanel);
-    m_backButton->setFixedSize(64, 64);  // Увеличено до 64x64
+    m_backButton->setFixedSize(64, 64);
     m_backButton->setCursor(Qt::PointingHandCursor);
     m_backButton->setFocusPolicy(Qt::NoFocus);
     m_backButton->setFlat(true);
 
-    // Читаем SVG файл
     QByteArray svgData = toolReadFileContent("://img/back-button.svg");
 
     if (!svgData.isEmpty())
     {
-        // Создаем иконки для разных состояний
         m_backButtonNormalPixmap = createColoredPixmap(svgData, Qt::white);
         QColor hoverColor = m_menuPanelColor.lighter(130);
         m_backButtonHoverPixmap = createColoredPixmap(svgData, hoverColor);
 
-        // Устанавливаем нормальную иконку
         m_backButton->setIcon(QIcon(m_backButtonNormalPixmap));
-        m_backButton->setIconSize(QSize(36, 36));  // Увеличено до 36x36
+        m_backButton->setIconSize(QSize(36, 36));
     }
 
-    // Стиль кнопки
     m_backButton->setStyleSheet(
         "QPushButton {"
         "    border: none;"
@@ -164,32 +183,26 @@ void ApplicationWidgetBase::setupBackButton()
         "}"
         );
 
-    // Устанавливаем фильтр событий для отслеживания наведения
     m_backButton->installEventFilter(this);
 
     connect(m_backButton, &QPushButton::clicked, this, &ApplicationWidgetBase::onBackButtonClicked);
     connect(m_backButton, &QPushButton::clicked, this, &QWidget::hide);
 
-    // Вставляем кнопку в начало layout
     m_menuLayout->insertWidget(0, m_backButton);
 }
 
 QPixmap ApplicationWidgetBase::createColoredPixmap(const QByteArray &svgData, const QColor &color)
 {
-    // Загружаем SVG из QByteArray
     QSvgRenderer renderer;
     renderer.load(svgData);
 
-    // Создаем pixmap увеличенного размера
-    QPixmap pixmap(36, 36);  // Увеличено до 36x36
+    QPixmap pixmap(36, 36);
     pixmap.fill(Qt::transparent);
 
-    // Рендерим SVG
     QPainter painter(&pixmap);
     renderer.render(&painter);
     painter.end();
 
-    // Меняем цвет
     QImage image = pixmap.toImage();
     for (int y = 0; y < image.height(); ++y)
     {
@@ -209,6 +222,134 @@ QPixmap ApplicationWidgetBase::createColoredPixmap(const QByteArray &svgData, co
     return QPixmap::fromImage(image);
 }
 
+void ApplicationWidgetBase::setupWindowButtons()
+{
+    if (!m_windowButtonWidget)
+        return;
+
+    QHBoxLayout *btnLayout = qobject_cast<QHBoxLayout*>(m_windowButtonWidget->layout());
+    if (!btnLayout)
+    {
+        btnLayout = new QHBoxLayout(m_windowButtonWidget);
+        btnLayout->setContentsMargins(0, 0, 0, 0);
+        btnLayout->addStretch();
+    }
+
+    const int btnW = 40;
+    const int btnH = 25;
+
+    // Создаём обычные QToolButton, не SARibbonSystemToolButton
+    // (SARibbonSystemToolButton использует setAutoRaise(true),
+    //  что при не-QSS теме не даёт hover срабатывать корректно)
+    m_minimizeButton = new QToolButton(m_windowButtonWidget);
+    m_minimizeButton->setObjectName(QStringLiteral("SAMinimizeWindowButton"));
+    m_minimizeButton->setFixedSize(btnW, btnH);
+    m_minimizeButton->setFocusPolicy(Qt::NoFocus);
+    m_minimizeButton->setIcon(QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Min.svg")));
+    m_minimizeButton->setIconSize(QSize(16, 16));
+    m_minimizeButton->setAutoRaise(false);
+    m_minimizeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    m_maximizeButton = new QToolButton(m_windowButtonWidget);
+    m_maximizeButton->setObjectName(QStringLiteral("SAMaximizeWindowButton"));
+    m_maximizeButton->setFixedSize(btnW, btnH);
+    m_maximizeButton->setFocusPolicy(Qt::NoFocus);
+    m_maximizeButton->setCheckable(true);
+    m_maximizeButton->setIcon(QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Max.svg")));
+    m_maximizeButton->setIconSize(QSize(16, 16));
+    m_maximizeButton->setAutoRaise(false);
+    m_maximizeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    m_closeButton = new QToolButton(m_windowButtonWidget);
+    m_closeButton->setObjectName(QStringLiteral("SACloseWindowButton"));
+    m_closeButton->setFixedSize(btnW, btnH);
+    m_closeButton->setFocusPolicy(Qt::NoFocus);
+    m_closeButton->setIcon(QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Close.svg")));
+    m_closeButton->setIconSize(QSize(16, 16));
+    m_closeButton->setAutoRaise(false);
+    m_closeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    btnLayout->addWidget(m_minimizeButton);
+    btnLayout->addWidget(m_maximizeButton);
+    btnLayout->addWidget(m_closeButton);
+
+    // Подключаем сигналы
+    connect(m_minimizeButton, &QToolButton::clicked, this, &ApplicationWidgetBase::onMinimizeClicked);
+    connect(m_maximizeButton, &QToolButton::clicked, this, &ApplicationWidgetBase::onMaximizeClicked);
+    connect(m_closeButton, &QToolButton::clicked, this, &ApplicationWidgetBase::onCloseClicked);
+
+    // QSS для кнопок — только hover/pressed эффекты (как в theme-office2013-green.qss)
+    // Ставим на m_windowButtonWidget, чтобы не ломать наследование глобальной темы
+    const QString btnQSS = QStringLiteral(
+        "QToolButton {"
+        "  background-color: transparent;"
+        "  border: none;"
+        "}"
+        "QToolButton:focus { outline: none; }"
+        "QToolButton#SAMinimizeWindowButton:hover {"
+        "  background-color: #e5e5e5;"
+        "}"
+        "QToolButton#SAMinimizeWindowButton:pressed {"
+        "  background-color: #cacacb;"
+        "}"
+        "QToolButton#SAMaximizeWindowButton:hover {"
+        "  background-color: #e5e5e5;"
+        "}"
+        "QToolButton#SAMaximizeWindowButton:checked {"
+        "  background-image: url(:/SARibbon/image/resource/Titlebar_Normal.svg);"
+        "}"
+        "QToolButton#SACloseWindowButton:hover {"
+        "  background-color: #e81123;"
+        "}"
+        "QToolButton#SACloseWindowButton:pressed {"
+        "  background-color: #f1707a;"
+        "}"
+    );
+
+    m_windowButtonWidget->setStyleSheet(btnQSS);
+
+    // Обновляем состояние кнопки "развернуть"
+    if (parentWidget())
+        m_maximizeButton->setChecked(parentWidget()->isMaximized());
+}
+
+void ApplicationWidgetBase::updateMaximizeButtonIcon()
+{
+    if (!m_maximizeButton)
+        return;
+
+    bool maximized = false;
+    if (parentWidget())
+        maximized = parentWidget()->isMaximized();
+
+    m_maximizeButton->setChecked(maximized);
+}
+
+void ApplicationWidgetBase::onMinimizeClicked()
+{
+    if (parentWidget())
+        parentWidget()->showMinimized();
+}
+
+void ApplicationWidgetBase::onMaximizeClicked()
+{
+    if (!parentWidget())
+        return;
+
+    if (parentWidget()->isMaximized())
+        parentWidget()->showNormal();
+    else
+        parentWidget()->showMaximized();
+
+    updateMaximizeButtonIcon();
+}
+
+void ApplicationWidgetBase::onCloseClicked()
+{
+    if (parentWidget())
+        parentWidget()->close();
+}
+
 bool ApplicationWidgetBase::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == m_backButton)
@@ -216,17 +357,18 @@ bool ApplicationWidgetBase::eventFilter(QObject *obj, QEvent *event)
         if (event->type() == QEvent::Enter)
         {
             if (!m_backButtonHoverPixmap.isNull())
-            {
                 m_backButton->setIcon(QIcon(m_backButtonHoverPixmap));
-            }
         }
         else if (event->type() == QEvent::Leave)
         {
             if (!m_backButtonNormalPixmap.isNull())
-            {
                 m_backButton->setIcon(QIcon(m_backButtonNormalPixmap));
-            }
         }
+    }
+
+    if (event->type() == QEvent::WindowStateChange)
+    {
+        updateMaximizeButtonIcon();
     }
 
     return SARibbonApplicationWidget::eventFilter(obj, event);
@@ -236,9 +378,7 @@ void ApplicationWidgetBase::updateCategoryTitle()
 {
     if (m_categoryTitle && m_currentIndex >= 0 && m_currentIndex < m_tabTitles.size())
     {
-        //qDebug() << m_tabTitles;
         m_categoryTitle->setText(m_tabTitles[m_currentIndex]);
-        // Сохраняем верхний отступ
         m_categoryTitle->setContentsMargins(0, 0, 0, 0);
     }
     else if (m_categoryTitle)
@@ -279,14 +419,11 @@ void ApplicationWidgetBase::updateMenuPanelStyle()
                 m_backButtonHoverPixmap = createColoredPixmap(svgData, hoverColor);
 
                 if (m_backButton->underMouse())
-                {
                     m_backButton->setIcon(QIcon(m_backButtonHoverPixmap));
-                }
             }
         }
     }
 
-    // Синхронизируем цвет правой области
     if (m_contentArea)
     {
         QPalette contentPalette = m_contentArea->palette();
@@ -307,7 +444,6 @@ void ApplicationWidgetBase::updateTabListStyle()
     if (!m_tabList)
         return;
 
-    // Используем QPalette для цветов
     QPalette palette = m_tabList->palette();
     palette.setColor(QPalette::Text, Qt::white);
     palette.setColor(QPalette::Highlight, m_menuPanelColor.lighter(120));
@@ -315,7 +451,6 @@ void ApplicationWidgetBase::updateTabListStyle()
     palette.setColor(QPalette::Base, m_menuPanelColor);
     m_tabList->setPalette(palette);
 
-    // QSS только для отступов и hover эффектов
     QString styleSheet =
         "QListWidget {"
         "    border: none;"
@@ -392,9 +527,7 @@ void ApplicationWidgetBase::insertTab(int index, const QString &title, QWidget *
         pCateg->updateListStyle();
 
     if (m_tabTitles.size() == 1)
-    {
         setCurrentTabIndex(0);
-    }
 }
 
 void ApplicationWidgetBase::removeTab(int index)
@@ -420,9 +553,7 @@ void ApplicationWidgetBase::removeTab(int index)
             newContents[newIndex] = m_tabContents[i];
 
             if (newIndex < m_tabList->count())
-            {
                 m_tabList->item(newIndex)->setData(Qt::UserRole, newIndex);
-            }
 
             newIndex++;
         }
@@ -434,13 +565,9 @@ void ApplicationWidgetBase::removeTab(int index)
     if (m_currentIndex == index)
     {
         if (m_tabTitles.isEmpty())
-        {
             m_currentIndex = -1;
-        }
         else
-        {
             setCurrentTabIndex(qMin(m_currentIndex, m_tabTitles.size() - 1));
-        }
     }
     else if (m_currentIndex > index)
     {

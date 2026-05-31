@@ -6,6 +6,25 @@
 #include <QGroupBox>
 #include <QtWidgets>
 #include <QDebug>
+#include <QStyledItemDelegate>
+
+// Делегат для установки фиксированной высоты элементов выпадающего списка QComboBox
+class ComboBoxItemDelegate : public QStyledItemDelegate
+{
+public:
+    explicit ComboBoxItemDelegate(int itemHeight = 32, QObject *parent = nullptr)
+        : QStyledItemDelegate(parent), m_itemHeight(itemHeight) {}
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QSize size = QStyledItemDelegate::sizeHint(option, index);
+        size.setHeight(m_itemHeight);
+        return size;
+    }
+
+private:
+    int m_itemHeight;
+};
 
 CategoryContentWidgetStyle::CategoryContentWidgetStyle(QStyle *style)
     : QProxyStyle(style)
@@ -142,6 +161,19 @@ void CategoryContentWidgetStyle::polish(QWidget *widget)
     {
         if (!combo->property("_size_configured").toBool())
             combo->setProperty("_size_configured", true);
+
+        // Настраиваем выпадающий список: элементы той же высоты, что и сам комбобокс (32px)
+        QListView *list = qobject_cast<QListView*>(combo->view());
+        if (list)
+        {
+            list->setIconSize(QSize(16, 16));
+            list->setUniformItemSizes(true);
+            list->setGridSize(QSize(-1, 32));
+
+            // Устанавливаем делегат, который возвращает нужную высоту элемента
+            ComboBoxItemDelegate *delegate = new ComboBoxItemDelegate(32, list);
+            list->setItemDelegate(delegate);
+        }
     }
 
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(widget))
@@ -414,6 +446,18 @@ int CategoryContentWidgetStyle::pixelMetric(PixelMetric metric, const QStyleOpti
         return 6;
     case PM_ButtonIconSize:
         return 16;
+    case PM_FocusFrameVMargin:
+    case PM_FocusFrameHMargin:
+        // Убираем лишние отступы у элементов внутри выпадающего списка комбобокса
+        {
+            const QWidget *w = widget;
+            while (w) {
+                if (qobject_cast<const QComboBox*>(w))
+                    return 0;
+                w = w->parentWidget();
+            }
+            return QProxyStyle::pixelMetric(metric, option, widget);
+        }
     default:
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
@@ -438,6 +482,21 @@ QSize CategoryContentWidgetStyle::sizeFromContents(ContentsType type, const QSty
         break;
 
     case CT_ItemViewItem:
+        // Если элемент в выпадающем списке комбобокса — высота как у самого комбобокса
+        {
+            const QWidget *w = widget;
+            while (w) {
+                if (qobject_cast<const QComboBox*>(w))
+                    break;
+                w = w->parentWidget();
+            }
+            if (w) {
+                newSize.setHeight(32);
+            } else {
+                newSize.setHeight(qMax(28, newSize.height()));
+            }
+        }
+        break;
     case CT_PushButton:
         newSize.setHeight(qMax(28, newSize.height()));
         break;

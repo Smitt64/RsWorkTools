@@ -10,6 +10,7 @@
 #include <QPen>
 #include "ToolsRuntime_global.h"
 
+class QEventLoop;
 class TOOLSRUNTIME_EXPORT CircularMenu : public QWidget
 {
     Q_OBJECT
@@ -112,6 +113,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private:
@@ -174,6 +176,8 @@ private:
 
     QFont m_textFont = QFont("Segoe UI", 9);
     QFont m_centerFont = QFont("Arial", 10, QFont::Bold);
+
+    QEventLoop *m_pCurrentEventLoop = nullptr;
 
 signals:
     void triggered(QAction *action);
