@@ -70,6 +70,12 @@ class RsToolsRuntimePackage(InstallerPackageInfoBase):
             dstfile = os.path.join(dictionariesdir, os.path.basename(spell))
             copyfile(srcfile, dstfile)
 
+        installer_bin = ConfigObj.inst().getInstallerPath()
+        project_root  = os.path.dirname(os.path.dirname(installer_bin))
+        src_icons = os.path.join(project_root, 'ToolsRuntime', 'icons')
+        dst_icons = os.path.join(self.DataPath, 'resources', 'icons')
+        self.copyOverwrite(src_icons, dst_icons)
+
     def getVersion(self):
         try:
             releasedir = os.path.join(ConfigObj.inst().getWorkLbrSourceDir(), self.__filesToCopy[0].format(ConfigObj.inst().getBinaryType()))

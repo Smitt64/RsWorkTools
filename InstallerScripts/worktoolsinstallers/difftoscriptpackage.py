@@ -8,7 +8,7 @@ from installer.installer import InstallerPackageInfoBase
 class DiffToScriptComponent(InstallerPackageInfoBase):
     def __init__(self):
         today = date.today()
-        self.__filesToCopy = ['DiffToScript/{}/DiffToScript.exe']
+        self.__filesToCopy = ['DiffToScript/{}/DiffToScript.exe', 'DiffToScriptlib/{}/DiffToScriptlib.dll']
         
         super(DiffToScriptComponent, self).__init__()
 
@@ -117,6 +117,14 @@ class DiffToScriptComponent(InstallerPackageInfoBase):
 
         srcmac = os.path.join(fmtdir, 'DiffToScript/mac')
         self.copyOverwrite(srcmac, macdir)
+
+        addonsdir = ConfigObj.inst().getAddonsDir()
+        if addonsdir:
+            srcaddons = os.path.join(addonsdir, 'mac', 'difftoscript')
+            if os.path.isdir(srcaddons):
+                dstaddons = os.path.join(datadir, 'mac', 'difftoscript')
+                os.makedirs(dstaddons, exist_ok=True)
+                self.copyOverwrite(srcaddons, dstaddons)
 
     def getVersion(self):
         releasedir = os.path.join(ConfigObj.inst().getWorkFmtSourceDir(), self.__filesToCopy[0].format(ConfigObj.inst().getBinaryType()))

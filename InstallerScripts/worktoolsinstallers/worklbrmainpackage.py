@@ -32,6 +32,10 @@ class WorkLbrMainPackage(InstallerPackageInfoBase):
             dstexefile = os.path.join(self.DataPath, os.path.basename(filetocopy))
             copyfile(srcexefile, dstexefile)
 
+        src_icons = os.path.join(fmtdir, 'RsResEditor', 'res', 'icons')
+        dst_icons = os.path.join(self.DataPath, 'resources', 'icons')
+        self.copyOverwrite(src_icons, dst_icons)
+
     def getVersion(self):
         try:
             releasedir = os.path.join(ConfigObj.inst().getWorkLbrSourceDir(), self.__filesToCopy[0].format(ConfigObj.inst().getBinaryType()))

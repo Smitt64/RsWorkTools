@@ -13,7 +13,7 @@ print(fqdn)
 ConfigObj.inst().setInstallerPath(OutputPath)
 
 if (fqdn == 'PC-32099.softlab.ru'):
-      ConfigObj.inst().setQtComplect('d:\\Qt5\\5.15.2\msvc2019\\')
+      ConfigObj.inst().setQtComplect('d:\\Qt5\\5.15.2\\msvc2019\\')
       ConfigObj.inst().setQtInstallerFramework('d:\\Qt5\\Tools\\QtInstallerFramework\\4.6\\')
 else:
       ConfigObj.inst().setQtComplect('d:\\Qt\\5.15.2\\msvc2019\\')
@@ -22,6 +22,7 @@ else:
 ConfigObj.inst().setWorkFmtSourceDir('D:\\Work\\WorkFMT')
 ConfigObj.inst().setWorkLbrSourceDir('D:\\Work\\ResEditor')
 ConfigObj.inst().setDatFilesPath('D:\\svn\\UranRSBankV6\\Main\\Distrib\\DBFile\\Data')
+ConfigObj.inst().setAddonsDir('D:\\svn\\v6_utils\\RsWorkTools\\addons')
 
 print('Installer output path:')
 print(ConfigObj.inst().getInstallerPath())

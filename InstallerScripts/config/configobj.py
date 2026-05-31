@@ -55,6 +55,7 @@ class ConfigObj:
 
         self.__workfmtsourcedir = None#'D:\\Work\\WorkFMT'
         self.__worklbrsourcedir = None
+        self.__addonsDir = None
         self.__msvcvars = 'D:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Professional\\VC\\Auxiliary\\Build\\vcvars32.bat'
         #os.path.dirname(__file__)
 
@@ -103,6 +104,12 @@ class ConfigObj:
 
     def getWorkFmtSourceDir(self) -> str:
         return self.__workfmtsourcedir
+
+    def getAddonsDir(self) -> str:
+        return self.__addonsDir
+
+    def setAddonsDir(self, path : str) -> None:
+        self.__addonsDir = path
 
     def getWorkLbrSourceDir(self) -> str:
         return self.__worklbrsourcedir
