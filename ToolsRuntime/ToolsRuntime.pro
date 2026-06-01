@@ -46,6 +46,7 @@ SOURCES += \
     ribbon/appoptionscontentwidget.cpp \
     ribbon/categorycontentwidget.cpp \
     ribbon/categorycontentwidgetstyle.cpp \
+    ribbon/ribbonaboutdlg.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
@@ -147,6 +148,7 @@ HEADERS += \
     ribbon/appoptionscontentwidget.h \
     ribbon/categorycontentwidget.h \
     ribbon/categorycontentwidgetstyle.h \
+    ribbon/ribbonaboutdlg.h \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \
