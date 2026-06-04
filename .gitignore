@@ -109,3 +109,7 @@ heroes_stats.json
 bin/
 
 CircularMenuTest/debug/
+
+InstallerScripts/testInstaller — копия/
+
+CircularMenuTest/release/
