@@ -10,13 +10,13 @@ class StringListEditor;
 }
 
 class QStyleOptionViewItem;
-class StringListEditorHandler
+class TOOLSRUNTIME_EXPORT StringListEditorHandler
 {
 public:
-    virtual QIcon buttonIcon() const { return _buttonIcon; }
-    virtual QIcon rowIcon(const QModelIndex &index) const { return QIcon(); }
+    virtual QIcon buttonIcon() const;
+    virtual QIcon rowIcon(const QModelIndex &index) const;
     virtual bool click(QString &text, QWidget *parent) = 0;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) { return _size; }
+    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index);
 
     QIcon _buttonIcon;
     QSize _size;
