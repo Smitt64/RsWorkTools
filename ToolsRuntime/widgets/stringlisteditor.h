@@ -10,7 +10,7 @@ class StringListEditor;
 }
 
 class QStyleOptionViewItem;
-class StringListEditorHandler
+class TOOLSRUNTIME_EXPORT StringListEditorHandler
 {
 public:
     virtual QIcon buttonIcon() const { return _buttonIcon; }
