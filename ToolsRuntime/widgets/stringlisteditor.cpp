@@ -10,6 +10,23 @@
 #include <QFileDialog>
 #include <QDir>
 
+QIcon StringListEditorHandler::buttonIcon() const
+{
+    return _buttonIcon;
+}
+
+QIcon StringListEditorHandler::rowIcon(const QModelIndex &index) const
+{
+    return QIcon();
+}
+
+QSize StringListEditorHandler::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    return _size;
+}
+
+// ----------------------------------------------------------------
+
 StdFolderListHandler::StdFolderListHandler()
 {
     _buttonIcon = QIcon(":/img/openfolderHS.png");
