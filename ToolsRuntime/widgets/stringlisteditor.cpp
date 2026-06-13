@@ -32,6 +32,11 @@ StdFolderListHandler::StdFolderListHandler()
     _buttonIcon = QIcon(":/img/openfolderHS.png");
 }
 
+QIcon StdFolderListHandler::buttonIcon() const
+{
+    return _buttonIcon;
+}
+
 bool StdFolderListHandler::click(QString &text, QWidget *parent)
 {
     QString path = QFileDialog::getExistingDirectory(parent, QObject::tr("Выбор каталога"), text);
