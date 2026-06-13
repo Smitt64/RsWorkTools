@@ -16,6 +16,8 @@
 #include <QSpacerItem>
 
 class AppOptionsContentWidget;
+class RibbonCommandsContentWidget;
+class SARibbonActionsManager;
 class TOOLSRUNTIME_EXPORT ApplicationWidgetBase : public SARibbonApplicationWidget
 {
     Q_OBJECT
@@ -46,6 +48,9 @@ public:
     int tabCount() const;
 
     AppOptionsContentWidget *optionsWidget();
+
+    void addMacroActionsContentWidget(SARibbonActionsManager *manager);
+    RibbonCommandsContentWidget *macroActionsContentWidget() const;
 
     virtual void exec();
 
@@ -100,6 +105,7 @@ private:
     QPixmap m_backButtonHoverPixmap;
 
     AppOptionsContentWidget *m_pOptionsWidget;
+    RibbonCommandsContentWidget *m_pMacroActionsWidget;
 };
 
 #endif // APPLICATIONWIDGETBASE_H

@@ -28,6 +28,7 @@
 #include <QToolButton>
 #include <QTextCodec>
 #include <QFontDatabase>
+#include <QTranslator>
 
 Q_LOGGING_CATEGORY(logUnknown, "Unknown")
 Q_LOGGING_CATEGORY(logCommon, "Common")
@@ -1257,4 +1258,17 @@ QString toolDecodeRussianText(const QByteArray &data)
 
     // 5. Если ничего не помогло, возвращаем UTF-8 с игнорированием ошибок
     return QString::fromUtf8(data);
+}
+
+bool toolLoadTranslations(const QString &qmResourcePath)
+{
+    QTranslator *translator = new QTranslator(qApp);
+    if (!translator->load(qmResourcePath))
+    {
+        qWarning() << "Failed to load translation:" << qmResourcePath;
+        delete translator;
+        return false;
+    }
+    qApp->installTranslator(translator);
+    return true;
 }

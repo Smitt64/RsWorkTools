@@ -41,5 +41,6 @@
         <file>img/Close.svg</file>
         <file>img/FindNext.svg</file>
         <file>img/FindPrevious.svg</file>
+        <file>translations/SARibbon_ru.qm</file>
     </qresource>
 </RCC>

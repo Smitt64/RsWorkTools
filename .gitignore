@@ -109,3 +109,5 @@ heroes_stats.json
 bin/
 
 CircularMenuTest/debug/
+
+RibbonMacroTest/debug/

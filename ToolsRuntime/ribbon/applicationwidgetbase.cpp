@@ -1,6 +1,7 @@
 #include "ApplicationWidgetBase.h"
 #include "ribbon/appoptionscontentwidget.h"
 #include "ribbon/categorycontentwidget.h"
+#include "ribbon/ribboncommandscontentwidget.h"
 #include "toolsruntime.h"
 #include <QSvgRenderer>
 #include <QStyleOption>
@@ -15,6 +16,7 @@ ApplicationWidgetBase::ApplicationWidgetBase(SARibbonMainWindow *parent)
     , m_menuPanelColor(QColor(52, 73, 94))
     , m_currentIndex(-1)
     , m_pOptionsWidget(nullptr)
+    , m_pMacroActionsWidget(nullptr)
     , m_windowButtonWidget(nullptr)
     , m_minimizeButton(nullptr)
     , m_maximizeButton(nullptr)
@@ -681,4 +683,24 @@ AppOptionsContentWidget *ApplicationWidgetBase::optionsWidget()
         m_pOptionsWidget = new AppOptionsContentWidget();
 
     return m_pOptionsWidget;
+}
+
+void ApplicationWidgetBase::addMacroActionsContentWidget(SARibbonActionsManager *manager)
+{
+    if (!m_pMacroActionsWidget)
+    {
+        m_pMacroActionsWidget = new RibbonCommandsContentWidget();
+
+        SARibbonMainWindow *mainWindow = qobject_cast<SARibbonMainWindow*>(parent());
+        if (mainWindow)
+            m_pMacroActionsWidget->setRibbonBar(mainWindow->ribbonBar());
+
+        m_pMacroActionsWidget->setActionsManager(manager);
+        addTab(tr("Команды"), m_pMacroActionsWidget);
+    }
+}
+
+RibbonCommandsContentWidget *ApplicationWidgetBase::macroActionsContentWidget() const
+{
+    return m_pMacroActionsWidget;
 }

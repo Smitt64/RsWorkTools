@@ -47,6 +47,9 @@ SOURCES += \
     ribbon/categorycontentwidget.cpp \
     ribbon/categorycontentwidgetstyle.cpp \
     ribbon/ribbonaboutdlg.cpp \
+    ribbon/ribboncommandlistwidget.cpp \
+    ribbon/ribboncommandscontentwidget.cpp \
+    ribbon/ribboncommandstorage.cpp \
     rslexecutor.cpp \
     rslmodule/dialogs/message_box.cpp \
     rslmodule/io/iobuffer.cpp \
@@ -149,6 +152,9 @@ HEADERS += \
     ribbon/categorycontentwidget.h \
     ribbon/categorycontentwidgetstyle.h \
     ribbon/ribbonaboutdlg.h \
+    ribbon/ribboncommandlistwidget.h \
+    ribbon/ribboncommandscontentwidget.h \
+    ribbon/ribboncommandstorage.h \
     rslexecutor.h \
     rslmodule/io/iobuffer.h \
     rslmodule/io/iodevice.h \
@@ -240,6 +246,8 @@ LIBS += -lVersion -lGdi32 -lUser32
 RESOURCES += \
     res/iconlib.qrc \
     res/res.qrc
+
+TRANSLATIONS += res/translations/SARibbon_ru.ts
 
 release: LIBS += -L./rstools/lib/release -L./hunspell/lib/release
 debug: LIBS += -L./rstools/lib/release -L./hunspell/lib/debug

@@ -125,4 +125,7 @@ TOOLSRUNTIME_EXPORT void toolAddActionWithTooltip(QToolButton* button, const QSt
 
 TOOLSRUNTIME_EXPORT QString toolDecodeRussianText(const QByteArray &data);
 
+// Загрузка файла перевода из ресурсов. Возвращает true в случае успеха.
+TOOLSRUNTIME_EXPORT bool toolLoadTranslations(const QString &qmResourcePath = QStringLiteral(":/translations/SARibbon_ru.qm"));
+
 #endif // TOOLSRUNTIME_H

@@ -185,13 +185,15 @@ void RslExecutor::onWriteOut(const QString &msg)
 void WriteOutCaller(const QString &msg, void *userData)
 {
     TMacroUserData *UserData = (TMacroUserData*)userData;
-    UserData->m_pExecutor->onWriteOut(msg);
+    if (UserData && UserData->m_pExecutor)
+        UserData->m_pExecutor->onWriteOut(msg);
 }
 
 int ShowVarsCaller(Qt::HANDLE sym, Qt::HANDLE mod, void *userData)
 {
     TMacroUserData *UserData = (TMacroUserData*)userData;
-    UserData->m_pExecutor->onInspectModuleSymbol(sym);
+    if (UserData && UserData->m_pExecutor)
+        UserData->m_pExecutor->onInspectModuleSymbol(sym);
     return 0;
 }
 
@@ -269,7 +271,8 @@ int Executor_MsgProcCaller(int mes, void *ptr, void *userData)
         RegisterObjList::inst()->AddObject<VariantList>();
 
         AddStdProc(V_GENOBJ, "StringList", RslStringList, 0);
-        UserData->m_pExecutor->onSetStModuleAdd();
+        if (UserData && UserData->m_pExecutor)
+            UserData->m_pExecutor->onSetStModuleAdd();
         break;
     case IM_ERROR:
     {
@@ -316,7 +319,8 @@ void RslExecutor::PlayRepProc()
 static bool RslPlayRepActionProc(void *UserData)
 {
     TMacroUserData *dt = (TMacroUserData*)RslGetDataPassedToPlayRep(UserData);
-    dt->m_pExecutor->PlayRepProc();
+    if (dt && dt->m_pExecutor)
+        dt->m_pExecutor->PlayRepProc();
 
     return true;
 }

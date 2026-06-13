@@ -6209,7 +6209,7 @@ void SARibbonActionsManager::removeAction(QAction* act, bool enableEmit)
 		int count = 0;
 		for (int j = 0; j < i.value().size(); ++j) {
 			if (i.value()[ j ] != act) {
-				tmpi.value().append(act);
+				tmpi.value().append(i.value()[ j ]);
 				++count;
 			}
 		}
@@ -16650,6 +16650,12 @@ void SARibbonCustomizeWidget::initConnection()
  */
 void SARibbonCustomizeWidget::setupActionsManager(SARibbonActionsManager* mgr)
 {
+	// 保存当前选中的tag，避免重新填充comboBox后丢失原来的筛选
+	int oldTag = -1;
+	if (d_ptr->mActionMgr && ui->comboBoxActionIndex->count() > 0) {
+		oldTag = ui->comboBoxActionIndex->currentData().toInt();
+	}
+
 	d_ptr->mActionMgr = mgr;
 	if (d_ptr->mActionMgr) {
 		d_ptr->mAcionModel->uninstallActionsManager();
@@ -16663,6 +16669,18 @@ void SARibbonCustomizeWidget::setupActionsManager(SARibbonActionsManager* mgr)
 		if (mgr->tagName(tag).isEmpty())
 			continue;
 		ui->comboBoxActionIndex->addItem(mgr->tagName(tag), tag);
+	}
+	// 恢复之前选中的tag；如果tag已不存在，默认选中第一项
+	int newIndex = -1;
+	if (oldTag >= 0) {
+		newIndex = ui->comboBoxActionIndex->findData(oldTag);
+	}
+	if (newIndex < 0 && ui->comboBoxActionIndex->count() > 0) {
+		newIndex = 0;
+	}
+	if (newIndex >= 0) {
+		ui->comboBoxActionIndex->setCurrentIndex(newIndex);
+		onComboBoxActionIndexCurrentIndexChanged(newIndex);
 	}
 }
 
