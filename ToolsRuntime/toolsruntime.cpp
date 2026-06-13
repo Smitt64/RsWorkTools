@@ -16,6 +16,7 @@
 #include <QLoggingCategory>
 #include <codeeditor/codehighlighter.h>
 #include <codeeditor/codeeditor.h>
+#include <codeeditor/highlighterstyle.h>
 #include <functional>
 #include <QProcess>
 #include <QNetworkAccessManager>
@@ -494,7 +495,7 @@ int toolExecuteQuery(QSqlQuery *query, QString *err)
     return stat;
 }
 
-int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code)
+int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, const QString &code, const QString &style)
 {
     int result = 0;
     QDialog dlg(parent);
@@ -508,7 +509,22 @@ int toolShowCodeDialog(QWidget *parent, const QString &title, const int &type, c
 
     editor->setPlainText(code);
 
-    ToolApplyHighlighter(editor, type);
+    if (style.isEmpty())
+        ToolApplyHighlighter(editor, type);
+    else
+        ToolApplyHighlighter(editor, type, style);
+
+    CodeHighlighter *highlighter = editor->highlighter();
+    if (highlighter && highlighter->style())
+    {
+        QSharedPointer<StyleItem> sstyle = highlighter->style();
+        QTextCharFormat def = sstyle->format(FormatDefault);
+
+        QPalette pal = editor->palette();
+        pal.setColor(QPalette::Base, sstyle->editorBackground());
+        pal.setColor(QPalette::Text, def.foreground().color());
+        editor->setPalette(pal);
+    }
 
     result = dlg.exec();
 

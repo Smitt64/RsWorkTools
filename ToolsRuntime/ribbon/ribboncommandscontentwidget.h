@@ -33,6 +33,11 @@ public:
     void save(QSettings *settings);
     void load(QSettings *settings);
 
+    QList<QAction*> macroActions() const;
+
+signals:
+    void macroActionAdded(QAction *action);
+
 protected:
     void onListItemSelected(const QVariant &data) override;
     void hideEvent(QHideEvent *event) override;

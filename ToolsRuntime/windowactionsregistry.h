@@ -26,6 +26,7 @@ public:
     void scanActions(QMenu *menu);
 
     void setRslExecutor(RslExecutor *executor);
+    void setCodeDialogStyle(const QString &style);
 
     int menuCount() const;
     QStringList menuNames() const;

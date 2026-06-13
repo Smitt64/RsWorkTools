@@ -136,7 +136,7 @@ void RibbonCommandListWidget::onAddMacro()
     if (!m_storage)
         return;
 
-    QFileDialog dlg(this);
+    QFileDialog dlg(this->window());
     dlg.setAcceptMode(QFileDialog::AcceptOpen);
     dlg.setFileMode(QFileDialog::ExistingFile);
     dlg.setOptions(QFileDialog::DontUseNativeDialog | QFileDialog::ReadOnly);
@@ -232,7 +232,7 @@ void RibbonCommandListWidget::onChangeIconFromLib()
     if (!index.isValid())
         return;
 
-    IconLibDlg dlg(this);
+    IconLibDlg dlg(this->window());
     if (dlg.exec() == QDialog::Accepted)
         m_storage->setIcon(index.row(), dlg.getIconPath());
 }
@@ -246,7 +246,7 @@ void RibbonCommandListWidget::onChangeIconFromFile()
     if (!index.isValid())
         return;
 
-    QString path = QFileDialog::getOpenFileName(this, tr("Открыть файл"), QString(),
+    QString path = QFileDialog::getOpenFileName(this->window(), tr("Открыть файл"), QString(),
                                                 tr("Изображения (*.png *.jpeg *.bmp *.svg *.ico)"));
     if (!path.isEmpty())
         m_storage->setIcon(index.row(), path);

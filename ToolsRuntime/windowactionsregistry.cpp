@@ -1,7 +1,10 @@
 #include "windowactionsregistry.h"
 #include "optionsdlg/commandsstorage.h"
 #include "rslexecutor.h"
+#include "rsscript/registerobjlist.hpp"
+#include "toolsruntime.h"
 #include <QAction>
+#include <QApplication>
 #include <QMap>
 #include <QMenu>
 #include <QDebug>
@@ -39,12 +42,13 @@ class WindowActionsRegistryPrivate
         return false;
     }
 
-public: 
+public:
     WindowActionsRegistry *q_ptr;
 
     RslExecutor *m_pExec;
     ActionInfoList actions;
     ActionsRegistryMap actionMap;
+    QString m_codeDialogStyle;
 };
 
 WindowActionsRegistry::WindowActionsRegistry(QObject *parent)
@@ -56,10 +60,6 @@ WindowActionsRegistry::WindowActionsRegistry(QObject *parent)
 
 WindowActionsRegistry::~WindowActionsRegistry()
 {
-    Q_D(WindowActionsRegistry);
-
-    if (d->m_pExec)
-        delete d->m_pExec;
 }
 
 void WindowActionsRegistry::registerAction(QAction *action, const QString &name)
@@ -207,6 +207,12 @@ void WindowActionsRegistry::setRslExecutor(RslExecutor *executor)
     d->m_pExec = executor;
 }
 
+void WindowActionsRegistry::setCodeDialogStyle(const QString &style)
+{
+    Q_D(WindowActionsRegistry);
+    d->m_codeDialogStyle = style;
+}
+
 QList<QToolBar*> WindowActionsRegistry::makeToolBars(QSettings *settings, const QString &group, const QString &key)
 {
     QList<QToolBar*> toolbars;
@@ -226,14 +232,36 @@ void WindowActionsRegistry::ExecAction()
 {
     Q_D(WindowActionsRegistry);
 
-    if (d->m_pExec)
+    if (!d->m_pExec)
+        return;
+
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action)
+        return;
+
+    QString macrofile = action->data().toString();
+    if (macrofile.isEmpty())
+        return;
+
+    d->m_pExec->playRep(macrofile, QString(), [d]()
     {
-        QAction *action = qobject_cast<QAction*>(sender());
-        if (action)
-        {
-            QVariant var = action->data();
-            d->m_pExec->playRep(var.toString());
-        }
+        if (d->m_pExec)
+            d->m_pExec->call("ExecAction", {});
+    });
+
+    QMap<QString, QString> meta = rslGetMacroInfo(macrofile);
+    if (meta.value("ShowReport").compare("true", Qt::CaseInsensitive) == 0)
+    {
+        QString title = meta.value("Title");
+        if (title.isEmpty())
+            title = meta.value("Description");
+        if (title.isEmpty())
+            title = tr("Результат выполнения");
+
+        int highlighter = toolHighlighterByName(meta.value("Highlighter"));
+        QString code = toolReadTextFileContent(d->m_pExec->outputFileName(), "IBM 866");
+        QWidget *parent = qApp->activeWindow();
+        toolShowCodeDialog(parent, title, highlighter, code, d->m_codeDialogStyle);
     }
 }
 

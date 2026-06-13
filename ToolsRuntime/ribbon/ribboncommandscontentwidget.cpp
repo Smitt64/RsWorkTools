@@ -14,7 +14,6 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QAction>
-#include <QDebug>
 #include <QMessageBox>
 #include <QSet>
 #include <QHideEvent>
@@ -104,13 +103,15 @@ void RibbonCommandsContentWidget::setActionsManager(SARibbonActionsManager *mana
     updateCustomizeWidget();
 }
 
+QList<QAction*> RibbonCommandsContentWidget::macroActions() const
+{
+    return m_macroActions.values();
+}
+
 void RibbonCommandsContentWidget::syncMacroActions()
 {
     if (!m_actionsManager)
         return;
-
-    qDebug() << "syncMacroActions: storage count =" << m_storage->count()
-             << "macroActions count =" << m_macroActions.size();
 
     QSet<QString> storageIds;
     for (int i = 0; i < m_storage->count(); ++i)
@@ -122,40 +123,32 @@ void RibbonCommandsContentWidget::syncMacroActions()
         storageIds.insert(item->id);
 
         QAction *act = m_macroActions.value(item->id, nullptr);
-        qDebug() << "  item" << i << "id =" << item->id << "title =" << item->title
-                 << "icon =" << item->icon << "act in macroActions =" << (act != nullptr);
         if (!act)
         {
             // Попробуем найти существующее действие в менеджере (например, созданное runtime)
             act = m_actionsManager->action(item->id);
-            qDebug() << "    act in actionsManager =" << (act != nullptr);
-            if (act)
-                qDebug() << "    act objectName =" << act->objectName()
-                         << "act data =" << act->data().toString()
-                         << "act text =" << act->text();
             // Дополнительная проверка: это должно быть именно макродействие,
             // а не случайно совпавшее по ключу приложение
             if (act && act->objectName() == item->id && !act->data().toString().isEmpty())
             {
                 // Берём под управление существующее действие
                 m_macroActions[item->id] = act;
+                emit macroActionAdded(act);
             }
             else
             {
                 // Создаём новое действие
-                qDebug() << "    creating new QAction for id" << item->id;
                 act = new QAction(QIcon(item->icon), item->title, m_actionsManager);
                 act->setObjectName(item->id);
                 m_actionsManager->registeAction(act, MacroActionTag, item->id);
                 m_macroActions[item->id] = act;
+                emit macroActionAdded(act);
             }
         }
 
         act->setText(item->title);
         act->setIcon(QIcon(item->icon));
         act->setData(item->macrofile);
-        qDebug() << "    final act text =" << act->text() << "icon =" << item->icon
-                 << "isOnRibbon =" << isActionOnRibbon(act);
     }
 
     // Удаляем действия, которых больше нет в хранилище
@@ -164,7 +157,6 @@ void RibbonCommandsContentWidget::syncMacroActions()
     {
         if (!storageIds.contains(it.key()))
         {
-            qDebug() << "  removing macro action id =" << it.key();
             m_actionsManager->unregisteAction(it.value());
             // Удаляем только если кнопка не осталась на панели Ribbon
             if (!isActionOnRibbon(it.value()))
@@ -182,17 +174,6 @@ void RibbonCommandsContentWidget::updateCustomizeWidget()
 {
     if (!m_ribbonBar || !m_actionsManager)
         return;
-
-    int catCount = 0;
-    int totalButtons = 0;
-    for (SARibbonCategory *category : m_ribbonBar->categoryPages())
-    {
-        ++catCount;
-        for (SARibbonPannel *panel : category->pannelList())
-            totalButtons += panel->ribbonToolButtons().size();
-    }
-    qDebug() << "updateCustomizeWidget: categories =" << catCount
-             << "total buttons on ribbon =" << totalButtons;
 
     if (!m_customizeWidget)
     {
@@ -339,10 +320,20 @@ void RibbonCommandsContentWidget::load(QSettings *settings)
     m_storage->load(commandsJson);
 
     QByteArray ribbonXml = QByteArray::fromBase64(settings->value("RibbonCustomization").toByteArray());
-    if (!ribbonXml.isEmpty() && m_customizeWidget)
+    if (!ribbonXml.isEmpty())
     {
-        QXmlStreamReader xml(ribbonXml);
-        m_customizeWidget->fromXml(&xml);
+        if (m_customizeWidget)
+        {
+            QXmlStreamReader xml1(ribbonXml);
+            m_customizeWidget->fromXml(&xml1);
+        }
+        if (m_ribbonBar && m_actionsManager)
+        {
+            QXmlStreamReader xml2(ribbonXml);
+            SARibbonCustomizeWidget::fromXml(&xml2, m_ribbonBar, m_actionsManager);
+        }
+        if (m_customizeWidget)
+            m_customizeWidget->updateModel();
     }
 
     settings->endGroup();

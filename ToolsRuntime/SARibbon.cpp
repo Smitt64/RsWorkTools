@@ -15297,7 +15297,10 @@ bool SARibbonCustomizeData::apply(SARibbonBar* bar) const
 		return (false);
 
 	case AddCategoryActionType: {
-		// 添加标签
+		// 添加标签，若已存在相同objectName的category则跳过，避免重复添加
+		if (bar->categoryByObjectName(categoryObjNameValue) != nullptr) {
+			return (true);
+		}
 		SARibbonCategory* c = bar->insertCategoryPage(keyValue, indexValue);
 		if (nullptr == c) {
 			return (false);
@@ -15308,10 +15311,13 @@ bool SARibbonCustomizeData::apply(SARibbonBar* bar) const
 	}
 
 	case AddPannelActionType: {
-		// 添加pannel
+		// 添加pannel，若已存在相同objectName的pannel则跳过，避免重复添加
 		SARibbonCategory* c = bar->categoryByObjectName(categoryObjNameValue);
 		if (nullptr == c) {
 			return (false);
+		}
+		if (c->pannelByObjectName(pannelObjNameValue) != nullptr) {
+			return (true);
 		}
 		SARibbonPannel* p = c->insertPannel(keyValue, indexValue);
 		p->setObjectName(pannelObjNameValue);
@@ -15334,6 +15340,10 @@ bool SARibbonCustomizeData::apply(SARibbonBar* bar) const
 		QAction* act = mActionsManagerPointer->action(keyValue);
 		if (nullptr == act) {
 			return (false);
+		}
+		// 若action已存在于该pannel中则跳过，避免重复添加
+		if (pannel->actions().contains(act)) {
+			return (true);
 		}
 		SARibbonCustomizeData::setCanCustomize(act);
 		pannel->addAction(act, actionRowProportionValue);
@@ -15853,6 +15863,41 @@ QList< SARibbonCustomizeData > SARibbonCustomizeData::simplify(const QList< SARi
 		}
 	}
 	res = remove_indexs(csd, willremoveIndex);
+	willremoveIndex.clear();
+
+	//! 针对重复的添加操作（AddCategory/AddPannel/AddAction），只保留最后一步
+	size = res.size();
+	for (int i = 0; i < size; ++i) {
+		if (res[ i ].actionType() == AddCategoryActionType) {
+			for (int j = i + 1; j < size; ++j) {
+				if ((res[ j ].actionType() == AddCategoryActionType)
+		            && (res[ i ].categoryObjNameValue == res[ j ].categoryObjNameValue)) {
+					willremoveIndex << i;
+					break;
+				}
+			}
+		} else if (res[ i ].actionType() == AddPannelActionType) {
+			for (int j = i + 1; j < size; ++j) {
+				if ((res[ j ].actionType() == AddPannelActionType)
+		            && (res[ i ].categoryObjNameValue == res[ j ].categoryObjNameValue)
+		            && (res[ i ].pannelObjNameValue == res[ j ].pannelObjNameValue)) {
+					willremoveIndex << i;
+					break;
+				}
+			}
+		} else if (res[ i ].actionType() == AddActionActionType) {
+			for (int j = i + 1; j < size; ++j) {
+				if ((res[ j ].actionType() == AddActionActionType)
+		            && (res[ i ].categoryObjNameValue == res[ j ].categoryObjNameValue)
+		            && (res[ i ].pannelObjNameValue == res[ j ].pannelObjNameValue)
+		            && (res[ i ].keyValue == res[ j ].keyValue)) {
+					willremoveIndex << i;
+					break;
+				}
+			}
+		}
+	}
+	res = remove_indexs(res, willremoveIndex);
 	willremoveIndex.clear();
 
 	//! 筛选VisibleCategoryActionType，对于连续出现的操作只保留最后一步
