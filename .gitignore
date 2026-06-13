@@ -30,6 +30,7 @@ ui_*.h
 Makefile*
 *build-*
 *.qm
+!ToolsRuntime/res/translations/SARibbon_ru.qm
 *.prl
 
 # Qt unit tests

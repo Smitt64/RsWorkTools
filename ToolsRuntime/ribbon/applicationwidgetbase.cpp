@@ -685,7 +685,7 @@ AppOptionsContentWidget *ApplicationWidgetBase::optionsWidget()
     return m_pOptionsWidget;
 }
 
-void ApplicationWidgetBase::addMacroActionsContentWidget(SARibbonActionsManager *manager)
+void ApplicationWidgetBase::addMacroActionsContentWidget(SARibbonActionsManager *manager, const QString &title)
 {
     if (!m_pMacroActionsWidget)
     {
@@ -696,7 +696,7 @@ void ApplicationWidgetBase::addMacroActionsContentWidget(SARibbonActionsManager 
             m_pMacroActionsWidget->setRibbonBar(mainWindow->ribbonBar());
 
         m_pMacroActionsWidget->setActionsManager(manager);
-        addTab(tr("Команды"), m_pMacroActionsWidget);
+        addTab(title.isEmpty() ? tr("Команды") : title, m_pMacroActionsWidget);
     }
 }
 

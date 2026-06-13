@@ -49,7 +49,7 @@ public:
 
     AppOptionsContentWidget *optionsWidget();
 
-    void addMacroActionsContentWidget(SARibbonActionsManager *manager);
+    void addMacroActionsContentWidget(SARibbonActionsManager *manager, const QString &title = QString());
     RibbonCommandsContentWidget *macroActionsContentWidget() const;
 
     virtual void exec();
