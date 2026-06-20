@@ -103,6 +103,8 @@ private:
     // Данные для кнопки
     QPixmap m_backButtonNormalPixmap;
     QPixmap m_backButtonHoverPixmap;
+    QIcon m_maximizeIcon;
+    QIcon m_restoreIcon;
 
     AppOptionsContentWidget *m_pOptionsWidget;
     RibbonCommandsContentWidget *m_pMacroActionsWidget;

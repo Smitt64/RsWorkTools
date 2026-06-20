@@ -257,7 +257,9 @@ void ApplicationWidgetBase::setupWindowButtons()
     m_maximizeButton->setFixedSize(btnW, btnH);
     m_maximizeButton->setFocusPolicy(Qt::NoFocus);
     m_maximizeButton->setCheckable(true);
-    m_maximizeButton->setIcon(QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Max.svg")));
+    m_maximizeIcon = QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Max.svg"));
+    m_restoreIcon = QIcon(QStringLiteral(":/SARibbon/image/resource/Titlebar_Normal.svg"));
+    m_maximizeButton->setIcon(m_maximizeIcon);
     m_maximizeButton->setIconSize(QSize(16, 16));
     m_maximizeButton->setAutoRaise(false);
     m_maximizeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -297,9 +299,6 @@ void ApplicationWidgetBase::setupWindowButtons()
         "QToolButton#SAMaximizeWindowButton:hover {"
         "  background-color: #e5e5e5;"
         "}"
-        "QToolButton#SAMaximizeWindowButton:checked {"
-        "  background-image: url(:/SARibbon/image/resource/Titlebar_Normal.svg);"
-        "}"
         "QToolButton#SACloseWindowButton:hover {"
         "  background-color: #e81123;"
         "}"
@@ -325,6 +324,7 @@ void ApplicationWidgetBase::updateMaximizeButtonIcon()
         maximized = parentWidget()->isMaximized();
 
     m_maximizeButton->setChecked(maximized);
+    m_maximizeButton->setIcon(maximized ? m_restoreIcon : m_maximizeIcon);
 }
 
 void ApplicationWidgetBase::onMinimizeClicked()

@@ -45,8 +45,8 @@ void RibbonCommandsContentWidget::setupUI()
 {
     setLayoutType(LayoutListDetail);
 
-    addListItem(tr("Команды"), QIcon("Action"), 0);
-    addListItem(tr("Настройка ленты"), QIcon("RibbonMenu"), 1);
+    addListItem(tr("Команды"), QIcon::fromTheme("Action"), 0);
+    addListItem(tr("Настройка ленты"), QIcon::fromTheme("RibbonMenu"), 1);
 
     m_stackedWidget = new QStackedWidget(this);
 
