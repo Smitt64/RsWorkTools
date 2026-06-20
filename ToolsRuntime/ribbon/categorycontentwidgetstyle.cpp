@@ -590,6 +590,15 @@ QRect CategoryContentWidgetStyle::subControlRect(ComplexControl control, const Q
     return rect;
 }
 
+int CategoryContentWidgetStyle::styleHint(StyleHint hint, const QStyleOption *option,
+                                          const QWidget *widget, QStyleHintReturn *returnData) const
+{
+    if (hint == SH_UnderlineShortcut)
+        return true;
+
+    return QProxyStyle::styleHint(hint, option, widget, returnData);
+}
+
 // ==================== Реализация методов отрисовки ====================
 
 void CategoryContentWidgetStyle::drawComboBox(const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const
@@ -746,8 +755,14 @@ void CategoryContentWidgetStyle::drawPushButton(const QStyleOption *option, QPai
         textRect = rect.adjusted(iconSize + 12, 0, -8, 0);
     }
 
-    painter->setPen(isEnabled ? m_textColor : m_disabledColor);
-    painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, btnOption->text);
+    int textFlags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
+    if (!styleHint(SH_UnderlineShortcut, option, widget))
+        textFlags |= Qt::TextHideMnemonic;
+
+    QPalette palette = option->palette;
+    palette.setColor(QPalette::ButtonText, isEnabled ? m_textColor : m_disabledColor);
+    drawItemText(painter, textRect, textFlags, palette, isEnabled,
+                 btnOption->text, QPalette::ButtonText);
 
     painter->restore();
 }
