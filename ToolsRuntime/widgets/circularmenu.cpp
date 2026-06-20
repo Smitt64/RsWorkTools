@@ -298,6 +298,15 @@ void CircularMenu::addActions(const QList<QAction *> &actions)
 
 void CircularMenu::clear()
 {
+    for (const auto &item : qAsConst(m_items))
+    {
+        if (item.action && item.action->parent() == this)
+        {
+            disconnect(item.action, &QAction::destroyed, this, nullptr);
+            delete item.action;
+        }
+    }
+
     m_items.clear();
     m_hoveredIndex = -1;
     updateGeometry();
