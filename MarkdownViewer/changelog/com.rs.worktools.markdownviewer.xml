@@ -1,0 +1,10 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<changelog project="Markdown Viewer">
+    <version ver="1.0.0.1">
+        <add>Создано приложение для просмотра Markdown-документов с интерфейсом Ribbon и MDI-вкладками;</add>
+        <add>Поддержка рендеринга через GitHub API и локальный рендерер Qt;</add>
+        <add>Возможность выбора CSS для оформления результата;</add>
+        <add>Структура документа, поиск по странице, экспорт в HTML и PDF;</add>
+        <add>Поддержка drag&amp;drop и открытия файлов из командной строки;</add>
+    </version>
+</changelog>

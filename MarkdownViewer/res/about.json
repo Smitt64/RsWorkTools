@@ -1,0 +1,6 @@
+{
+    "application": "Markdown Viewer",
+    "logo": ":/markdownviewer/app-icon.svg",
+    "description": "Просмотрщик Markdown-документов с интерфейсом Ribbon и MDI-вкладками.",
+    "initalproject": "Markdown Viewer"
+}

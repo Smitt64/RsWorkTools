@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/markdownviewer">
+        <file>theme-office2013-indigo.qss</file>
+        <file>app-icon.svg</file>
+        <file>about.json</file>
+    </qresource>
+</RCC>

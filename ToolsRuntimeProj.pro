@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     CircularMenuTest \
+    MarkdownViewer \
     RibbonMacroTest \
 	RslTest \
     RslToolRuntimeStatic \
@@ -9,6 +10,7 @@ SUBDIRS += \
     WindowsModernStyle
 
 
+MarkdownViewer.depends = ToolsRuntime
 RibbonMacroTest.depends = ToolsRuntime
 RslTest.depends = ToolsRuntime
 ToolsRuntime.depends = RslToolRuntimeStatic
