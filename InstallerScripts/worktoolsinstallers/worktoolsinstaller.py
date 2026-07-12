@@ -9,6 +9,7 @@ from worktoolsinstallers import worklbrmainpackage
 from worktoolsinstallers import changelogpackage
 from worktoolsinstallers import rstoolsruntime
 from worktoolsinstallers import difftoscriptpackage
+from worktoolsinstallers import markdownviewerpackage
 
 class WorkToolsInstaller(InstallCreator):
     def __init__(self):
@@ -33,6 +34,7 @@ class WorkToolsInstaller(InstallCreator):
         self.__ToolsRuntimePackage = rstoolsruntime.RsToolsRuntimePackage()
         self.__ToolsRuntimePackage = rstoolsruntime.RsToolsRuntimePackage()
         self.__DiffToScriptComponent = difftoscriptpackage.DiffToScriptComponent()
+        self.__MarkdownViewerPackage = markdownviewerpackage.MarkdownViewerPackage()
 
         self.addPackage(self.__WorkFmtPackage)
         self.addPackage(self.__RsToolsBinPackage)
@@ -44,3 +46,4 @@ class WorkToolsInstaller(InstallCreator):
         self.addPackage(self.__ChangeLogPackage)
         self.addPackage(self.__ToolsRuntimePackage)
         self.addPackage(self.__DiffToScriptComponent)
+        self.addPackage(self.__MarkdownViewerPackage)

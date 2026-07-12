@@ -7,8 +7,10 @@ from installer.installer import InstallerPackageInfoBase
 class RsToolsRuntimePackage(InstallerPackageInfoBase):
     def __init__(self):
         self.__filesToCopy = ['ToolsRuntimeProj/ToolsRuntime/{}/ToolsRuntime.dll',
-                              'ToolsRuntimeProj/ToolsRuntime/hunspell/lib/{}/libhunspell.dll']
-        
+                              'ToolsRuntimeProj/ToolsRuntime/hunspell/lib/{}/libhunspell.dll',
+                              'ToolsRuntimeProj/ToolsRuntime/installerfiles/libcrypto-1_1.dll',
+                              'ToolsRuntimeProj/ToolsRuntime/installerfiles/libssl-1_1.dll']
+
         self.__styles = ['ToolsRuntimeProj/WindowsModernStyle/{}/WindowsModernStyle.dll']
         self.__syntaxhighlighter = []
         #['RsWorkTools/ToolsRuntime/syntaxhighlighter/Default.json',
