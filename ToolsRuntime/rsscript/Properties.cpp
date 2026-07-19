@@ -19,6 +19,9 @@
 #include <QLibrary>
 #include <QMetaType>
 #include <QRect>
+#include <QJsonObject>
+#include <QJsonValue>
+#include "rsl/idebug.h"
 
 Q_GLOBAL_STATIC_WITH_ARGS(QLibrary, RSScriptLib, ("RSScript"))
 
@@ -258,6 +261,29 @@ QVariant SetFromRslValue(void *value, bool isStringListProp)
                     result = GetPointRsl(val->value.obj);
                 else if (IsByteArrayRsl(val->value.obj))
                     result = GetByteArrayRsl(val->value.obj);
+                else
+                {
+                    // Неизвестный/незарегистрированный класс RSL преобразуем в QJsonObject,
+                    // перебирая его свойства через итератор отладчика RSL.
+                    QJsonObject obj;
+                    TRslValueInfo data;
+
+                    if (RslInitPropsIter(P_GOBJ(val->value.obj), &data) > 0)
+                    {
+                        int curNum = 0;
+                        while (RslGetValueInfo(&data, curNum++))
+                        {
+                            if (data.name && data.val)
+                            {
+                                QVariant propVal = SetFromRslValue(data.val);
+                                obj.insert(codec->toUnicode(data.name), QJsonValue::fromVariant(propVal));
+                            }
+                        }
+                    }
+
+                    RslFreeValueInfo(&data);
+                    result = QVariant::fromValue(obj);
+                }
             }
         }
     }

@@ -55,7 +55,8 @@ Qt::HANDLE CreatePointRsl(const QPoint &pt)
 
 bool IsPointRsl(Qt::HANDLE obj)
 {
-    return _LibRslGetUniClass(obj) == _LibRslFindUniClass("QPoint");
+    TGenClass *cls = (TGenClass*)_LibRslFindUniClass("QPoint");
+    return cls && _LibRslGetUniClass(obj) == cls;
 }
 
 QPoint GetPointRsl(Qt::HANDLE obj)

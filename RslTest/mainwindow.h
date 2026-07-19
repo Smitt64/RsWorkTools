@@ -134,9 +134,25 @@ private:
     QVariantList _VariantList;
 };
 
+#include "rslexecutor.h"
+
 class CodeEditor;
 class QSignalSpy;
 class QCloseEvent;
+
+class JsonTestExecutor : public RslExecutor
+{
+    Q_OBJECT
+public:
+    JsonTestExecutor(QWidget *parent = nullptr);
+
+protected:
+    void PlayRepProc() override;
+
+private:
+    QWidget *m_parent;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -153,6 +169,7 @@ private slots:
     void testSlot();
     void TestMultyProgress();
     void TestErrorsDlg();
+    void testJsonObject();
 
 private:
     Ui::MainWindow *ui;
