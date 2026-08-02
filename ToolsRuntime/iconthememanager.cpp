@@ -8,6 +8,12 @@
 // Основной метод инициализации темы иконок
 void IconThemeManager::initialize(const QString& themeName)
 {
+    // Без экземпляра QApplication applicationDirPath() пуст, и пути к иконкам
+    // резолвятся только относительно рабочего каталога
+    if (!QCoreApplication::instance())
+        qWarning("IconThemeManager::initialize() вызван до создания QApplication - "
+                 "тема иконок может не найтись при запуске из другого каталога");
+
     QStringList paths = getIconSearchPaths();
     QIcon::setThemeSearchPaths(paths);
     QIcon::setThemeName(themeName);

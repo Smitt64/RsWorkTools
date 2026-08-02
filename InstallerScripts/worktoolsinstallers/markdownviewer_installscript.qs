@@ -15,8 +15,12 @@ Component.prototype.createOperations = function()
         // скрипт новой версии заново, поэтому регистрация обновляется вместе с exe.
         // Без прав администратора запись идёт в HKCU\Software\Classes (текущий
         // пользователь), с правами администратора - в HKLM\Software\Classes.
-        var command = "@TargetDir@\\MarkdownViewer.exe \"%1\"";
-        var icon = "@TargetDir@\\markdown-file-icon.ico";
+        // ВАЖНО: @TargetDir@ раскрывается с прямыми слэшами - ShellExecute
+        // не разбирает такую команду ("отказано в доступе" при открытии
+        // файла). Путь к exe нормализуем к обратным слэшам и берём в кавычки.
+        var targetDir = installer.value("TargetDir").replace(/\//g, "\\");
+        var command = "\"" + targetDir + "\\MarkdownViewer.exe\" \"%1\"";
+        var icon = targetDir + "\\markdown-file-icon.ico";
         var progId = "ProgId=RsWorkTools.MarkdownViewer";
 
         component.addOperation("RegisterFileType", "md", command,

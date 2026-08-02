@@ -19,6 +19,8 @@ class WorkLbrMainPackage(InstallerPackageInfoBase):
         self.Description = 'WorkLbR – утилита, предоставляющая интерфейсный создания ресурсов программы'
         self.Name = 'com.rs.lbr.worklbr'
         self.ReleaseDate = today.strftime("%Y-%m-%d")
+        # Скрипт компонента (регистрация ассоциации *.lbr), лежит в meta
+        self.Script = 'installscript.qs'
 
         self.Dependencies.append('com.rs.tools.runtime')
         self.Dependencies.append('com.rs.qt.runtime')
@@ -35,6 +37,20 @@ class WorkLbrMainPackage(InstallerPackageInfoBase):
         src_icons = os.path.join(fmtdir, 'RsResEditor', 'res', 'icons')
         dst_icons = os.path.join(self.DataPath, 'resources', 'icons')
         self.copyOverwrite(src_icons, dst_icons)
+
+        # Скрипт компонента (регистрация ассоциации *.lbr) кладётся в meta,
+        # package.xml ссылается на него через элемент Script
+        src_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                  'worklbr_installscript.qs')
+        copyfile(src_script, os.path.join(self.MetaPath, 'installscript.qs'))
+
+        # Файловая иконка для ассоциации *.lbr (используется в installscript.qs),
+        # устанавливается рядом с exe
+        src_fileicon = os.path.join(fmtdir, 'RsResEditor', 'res', 'lbr-file-icon.ico')
+        if os.path.exists(src_fileicon):
+            copyfile(src_fileicon, os.path.join(self.DataPath, 'lbr-file-icon.ico'))
+        else:
+            print('Warning: lbr-file-icon.ico not found: ' + src_fileicon)
 
     def getVersion(self):
         try:
