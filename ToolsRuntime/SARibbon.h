@@ -1356,9 +1356,9 @@ public:
 				   Qt::ToolButtonStyle buttonStyle          = Qt::ToolButtonIconOnly,
 				   QToolButton::ToolButtonPopupMode popMode = QToolButton::DelayedPopup);
 	void addWidget(QWidget* w);
-	void addMenu(QMenu* m,
-				 Qt::ToolButtonStyle buttonStyle          = Qt::ToolButtonIconOnly,
-				 QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
+	QAction* addMenu(QMenu* m,
+					 Qt::ToolButtonStyle buttonStyle          = Qt::ToolButtonIconOnly,
+					 QToolButton::ToolButtonPopupMode popMode = QToolButton::InstantPopup);
 	// 获取内部管理的ButtonGroupWidget
 	SARibbonButtonGroupWidget* buttonGroupWidget();
 	const SARibbonButtonGroupWidget* buttonGroupWidget() const;

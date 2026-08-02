@@ -7,6 +7,11 @@
 #include "markdownsettings.h"
 
 #include <QMainWindow>
+#include <QStringList>
+
+// Ключ локального сервера single-instance: второй процесс передаёт пути
+// к файлам уже запущенному экземпляру через QLocalSocket (см. main.cpp)
+inline const QString kSingleInstanceKey = QStringLiteral("RsWorkTools.MarkdownViewer.SingleInstance");
 
 class QMdiArea;
 class QMdiSubWindow;
@@ -21,6 +26,9 @@ class QDockWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QStatusBar;
+class QComboBox;
+class QMenu;
+class QLocalServer;
 
 class MainWindow : public SARibbonMainWindow
 {
@@ -35,6 +43,7 @@ public slots:
 private slots:
     void onOpenDocument();
     void onSaveDocument();
+    void onReloadDocument();
     void onCloseActiveDocument();
     void onCloseAllDocuments();
     void onToggleFullscreen();
@@ -49,10 +58,15 @@ private:
     void initMdiArea();
     void initApplicationWidget();
     void initWindowButtonBar();
+    void initQuickAccessBar();
     void initOutlineDock();
     void initStatusBar();
+    void initSingleInstanceServer();
     void updateOutline();
     void updateStatusBar();
+    void refreshWindowsCombo();
+    void rebuildRecentFilesMenu();
+    void addToRecentFiles(const QString &filePath);
     void loadSettings();
     void saveSettings();
     void applySettingsToAllViews();
@@ -71,6 +85,10 @@ private:
     QDockWidget *m_outlineDock;
     QTreeWidget *m_outlineTree;
     QStatusBar *m_statusBar;
+    QComboBox *m_windowsCombo;
+    QMenu *m_recentFilesMenu;
+    QStringList m_recentFiles;
+    QLocalServer *m_singleInstanceServer;
     MarkdownSettings m_markdownSettings;
 };
 

@@ -7352,9 +7352,9 @@ void SARibbonQuickAccessBar::addWidget(QWidget* w)
 	d_ptr->mGroupWidget->addWidget(w);
 }
 
-void SARibbonQuickAccessBar::addMenu(QMenu* m, Qt::ToolButtonStyle buttonStyle, QToolButton::ToolButtonPopupMode popMode)
+QAction* SARibbonQuickAccessBar::addMenu(QMenu* m, Qt::ToolButtonStyle buttonStyle, QToolButton::ToolButtonPopupMode popMode)
 {
-	d_ptr->mGroupWidget->addMenu(m, buttonStyle, popMode);
+	return d_ptr->mGroupWidget->addMenu(m, buttonStyle, popMode);
 }
 
 /**
