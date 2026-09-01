@@ -232,6 +232,22 @@ SARibbonControlButton:hover {
   background-color: #E8E9F9;
 }
 
+/* Кнопка с боковой стрелкой меню (свойство sideMenuArrow):
+   расширяем кнопку padding'ом справа, стрелку рисуем в этой области,
+   чтобы она не перекрывала иконку */
+SARibbonControlButton[sideMenuArrow="true"] {
+  padding-right: 16px;
+}
+
+SARibbonControlButton[sideMenuArrow="true"]::menu-indicator {
+  image: url(:/SARibbon/image/resource/ArrowDown.png);
+  subcontrol-position: right center;
+  subcontrol-origin: padding;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+}
+
 SARibbonGalleryButton {
   border: 1px solid #E8E9F9;
 }

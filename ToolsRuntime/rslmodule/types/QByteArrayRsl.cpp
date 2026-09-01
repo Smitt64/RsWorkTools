@@ -80,7 +80,8 @@ Qt::HANDLE CreateByteArrayRsl(const QByteArray &pt)
 
 bool IsByteArrayRsl(Qt::HANDLE obj)
 {
-    return _LibRslGetUniClass(obj) == _LibRslFindUniClass("QByteArray");
+    TGenClass *cls = (TGenClass*)_LibRslFindUniClass("QByteArray");
+    return cls && _LibRslGetUniClass(obj) == cls;
 }
 
 QByteArray GetByteArrayRsl(Qt::HANDLE obj)

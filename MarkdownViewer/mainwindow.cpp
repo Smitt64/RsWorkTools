@@ -10,27 +10,35 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QComboBox>
 #include <QDebug>
 #include <QDockWidget>
 #include <QDir>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileDialog>
+#include <QLayout>
 #include <QMenu>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPointer>
 #include <QProcess>
 #include <QSettings>
+#include <QSharedPointer>
 #include <QShowEvent>
+#include <QSignalBlocker>
 #include <QTabBar>
+#include <QTimer>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QUrl>
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -40,6 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     , m_optionsPage(nullptr)
     , m_settings(nullptr)
     , m_statusBar(nullptr)
+    , m_windowsCombo(nullptr)
+    , m_recentFilesMenu(nullptr)
+    , m_singleInstanceServer(nullptr)
 {
     setWindowTitle(tr("Просмотр Markdown"));
     setWindowIcon(QIcon(QStringLiteral(":/markdownviewer/app-icon.svg")));
@@ -51,9 +62,11 @@ MainWindow::MainWindow(QWidget *parent)
     initMdiArea();
     initOutlineDock();
     initRibbon();
+    initQuickAccessBar();
     initWindowButtonBar();
     initApplicationWidget();
     initStatusBar();
+    initSingleInstanceServer();
     loadSettings();
 }
 
@@ -168,6 +181,14 @@ void MainWindow::initRibbon()
     addAction(actSave);
     toolAddActionWithTooltip(actSave, tr("Сохранить документ в HTML или PDF"), QKeySequence::Save);
 
+    QAction *actReload = new QAction(QIcon::fromTheme("Refresh"), tr("Обновить"), this);
+    actReload->setObjectName("actReload");
+    actReload->setShortcut(QKeySequence::Refresh);
+    connect(actReload, &QAction::triggered, this, &MainWindow::onReloadDocument);
+    panelFile->addLargeAction(actReload);
+    addAction(actReload);
+    toolAddActionWithTooltip(actReload, tr("Перечитать файл с диска и обновить отображение"), QKeySequence::Refresh);
+
     QAction *actFind = new QAction(QIcon::fromTheme("ListBoxSearch"), tr("Найти"), this);
     actFind->setObjectName("actFind");
     actFind->setShortcut(QKeySequence::Find);
@@ -224,11 +245,170 @@ void MainWindow::initRibbon()
     toolAddActionWithTooltip(actOutline, tr("Показать или скрыть панель структуры документа"), QKeySequence(tr("F7")));
 }
 
+void MainWindow::initQuickAccessBar()
+{
+    SARibbonQuickAccessBar *quickAccessBar = ribbonBar()->quickAccessBar();
+    if (!quickAccessBar)
+        return;
+
+    // Выпадающее меню с историей последних файлов (хранится 10 записей)
+    m_recentFilesMenu = new QMenu(tr("Недавние файлы"), this);
+    m_recentFilesMenu->setIcon(QIcon::fromTheme("History"));
+    toolAddActionWithTooltip(m_recentFilesMenu, tr("Список последних открытых файлов"));
+
+    QAction *recentMenuAction = quickAccessBar->addMenu(m_recentFilesMenu, Qt::ToolButtonIconOnly, QToolButton::InstantPopup);
+
+    // Стрелка меню сбоку от иконки, а не поверх неё (см. theme-office2013-indigo.qss)
+    if (SARibbonControlButton *btn = quickAccessBar->buttonGroupWidget()->actionToRibbonControlToolButton(recentMenuAction))
+    {
+        btn->setProperty("sideMenuArrow", true);
+        btn->style()->unpolish(btn);
+        btn->style()->polish(btn);
+    }
+}
+
+void MainWindow::addToRecentFiles(const QString &filePath)
+{
+    const QString cleanPath = QDir::cleanPath(QFileInfo(filePath).absoluteFilePath());
+
+    // Дубликаты убираем без учёта регистра (Windows), новая запись - в начало
+    for (int i = m_recentFiles.size() - 1; i >= 0; --i)
+    {
+        if (m_recentFiles.at(i).compare(cleanPath, Qt::CaseInsensitive) == 0)
+            m_recentFiles.removeAt(i);
+    }
+
+    m_recentFiles.prepend(cleanPath);
+    while (m_recentFiles.size() > 10)
+        m_recentFiles.removeLast();
+
+    if (m_settings)
+    {
+        m_settings->setValue("RecentFiles", m_recentFiles);
+        m_settings->sync();
+    }
+
+    rebuildRecentFilesMenu();
+}
+
+void MainWindow::rebuildRecentFilesMenu()
+{
+    if (!m_recentFilesMenu)
+        return;
+
+    m_recentFilesMenu->clear();
+
+    if (m_recentFiles.isEmpty())
+    {
+        QAction *emptyAction = m_recentFilesMenu->addAction(tr("Нет недавних файлов"));
+        emptyAction->setEnabled(false);
+        return;
+    }
+
+    for (const QString &path : m_recentFiles)
+    {
+        const QFileInfo fi(path);
+        QAction *action = m_recentFilesMenu->addAction(QIcon::fromTheme("MarkdownFile"), fi.fileName());
+        action->setToolTip(QDir::toNativeSeparators(path));
+        action->setData(path);
+
+        connect(action, &QAction::triggered, this, [this, path]()
+        {
+            if (QFileInfo::exists(path))
+            {
+                openFile(path);
+            }
+            else
+            {
+                statusBar()->showMessage(tr("Файл не найден: %1").arg(QDir::toNativeSeparators(path)), 5000);
+
+                // Файл удалён с диска - убираем его из истории
+                for (int i = m_recentFiles.size() - 1; i >= 0; --i)
+                {
+                    if (m_recentFiles.at(i).compare(path, Qt::CaseInsensitive) == 0)
+                        m_recentFiles.removeAt(i);
+                }
+
+                if (m_settings)
+                {
+                    m_settings->setValue("RecentFiles", m_recentFiles);
+                    m_settings->sync();
+                }
+
+                rebuildRecentFilesMenu();
+            }
+        });
+    }
+
+    m_recentFilesMenu->addSeparator();
+    QAction *clearAction = m_recentFilesMenu->addAction(QIcon::fromTheme("CleanData"), tr("Очистить список"));
+    connect(clearAction, &QAction::triggered, this, [this]()
+    {
+        m_recentFiles.clear();
+
+        if (m_settings)
+        {
+            m_settings->setValue("RecentFiles", m_recentFiles);
+            m_settings->sync();
+        }
+
+        rebuildRecentFilesMenu();
+    });
+}
+
 void MainWindow::initWindowButtonBar()
 {
     SARibbonSystemButtonBar *wbar = windowButtonBar();
     if (!wbar)
         return;
+
+    // Отступы у группы кнопок, чтобы подсветка при наведении
+    // не заезжала на границу окна (QSS margin тут не срабатывает)
+    if (QWidget *group = wbar->findChild<QWidget *>(QStringLiteral("SASystemButtonGroup")))
+    {
+        if (QLayout *groupLayout = group->layout())
+            groupLayout->setContentsMargins(0, 3, 0, 3);
+    }
+
+    // Кнопки закрытия окон (перед списком открытых файлов)
+    QAction *closeCurrentAction = new QAction(QIcon::fromTheme("CloseWindow"), tr("Закрыть текущее окно"), this);
+    closeCurrentAction->setObjectName("actCloseCurrentWindow");
+    connect(closeCurrentAction, &QAction::triggered, this, [this]()
+    {
+        if (QMdiSubWindow *active = m_mdiArea->activeSubWindow())
+            active->close();
+    });
+    toolAddActionWithTooltip(closeCurrentAction, tr("Закрыть активное окно с документом"));
+
+    QAction *closeAllAction = new QAction(QIcon::fromTheme("CloseAllWindows"), tr("Закрыть все окна"), this);
+    closeAllAction->setObjectName("actCloseAllWindows");
+    connect(closeAllAction, &QAction::triggered, m_mdiArea, &QMdiArea::closeAllSubWindows);
+    toolAddActionWithTooltip(closeAllAction, tr("Закрыть все открытые окна с документами"));
+
+    wbar->addAction(closeCurrentAction);
+    wbar->addAction(closeAllAction);
+
+    // Список открытых файлов
+    m_windowsCombo = new QComboBox(this);
+    m_windowsCombo->setObjectName("windowsCombo");
+    m_windowsCombo->setMinimumWidth(250);
+    m_windowsCombo->setMaxVisibleItems(15);
+    toolAddActionWithTooltip(m_windowsCombo, tr("Переключение между открытыми документами"));
+
+    connect(m_windowsCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int index)
+    {
+        QPointer<QMdiSubWindow> wnd = m_windowsCombo->itemData(index).value<QPointer<QMdiSubWindow>>();
+        if (wnd)
+            m_mdiArea->setActiveSubWindow(wnd);
+    });
+
+    // При переключении вкладок синхронизируем список (перестроение дёшево,
+    // заодно подхватывает изменение заголовков окон)
+    connect(m_mdiArea, &QMdiArea::subWindowActivated,
+            this, &MainWindow::refreshWindowsCombo);
+
+    wbar->addWidget(m_windowsCombo);
+    wbar->addSeparator();
 
     QAction *actAbout = new QAction(QIcon::fromTheme("HelpApplication"), tr("О программе"), this);
     actAbout->setObjectName("actAbout");
@@ -237,6 +417,26 @@ void MainWindow::initWindowButtonBar()
     wbar->addAction(actAbout);
     wbar->addSeparator();
     toolAddActionWithTooltip(actAbout, tr("Показать информацию о программе"));
+}
+
+void MainWindow::refreshWindowsCombo()
+{
+    if (!m_windowsCombo)
+        return;
+
+    QSignalBlocker blocker(m_windowsCombo);
+    m_windowsCombo->clear();
+
+    QMdiSubWindow *active = m_mdiArea->activeSubWindow();
+    const QList<QMdiSubWindow *> windows = m_mdiArea->subWindowList();
+    for (QMdiSubWindow *subWindow : windows)
+    {
+        m_windowsCombo->addItem(subWindow->windowIcon(), subWindow->windowTitle(),
+                                QVariant::fromValue(QPointer<QMdiSubWindow>(subWindow)));
+
+        if (subWindow == active)
+            m_windowsCombo->setCurrentIndex(m_windowsCombo->count() - 1);
+    }
 }
 
 void MainWindow::initApplicationWidget()
@@ -375,6 +575,12 @@ void MainWindow::loadSettings()
     m_markdownSettings.githubMode = m_settings->value("githubMode", m_markdownSettings.githubMode).toString();
     m_settings->endGroup();
 
+    // История последних файлов (не более 10 записей)
+    m_recentFiles = m_settings->value("RecentFiles").toStringList();
+    while (m_recentFiles.size() > 10)
+        m_recentFiles.removeLast();
+    rebuildRecentFilesMenu();
+
     if (m_optionsPage)
         m_optionsPage->setMarkdownSettings(m_markdownSettings);
 }
@@ -490,12 +696,21 @@ MarkdownView *MainWindow::createMarkdownView(const QString &filePath)
     QMdiSubWindow *subWindow = m_mdiArea->addSubWindow(view);
     subWindow->setAttribute(Qt::WA_DeleteOnClose);
 
+    // При закрытии окна обновляем список открытых файлов (отложенно,
+    // на момент destroyed окно ещё присутствует в subWindowList)
+    connect(subWindow, &QMdiSubWindow::destroyed, this, [this]()
+    {
+        QTimer::singleShot(0, this, &MainWindow::refreshWindowsCombo);
+    });
+
     QString title = view->documentTitle();
     if (title.isEmpty())
         title = filePath.isEmpty() ? tr("Новый документ") : QFileInfo(filePath).fileName();
     subWindow->setWindowTitle(title);
     subWindow->setWindowIcon(QIcon::fromTheme("MarkdownFile"));
     subWindow->showMaximized();
+
+    refreshWindowsCombo();
 
     return view;
 }
@@ -513,6 +728,55 @@ QMdiSubWindow *MainWindow::findSubWindow(const QString &filePath) const
             return subWindow;
     }
     return nullptr;
+}
+
+void MainWindow::initSingleInstanceServer()
+{
+    // Локальный сервер single-instance: второй процесс подключается сюда
+    // и передаёт пути к файлам (см. main.cpp), мы открываем их во вкладках
+    m_singleInstanceServer = new QLocalServer(this);
+
+    // На случай "зависшего" сервера после аварийного завершения
+    QLocalServer::removeServer(kSingleInstanceKey);
+
+    if (!m_singleInstanceServer->listen(kSingleInstanceKey))
+    {
+        qWarning() << "Failed to start single-instance server:"
+                   << m_singleInstanceServer->errorString();
+        return;
+    }
+
+    connect(m_singleInstanceServer, &QLocalServer::newConnection, this, [this]()
+    {
+        while (QLocalSocket *client = m_singleInstanceServer->nextPendingConnection())
+        {
+            // Данные могут прийти несколькими порциями - накапливаем в буфер
+            QSharedPointer<QByteArray> buffer(new QByteArray);
+
+            connect(client, &QLocalSocket::readyRead, this, [client, buffer]()
+            {
+                buffer->append(client->readAll());
+            });
+
+            connect(client, &QLocalSocket::disconnected, this, [this, client, buffer]()
+            {
+                const QStringList paths = QString::fromUtf8(*buffer).split('\n', Qt::SkipEmptyParts);
+                for (const QString &path : paths)
+                {
+                    const QString trimmed = path.trimmed();
+                    if (!trimmed.isEmpty() && QFileInfo::exists(trimmed))
+                        openFile(trimmed);
+                }
+
+                client->deleteLater();
+
+                // Поднимаем окно на передний план
+                setWindowState(windowState() & ~Qt::WindowMinimized);
+                raise();
+                activateWindow();
+            });
+        }
+    });
 }
 
 void MainWindow::onOpenDocument()
@@ -542,7 +806,10 @@ void MainWindow::openFile(const QString &filePath)
 
     MarkdownView *view = createMarkdownView(filePath);
     if (view)
+    {
+        addToRecentFiles(filePath);
         view->setFocus();
+    }
 }
 
 void MainWindow::onSaveDocument()
@@ -601,6 +868,34 @@ void MainWindow::onSaveDocument()
 
     if (!ok)
         QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось сохранить файл:\n%1").arg(filePath));
+}
+
+void MainWindow::onReloadDocument()
+{
+    QMdiSubWindow *active = m_mdiArea->activeSubWindow();
+    if (!active)
+        return;
+
+    MarkdownView *view = qobject_cast<MarkdownView *>(active->widget());
+    if (!view)
+        return;
+
+    const QString filePath = view->filePath();
+    if (filePath.isEmpty())
+    {
+        statusBar()->showMessage(tr("Документ не связан с файлом, обновлять нечего"), 5000);
+        return;
+    }
+
+    if (!view->loadFromFile(filePath))
+    {
+        statusBar()->showMessage(tr("Не удалось перечитать файл: %1").arg(filePath), 5000);
+        return;
+    }
+
+    // Содержимое могло измениться - обновляем структуру и статусную строку
+    updateOutline();
+    updateStatusBar();
 }
 
 void MainWindow::onCloseActiveDocument()

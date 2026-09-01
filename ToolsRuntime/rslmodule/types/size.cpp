@@ -53,7 +53,8 @@ Qt::HANDLE CreateSizeRsl(const QSize &sz)
 
 bool IsSizeRsl(Qt::HANDLE obj)
 {
-    return _LibRslGetUniClass(obj) == _LibRslFindUniClass("QSize");
+    TGenClass *cls = (TGenClass*)_LibRslFindUniClass("QSize");
+    return cls && _LibRslGetUniClass(obj) == cls;
 }
 
 QSize GetSizeRsl(Qt::HANDLE obj)

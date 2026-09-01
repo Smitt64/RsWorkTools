@@ -3,6 +3,8 @@ QT += core gui widgets network webengine webenginewidgets
 TARGET = MarkdownViewer
 TEMPLATE = app
 
+include(../../configtools.pri)
+
 CONFIG += c++17
 
 SOURCES += \

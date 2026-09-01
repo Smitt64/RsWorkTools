@@ -112,7 +112,8 @@ Qt::HANDLE CreateRectRsl(const QRect &rect)
 
 bool IsRectRsl(Qt::HANDLE obj)
 {
-    return _LibRslGetUniClass(obj) == _LibRslFindUniClass("QRect");
+    TGenClass *cls = (TGenClass*)_LibRslFindUniClass("QRect");
+    return cls && _LibRslGetUniClass(obj) == cls;
 }
 
 QRect GetRectRsl(Qt::HANDLE obj)

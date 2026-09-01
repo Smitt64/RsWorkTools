@@ -19,6 +19,7 @@
 #include <QSslSocket>
 #include <QTextDocument>
 #include <QTextStream>
+#include <QTimer>
 #include <QDateTime>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -46,8 +47,6 @@ namespace
         html += cssLink;
         html += QStringLiteral("<style>"
                                "body { margin: 0; background-color: #ffffff; }"
-                               ".markdown-body { box-sizing: border-box; min-width: 200px; max-width: 980px; margin: 0 auto; padding: 45px; }"
-                               "@media (max-width: 767px) { .markdown-body { padding: 15px; } }"
                                "</style>"
                                "</head>"
                                "<body>"
@@ -171,7 +170,13 @@ void MarkdownView::renderMarkdown(const QString &text)
 
     if (m_settings.renderer == MarkdownSettings::LocalQt)
     {
-        renderMarkdownLocal(text);
+        // Локальный рендер мгновенный: откладываем его на короткий таймер,
+        // чтобы страница ожидания успела отрисовать хотя бы один кадр,
+        // иначе setHtml результата отменяет её загрузку до первого показа
+        QTimer::singleShot(100, this, [this, text]()
+        {
+            renderMarkdownLocal(text);
+        });
         return;
     }
 
@@ -215,7 +220,12 @@ void MarkdownView::onRenderFinished()
     if (reply->error() != QNetworkReply::NoError)
     {
         qWarning() << "GitHub API request failed:" << reply->errorString();
-        renderMarkdownLocal(m_markdownSource);
+        // Запрос мог завершиться ошибкой мгновенно (например, нет SSL) -
+        // даём странице ожидания отрисоваться перед локальным рендером
+        QTimer::singleShot(100, this, [this]()
+        {
+            renderMarkdownLocal(m_markdownSource);
+        });
         return;
     }
 
@@ -225,7 +235,10 @@ void MarkdownView::onRenderFinished()
     if (html.isEmpty())
     {
         qWarning() << "GitHub API returned empty HTML, falling back to local renderer";
-        renderMarkdownLocal(m_markdownSource);
+        QTimer::singleShot(100, this, [this]()
+        {
+            renderMarkdownLocal(m_markdownSource);
+        });
         return;
     }
 

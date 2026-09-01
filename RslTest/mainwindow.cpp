@@ -35,6 +35,13 @@
 #include "toolsqlconverter.h"
 #include "errordlg.h"
 #include "errorsmodel.h"
+#include <QDialog>
+#include <QPlainTextEdit>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMessageBox>
 
 //QSettings *pSettings;
 Q_GLOBAL_STATIC_WITH_ARGS(QSettings, pSettings, ("RslTest.ini", QSettings::IniFormat));
@@ -74,6 +81,44 @@ protected:
     }
 };
 
+JsonTestExecutor::JsonTestExecutor(QWidget *parent)
+    : RslExecutor(parent)
+    , m_parent(parent)
+{
+}
+
+void JsonTestExecutor::PlayRepProc()
+{
+    QVariant result = call("CreateJsonTestObject", QVariantList());
+    qDebug() << "PlayRepProc" << result;
+    if (!result.isValid() || result.isNull())
+    {
+        QMessageBox::warning(m_parent, "Ошибка",
+                             "Не удалось получить результат от CreateJsonTestObject");
+        return;
+    }
+
+    QJsonObject obj = result.toJsonObject();
+    QJsonDocument doc(obj);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+
+    QDialog dlg(m_parent);
+    dlg.setWindowTitle("JSON объект из RSL");
+    dlg.resize(700, 500);
+
+    QVBoxLayout layout(&dlg);
+    QPlainTextEdit edit(&dlg);
+    edit.setPlainText(jsonString);
+    edit.setReadOnly(true);
+    layout.addWidget(&edit);
+
+    QPushButton btn("OK", &dlg);
+    connect(&btn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    layout.addWidget(&btn);
+
+    dlg.exec();
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -92,6 +137,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QAction *exec = ui->toolBar->addAction("Выполнить");
     exec->setObjectName("actionElementExec");
+
+    QAction *testJsonAction = ui->toolBar->addAction("Тест JSON");
+    testJsonAction->setObjectName("actionTestJsonObject");
 
     QDockWidget *doc = new QDockWidget("Errors");
 
@@ -135,6 +183,7 @@ MainWindow::MainWindow(QWidget *parent)
     RegisterObjList::inst()->addStaticModule<TestModule, name>(new TestModule());
 
     connect(exec, &QAction::triggered, this, &MainWindow::on_pushButton_clicked);
+    connect(testJsonAction, &QAction::triggered, this, &MainWindow::testJsonObject);
     connect(ui->actionTest_errors_dlg, &QAction::triggered, this, &MainWindow::TestErrorsDlg);
 
     connect(ui->actionOptions, &QAction::triggered, [=]()
@@ -171,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionDoubleProgressDialog, &QAction::triggered, this, &MainWindow::TestMultyProgress);
     ui->menu->insertAction(nullptr, exec);
+    ui->menu->insertAction(nullptr, testJsonAction);
 
     RslExecutor *executor = new RslExecutor();
     windowActionsRegistry()->scanActions(ui->menu);
@@ -253,6 +303,21 @@ void MainWindow::on_pushButton_clicked()
     m.addState(s2);*/
     //connect(obj, SIGNAL(testSignal(int)), SLOT(testSlot()));
     //emit obj->testSignal(10);
+}
+
+void MainWindow::testJsonObject()
+{
+    JsonTestExecutor exec(this);
+
+    connect(&exec, &RslExecutor::WriteOut, [](const QString &str)
+    {
+        qDebug() << str;
+    });
+
+    exec.setDebugMacroFlag(true);
+    exec.playRep("JsonTest.mac", "1.txt");
+
+    m_Errors.setStringList(exec.errors());
 }
 
 void MainWindow::testSlot()
