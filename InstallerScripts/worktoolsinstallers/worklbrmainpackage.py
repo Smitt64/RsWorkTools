@@ -38,6 +38,21 @@ class WorkLbrMainPackage(InstallerPackageInfoBase):
         dst_icons = os.path.join(self.DataPath, 'resources', 'icons')
         self.copyOverwrite(src_icons, dst_icons)
 
+        # Шаблоны панелей с примерами: rsrescore ищет их в
+        # <appdir>/reseditor/templates/panels
+        # (ResTemplateRegistry::programTemplatesDir)
+        src_templates = os.path.join(fmtdir, 'rsbaseeditor', 'templates', 'panels')
+        dst_templates = os.path.join(self.DataPath, 'reseditor', 'templates', 'panels')
+        if os.path.exists(src_templates):
+            self.copyOverwrite(src_templates, dst_templates)
+
+        # Пользовательские элементы ToolBox с примерами:
+        # <appdir>/reseditor/toolbox/panels (ResTemplateRegistry::programToolBoxDir)
+        src_toolbox = os.path.join(fmtdir, 'rsbaseeditor', 'toolbox', 'panels')
+        dst_toolbox = os.path.join(self.DataPath, 'reseditor', 'toolbox', 'panels')
+        if os.path.exists(src_toolbox):
+            self.copyOverwrite(src_toolbox, dst_toolbox)
+
         # Скрипт компонента (регистрация ассоциации *.lbr) кладётся в meta,
         # package.xml ссылается на него через элемент Script
         src_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),

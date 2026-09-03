@@ -11,6 +11,7 @@ from worktoolsinstallers import rstoolsruntime
 from worktoolsinstallers import difftoscriptpackage
 from worktoolsinstallers import markdownviewerpackage
 from worktoolsinstallers import regparmtoolpackage
+from worktoolsinstallers import resmenupackage
 
 class WorkToolsInstaller(InstallCreator):
     def __init__(self):
@@ -37,6 +38,7 @@ class WorkToolsInstaller(InstallCreator):
         self.__DiffToScriptComponent = difftoscriptpackage.DiffToScriptComponent()
         self.__MarkdownViewerPackage = markdownviewerpackage.MarkdownViewerPackage()
         self.__RegparmToolComponent = regparmtoolpackage.RegparmToolComponent()
+        self.__ResMenuPackage = resmenupackage.ResMenuPackage()
 
         self.addPackage(self.__WorkFmtPackage)
         self.addPackage(self.__RsToolsBinPackage)
@@ -50,3 +52,4 @@ class WorkToolsInstaller(InstallCreator):
         self.addPackage(self.__DiffToScriptComponent)
         self.addPackage(self.__MarkdownViewerPackage)
         self.addPackage(self.__RegparmToolComponent)
+        self.addPackage(self.__ResMenuPackage)
