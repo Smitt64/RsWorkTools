@@ -256,8 +256,8 @@ void SvnStatusModel::setPathGit(const QString &path, const QString &revision)
     }
     else
     {
-        // Показываем изменения в рабочей директории (только модифицированные файлы)
-        args << "status" << "--porcelain";
+        // Показываем изменения в рабочей директории (включая незафиксированные файлы)
+        args << "status" << "--porcelain" << "--untracked-files=all";
     }
 
     toolStartProcess(&proc, "git.exe", args, true, true, 30000, true);
@@ -303,10 +303,12 @@ void SvnStatusModel::setPathGit(const QString &path, const QString &revision)
                 QString status = line.mid(0, 2).trimmed();
                 QString filePath = line.mid(3).trimmed();
 
-                // Показываем только измененные файлы (не новые, не удаленные)
-                if (status == "M" || status == "MM") // Modified
+                // Показываем измененные, добавленные и незафиксированные файлы
+                if (status == "M" || status == "MM" ||  // Modified
+                    status == "A" || status == "AM" ||  // Added
+                    status == "??")                     // Untracked
                 {
-                    element.action = "modified";
+                    element.action = gitStatusToAction(status);
                     element.path = QDir::toNativeSeparators(filePath);
                     element.fullpath = QDir::toNativeSeparators(main.absoluteFilePath(filePath));
 
