@@ -57,7 +57,10 @@ MainWindow::MainWindow(QWidget *parent)
     resize(1280, 900);
     setAcceptDrops(true);
 
-    m_settings = new QSettings(QDir::current().filePath("MarkdownViewer.ini"), QSettings::IniFormat, this);
+    // Настройки - рядом с exe, а не в рабочем каталоге: при открытии файла
+    // через ассоциацию CWD становится папкой открываемого файла
+    m_settings = new QSettings(QDir(QCoreApplication::applicationDirPath()).filePath("MarkdownViewer.ini"),
+                               QSettings::IniFormat, this);
 
     initMdiArea();
     initOutlineDock();
