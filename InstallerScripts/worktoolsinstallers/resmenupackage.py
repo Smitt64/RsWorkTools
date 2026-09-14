@@ -37,6 +37,15 @@ class ResMenuPackage(InstallerPackageInfoBase):
             dstexefile = os.path.join(dstplugindir, os.path.basename(filetocopy))
             copyfile(srcexefile, dstexefile)
 
+        # RsBankLibRes.dll ставится в корень каталога установки
+        # (рядом с WorkRes.exe), плагин загружает её динамически
+        src_installerfiles = os.path.join(fmtdir, 'ResMenu', 'installerfiles')
+        if os.path.isdir(src_installerfiles):
+            for fname in os.listdir(src_installerfiles):
+                srcfile = os.path.join(src_installerfiles, fname)
+                if os.path.isfile(srcfile):
+                    copyfile(srcfile, os.path.join(self.DataPath, fname))
+
         # Иконки плагина: при сборке копируются в bin/resources/icons,
         # в инсталлятор кладём из исходников в общую папку темы
         src_icons = os.path.join(fmtdir, 'ResMenu', 'icons')
